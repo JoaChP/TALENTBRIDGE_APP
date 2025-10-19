@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { useAuthStore } from "../stores/auth-store"
 import { useNavigate } from "react-router-dom"
-import Hello from "../components/hello"
 
 export function ProfilePage() {
   const user = useAuthStore((state) => state.user)
@@ -24,9 +23,7 @@ export function ProfilePage() {
       <div>
         <h1 className="text-3xl font-bold text-balance">Mi Perfil</h1>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">Gestiona tu información personal</p>
-        <div className="mt-3">
-          <Hello name={user.name} />
-        </div>
+      
       </div>
 
       <Card>

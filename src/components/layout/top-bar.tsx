@@ -24,7 +24,7 @@ export function TopBar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-zinc-800 dark:bg-zinc-950/95">
-      <div className="container mx-auto flex h-16 items-center gap-4 px-4">
+  <div className="container mx-auto flex h-16 items-center gap-4 px-4 lg:ml-64">
         <button
           onClick={() => navigate("/")}
           className="flex items-center gap-2 font-bold text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 rounded-lg"

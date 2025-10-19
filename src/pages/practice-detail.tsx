@@ -69,8 +69,9 @@ export function PracticeDetailPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Volver">
+        <Button variant="ghost" onClick={() => navigate(-1)} aria-label="Volver">
           <ChevronLeft className="h-5 w-5" />
+          <span className="hidden sm:inline">Volver</span>
         </Button>
         <h1 className="text-3xl font-bold text-balance">{practice.title}</h1>
       </div>

@@ -13,7 +13,7 @@ function Badge({ className, variant = "default", ...props }: BadgeProps) {
         {
           "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200": variant === "default",
           "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200": variant === "secondary",
-          "border border-zinc-300 dark:border-zinc-700": variant === "outline",
+          "border border-zinc-300 text-zinc-800 dark:border-zinc-700 dark:text-zinc-200": variant === "outline",
         },
         className,
       )}
