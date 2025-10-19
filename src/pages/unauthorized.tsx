@@ -1,11 +1,11 @@
 "use client"
 
-import { useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation"
 import { ShieldAlert } from "lucide-react"
 import { Button } from "../components/ui/button"
 
 export function UnauthorizedPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
@@ -17,7 +17,7 @@ export function UnauthorizedPage() {
         No tienes permisos para acceder a esta página. Por favor, contacta al administrador si crees que esto es un
         error.
       </p>
-      <Button onClick={() => navigate("/")}>Volver al Inicio</Button>
+      <Button onClick={() => router.push("/")}>Volver al Inicio</Button>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -66,7 +66,7 @@ export function PublishPage() {
 export default PublishPage
 
 function PublishForm() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>([])
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -136,9 +136,9 @@ function PublishForm() {
         benefits: data3.benefits,
       })
 
-      toast.success("Borrador guardado exitosamente")
+  toast.success("Borrador guardado exitosamente")
       setHasChanges(false)
-      navigate("/")
+  router.push("/")
     } catch (error) {
       toast.error("Error al guardar el borrador")
     }
@@ -178,9 +178,8 @@ function PublishForm() {
         benefits: data3.benefits,
       })
 
-      toast.success("Práctica publicada exitosamente")
       setHasChanges(false)
-      navigate("/")
+  router.push("/")
     } catch (error) {
       toast.error("Error al publicar la práctica")
     }
@@ -190,7 +189,7 @@ function PublishForm() {
     if (hasChanges) {
       setShowConfirmDialog(true)
     } else {
-      navigate(-1)
+      router.back()
     }
   }
 
@@ -425,7 +424,7 @@ function PublishForm() {
               variant="default"
               onClick={() => {
                 setShowConfirmDialog(false)
-                navigate(-1)
+                router.back()
               }}
               className="flex-1"
             >

@@ -5,14 +5,14 @@ import { Card, CardContent } from "./ui/card"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import type { Practice } from "../types"
-import { useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation"
 
 interface PracticeCardProps {
   practice: Practice
 }
 
 export function PracticeCard({ practice }: PracticeCardProps) {
-  const navigate = useNavigate()
+  const router = useRouter()
 
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
@@ -57,7 +57,7 @@ export function PracticeCard({ practice }: PracticeCardProps) {
             </div>
 
             <div className="flex gap-2 pt-2">
-              <Button className="flex-1" onClick={() => navigate(`/oferta/${practice.id}`)}>
+              <Button className="flex-1" onClick={() => router.push(`/oferta/${practice.id}`)}>
                 Ver detalles
               </Button>
               <Button variant="outline" size="icon" aria-label="Guardar práctica">

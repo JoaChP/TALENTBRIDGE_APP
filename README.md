@@ -81,72 +81,66 @@ export const api = {
       body: JSON.stringify({ email, password }),
     });
     if (!response.ok) throw new Error('Login failed');
-    return response.json();
-  },
-  // ... más métodos
-};
-\`\`\`
+    # TalentBridge
 
-2. **Actualiza el store de auth** para usar la nueva API
+    Plataforma para conectar estudiantes con prácticas profesionales.
 
-3. **Configura variables de entorno** para la URL del backend
+    ## Estado del proyecto
+    Este repo usa Next.js (app + pages hybrid) con TypeScript y TailwindCSS. El proyecto contiene una SPA interna (en `src/App.tsx`) que usa `react-router-dom` y varios componentes adaptados para ejecutarse en el cliente.
 
-### Backend Sugerido
+    > Nota: la versión actual ya pasa la compilación local (`pnpm run build`) en mi entorno.
 
-Puedes usar cualquier stack backend. Ejemplo con Node.js + Express:
+    ## Requisitos locales
+    - Node.js >= 18 (recomendado)
+    - pnpm (usa `pnpm install` y `pnpm run ...`)
 
-\`\`\`javascript
-// Node.js + Express + PostgreSQL/MongoDB/MariaDB
-app.post('/api/auth/login', async (req, res) => {
-  const { email, password } = req.body;
-  // Validar credenciales
-  // Generar JWT
-  // Retornar usuario y token
-});
-\`\`\`
+    ## Comandos útiles
+    ```powershell
+    pnpm install
+    pnpm dev      # iniciar dev server (next dev)
+    pnpm run build
+    pnpm start    # iniciar servidor de producción (next start)
+    pnpm tsc --noEmit
+    ```
 
-## 🎨 Personalización
+    ## Variables de entorno
+    Si conectas la app a un backend real, añade variables en `.env` o en Vercel (Settings > Environment Variables).
+    - `NEXT_PUBLIC_API_URL` — URL pública del API (opcional)
+    - `API_KEY` / otros secretos — configúralos en Vercel como variables de entorno no públicas
 
-### Colores
-Edita `src/index.css` para cambiar el tema:
+    ## Notas sobre la arquitectura
+    - Next.js maneja las rutas principales. Algunas partes internas (la SPA bajo `src/App.tsx`) se cargan únicamente en el cliente mediante un wrapper (`src/components/next-app-client.tsx`) que usa `dynamic(..., { ssr: false })`.
+    - Evita importar módulos que accedan a `window`/`document` desde componentes server-rendered. Los componentes que usan APIs de navegador deben ser "client components" (añadir `"use client"` arriba) o importados dinámicamente con `ssr: false`.
 
-\`\`\`css
-@theme inline {
-  --color-primary: #4f46e5; /* Cambia el color primario */
-  /* ... más colores */
-}
-\`\`\`
+    ## Despliegue en Vercel (guía rápida)
+    1. Conecta tu repositorio a Vercel (Import Project).
+    2. Ajustes de Build:
+       - Install Command: `pnpm install`
+       - Build Command: `pnpm run build`
+       - Output Directory: dejar vacío (Next.js detectado automáticamente)
+    3. En Settings -> General, fija la versión de Node si deseas (por ejemplo `18` o `20`).
+    4. Environment Variables: añade las variables necesarias (por ejemplo `NEXT_PUBLIC_API_URL`).
+    5. Asegúrate de haber commiteado el `pnpm-lock.yaml` y cualquier archivo de aprobaciones (`pnpm-workspace.yaml` si aplica) para que Vercel use pnpm sin interacción.
+    6. Despliega y revisa los Build Logs. Si aparece un error de prerender relacionado con `useNavigate` o `document is not defined`, copia la traza y corrige las importaciones que ejecutan código cliente en el servidor.
 
-### Componentes
-Todos los componentes UI están en `src/components/ui/` y pueden personalizarse.
+    ## Verificación post-deploy
+    - Revisa la URL de despliegue en Vercel.
+    - Comprueba la consola del navegador para errores JS.
+    - En Vercel, revisa `Functions` / `Serverless` logs o Logs de despliegue si hay errores.
 
-## ♿ Accesibilidad
+    ## Qué hice para ayudar al despliegue
+    - Aprobé y commité cambios relacionados con `pnpm approve-builds` para evitar prompts en CI.
+    - Reemplacé varias importaciones de `react-router-dom` en componentes de layout por `next/link` y `next/navigation` para evitar errores de prerender.
+    - Añadí un wrapper cliente para cargar la SPA interna sin SSR.
 
-- Navegación por teclado completa
-- ARIA labels y roles
-- Contraste AA
-- Focus visible
-- Screen reader friendly
+    ## Próximos pasos sugeridos
+    - Revisar y migrar más partes que dependan de `react-router-dom` si prefieres usar exclusivamente Next routing.
+    - Arrancar `pnpm start` y probar la build localmente antes de hacer deploy en Vercel.
 
-## 📱 Responsive
+    ## Contribuir
+    Las contribuciones son bienvenidas. Abre un issue para discutir cambios mayores.
 
-- Mobile-first design
-- Tab bar en móvil
-- Sidebar en desktop
-- Breakpoints: sm (640px), md (768px), lg (1024px)
+    ---
 
-## 🧪 Testing (Opcional)
-
-Para agregar tests:
-
-\`\`\`bash
-npm install -D vitest @testing-library/react @testing-library/jest-dom
-\`\`\`
-
+    MIT
 ## 📄 Licencia
-
-MIT
-
-## 🤝 Contribuir
-
-Las contribuciones son bienvenidas. Por favor abre un issue primero para discutir los cambios.

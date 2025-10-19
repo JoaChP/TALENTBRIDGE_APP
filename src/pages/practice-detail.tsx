@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation"
 import { MapPin, Clock, Briefcase, Users, ChevronLeft } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
@@ -13,8 +13,13 @@ import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
 
 export function PracticeDetailPage() {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  // Resilient id extraction: prefer react-router in SPA, but fall back to parsing the URL
+  let id: string | undefined = undefined
+  if (typeof window !== "undefined") {
+    const parts = window.location.pathname.split("/").filter(Boolean)
+    id = parts[parts.length - 1]
+  }
+  const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const [practice, setPractice] = useState<Practice | null>(null)
   const [loading, setLoading] = useState(true)
@@ -59,7 +64,7 @@ export function PracticeDetailPage() {
     return (
       <div className="text-center">
         <p className="text-zinc-600 dark:text-zinc-400">Práctica no encontrada</p>
-        <Button className="mt-4" onClick={() => navigate("/buscar")}>
+        <Button className="mt-4" onClick={() => router.push("/buscar")}>
           Volver a búsqueda
         </Button>
       </div>
@@ -69,7 +74,7 @@ export function PracticeDetailPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => navigate(-1)} aria-label="Volver">
+  <Button variant="ghost" onClick={() => router.back()} aria-label="Volver">
           <ChevronLeft className="h-5 w-5" />
           <span className="hidden sm:inline">Volver</span>
         </Button>

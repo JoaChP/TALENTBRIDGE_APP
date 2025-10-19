@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -24,7 +25,7 @@ const registerSchema = z.object({
 type RegisterData = z.infer<typeof registerSchema>
 
 export function RegisterPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const register = useAuthStore((state) => state.register)
   const [loading, setLoading] = useState(false)
 
@@ -41,8 +42,8 @@ export function RegisterPage() {
     setLoading(true)
     try {
       await register(data.name, data.email, data.password, data.role as Role)
-      toast.success("¡Cuenta creada exitosamente!")
-      navigate("/")
+  toast.success("¡Cuenta creada exitosamente!")
+  router.push("/")
     } catch (error: any) {
       toast.error(error.message || "Error al crear la cuenta")
     } finally {
@@ -120,7 +121,7 @@ export function RegisterPage() {
 
           <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
             ¿Ya tienes cuenta?{" "}
-            <Link to="/login" className="font-medium text-indigo-600 hover:underline">
+            <Link href="/login" className="font-medium text-indigo-600 hover:underline">
               Inicia sesión
             </Link>
           </p>

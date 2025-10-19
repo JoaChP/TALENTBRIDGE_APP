@@ -1,5 +1,7 @@
-import type React from "react"
-import { Navigate } from "react-router-dom"
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useAuthStore } from "../stores/auth-store"
 import type { Role } from "../types"
 
@@ -10,10 +12,15 @@ interface RoleGateProps {
 
 export function RoleGate({ allowedRoles, children }: RoleGateProps) {
   const user = useAuthStore((state) => state.user)
+  const router = useRouter()
 
-  if (!user || !allowedRoles.includes(user.role)) {
-    return <Navigate to="/no-autorizado" replace />
-  }
+  useEffect(() => {
+    if (!user || !allowedRoles.includes(user.role)) {
+      router.push("/no-autorizado")
+    }
+  }, [user, allowedRoles, router])
+
+  if (!user || !allowedRoles.includes(user.role)) return null
 
   return <>{children}</>
 }

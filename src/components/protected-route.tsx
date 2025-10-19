@@ -1,5 +1,7 @@
-import type React from "react"
-import { Navigate } from "react-router-dom"
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useAuthStore } from "../stores/auth-store"
 
 interface ProtectedRouteProps {
@@ -8,10 +10,15 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const user = useAuthStore((state) => state.user)
+  const router = useRouter()
 
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
+  useEffect(() => {
+    if (!user) {
+      router.push("/login")
+    }
+  }, [user, router])
+
+  if (!user) return null
 
   return <>{children}</>
 }

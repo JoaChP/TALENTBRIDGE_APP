@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -20,7 +21,7 @@ const loginSchema = z.object({
 type LoginData = z.infer<typeof loginSchema>
 
 export function LoginPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const login = useAuthStore((state) => state.login)
   const [loading, setLoading] = useState(false)
 
@@ -36,8 +37,8 @@ export function LoginPage() {
     setLoading(true)
     try {
       await login(data.email, data.password)
-      toast.success("¡Bienvenido de nuevo!")
-      navigate("/")
+  toast.success("¡Bienvenido de nuevo!")
+  router.push("/")
     } catch (error: any) {
       toast.error(error.message || "Error al iniciar sesión")
     } finally {
@@ -118,7 +119,7 @@ export function LoginPage() {
 
             <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
               ¿No tienes cuenta?{" "}
-              <Link to="/registro" className="font-medium text-indigo-600 hover:underline">
+              <Link href="/registro" className="font-medium text-indigo-600 hover:underline">
                 Regístrate
               </Link>
             </p>

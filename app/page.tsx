@@ -1,7 +1,5 @@
-"use client"
-
-import App from "../src/App"
+import NextAppClient from "../src/components/next-app-client"
 
 export default function Page() {
-  return <App />
+  return <NextAppClient />
 }

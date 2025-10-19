@@ -2,10 +2,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Button } from "../../components/ui/button"
-import { useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation"
 
 export function CompanyDashboard() {
-  const navigate = useNavigate()
+  const router = useRouter()
 
   return (
     <div className="space-y-6">
@@ -20,7 +20,7 @@ export function CompanyDashboard() {
         </CardHeader>
         <CardContent>
           <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">Aún no has publicado ninguna práctica</p>
-          <Button onClick={() => navigate("/publicar")}>Publicar Nueva Práctica</Button>
+          <Button onClick={() => router.push("/publicar")}>Publicar Nueva Práctica</Button>
         </CardContent>
       </Card>
 

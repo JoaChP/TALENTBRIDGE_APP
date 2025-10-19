@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useRouter } from "next/navigation"
 import { Send, ChevronLeft } from "lucide-react"
 import { Card } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
@@ -14,8 +14,16 @@ import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
 
 export function MessagesPage() {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  // Extract thread id from the path when present (client-side). This avoids depending on react-router during prerender.
+  let id: string | undefined = undefined
+  if (typeof window !== "undefined") {
+    const parts = window.location.pathname.split("/").filter(Boolean)
+    // expected path /mensajes/:id
+    if (parts[0] === "mensajes" && parts.length > 1) {
+      id = parts[1]
+    }
+  }
+  const router = useRouter()
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -55,7 +63,7 @@ export function MessagesPage() {
             <Card
               key={thread.id}
               className="cursor-pointer p-4 transition-shadow hover:shadow-md"
-              onClick={() => navigate(`/mensajes/${thread.id}`)}
+              onClick={() => router.push(`/mensajes/${thread.id}`)}
             >
               <div className="flex items-start gap-3">
                 <img src="/diverse-avatars.png" alt="" className="h-12 w-12 rounded-full" />
@@ -83,7 +91,7 @@ export function MessagesPage() {
 export default MessagesPage
 
 function ConversationView({ threadId }: { threadId: string }) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const [thread, setThread] = useState<Thread | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -133,7 +141,7 @@ function ConversationView({ threadId }: { threadId: string }) {
   return (
     <div className="flex h-[calc(100vh-12rem)] flex-col">
       <div className="mb-4 flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/mensajes")} aria-label="Volver a mensajes">
+  <Button variant="ghost" size="icon" onClick={() => router.push("/mensajes")} aria-label="Volver a mensajes">
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2">
