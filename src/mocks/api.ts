@@ -382,4 +382,17 @@ export const mockApi = {
     saveData()
     return message
   },
+  // Simple counters for dashboard/home
+  async countPractices() {
+    await delay(150)
+    return mockData.practices.filter((p) => p.status === "Publicada").length
+  },
+  async countApplications() {
+    await delay(150)
+    return mockData.applications.length
+  },
+  async countCompanies() {
+    await delay(150)
+    return mockData.users.filter((u) => u.role === "empresa").length
+  },
 }
