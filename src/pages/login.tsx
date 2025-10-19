@@ -47,81 +47,86 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-900">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-xl font-bold text-white">
-            TB
-          </div>
-          <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">Ingresa a tu cuenta de TalentBridge</p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <Label htmlFor="email">Correo electrónico</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register("email")}
-                placeholder="tu@email.com"
-                aria-invalid={!!errors.email}
-                autoComplete="email"
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600" role="alert">
-                  {errors.email.message}
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-white to-zinc-50 px-4 dark:from-zinc-900 dark:to-zinc-950">
+      <div className="w-full max-w-lg">
+        <Card className="shadow-lg ring-1 ring-zinc-100 dark:ring-zinc-800">
+          <CardHeader className="text-center py-8">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-600 text-2xl font-extrabold text-white">
+              TB
+            </div>
+            <CardTitle className="text-3xl">Bienvenido a TalentBridge</CardTitle>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Inicia sesión para continuar</p>
+          </CardHeader>
+
+          <CardContent>
+            <div className="px-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <div>
+                  <Label htmlFor="email">Correo electrónico</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    {...register("email")}
+                    placeholder="tu@ejemplo.com"
+                    aria-invalid={!!errors.email}
+                    autoComplete="email"
+                    className="mt-2"
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-600" role="alert">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="password">Contraseña</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    {...register("password")}
+                    placeholder="Ingresa tu contraseña"
+                    aria-invalid={!!errors.password}
+                    autoComplete="current-password"
+                    className="mt-2"
+                  />
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-red-600" role="alert">
+                      {errors.password.message}
+                    </p>
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" disabled={loading}>
+                  {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+                </Button>
+              </form>
+
+              <div className="mt-6 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">Usuarios demo</p>
+                <ul className="mt-2 space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
+                  <li>
+                    <strong>Estudiante:</strong> estudiante@demo.com / 123456
+                  </li>
+                  <li>
+                    <strong>Empresa:</strong> empresa@demo.com / 123456
+                  </li>
+                  <li>
+                    <strong>Admin:</strong> admin@demo.com / 123456
+                  </li>
+                </ul>
+
+                <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
+                  ¿No tienes cuenta?{" "}
+                  <Link href="/registro" className="font-medium text-indigo-600 hover:underline">
+                    Regístrate
+                  </Link>
                 </p>
-              )}
+              </div>
             </div>
-
-            <div>
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register("password")}
-                placeholder="••••••"
-                aria-invalid={!!errors.password}
-                autoComplete="current-password"
-              />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600" role="alert">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
-            </Button>
-          </form>
-
-          <div className="mt-6">
-            <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Usuarios demo</p>
-              <ul className="mt-2 space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
-                <li>
-                  <strong>Estudiante:</strong> estudiante@demo.com / 123456
-                </li>
-                <li>
-                  <strong>Empresa:</strong> empresa@demo.com / 123456
-                </li>
-                <li>
-                  <strong>Admin:</strong> admin@demo.com / 123456
-                </li>
-              </ul>
-            </div>
-
-            <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
-              ¿No tienes cuenta?{" "}
-              <Link href="/registro" className="font-medium text-indigo-600 hover:underline">
-                Regístrate
-              </Link>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
