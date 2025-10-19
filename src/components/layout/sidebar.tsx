@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Search, PlusCircle, MessageCircle, User } from "lucide-react"
@@ -17,8 +19,8 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user)
 
   const filteredItems = navItems.filter((item) => {
-    // Hide 'Publicar' for student users
-    if (item.to === "/publish" && user?.role === "estudiante") return false
+    // Show 'Publicar' only for companies
+    if (item.to === "/publish") return user?.role === "empresa"
     return true
   })
 

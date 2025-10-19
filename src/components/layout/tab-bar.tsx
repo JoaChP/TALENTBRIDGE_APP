@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Search, PlusCircle, MessageCircle, User } from "lucide-react"
@@ -17,7 +19,7 @@ export function TabBar() {
   const user = useAuthStore((s) => s.user)
 
   const filteredItems = navItems.filter((item) => {
-    if (item.to === "/publish" && user?.role === "estudiante") return false
+    if (item.to === "/publish") return user?.role === "empresa"
     return true
   })
 
