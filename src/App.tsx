@@ -6,6 +6,7 @@ import { ProtectedRoute } from "./components/protected-route"
 import { HomePage } from "./pages/home"
 import { SearchPage } from "./pages/search"
 import { PublishPage } from "./pages/publish"
+import { RoleGate } from "./components/role-gate"
 import { MessagesPage } from "./pages/messages"
 import { ProfilePage } from "./pages/profile"
 import { PracticeDetailPage } from "./pages/practice-detail"
@@ -35,7 +36,7 @@ export default function App() {
         >
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/publicar" element={<PublishPage />} />
+          <Route path="/publish" element={<RoleGate allowedRoles={["empresa","admin"]}><PublishPage /></RoleGate>} />
           <Route path="/mensajes" element={<MessagesPage />} />
           <Route path="/mensajes/:id" element={<MessagesPage />} />
           <Route path="/perfil" element={<ProfilePage />} />
