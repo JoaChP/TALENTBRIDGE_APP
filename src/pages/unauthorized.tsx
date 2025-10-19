@@ -21,3 +21,5 @@ export function UnauthorizedPage() {
     </div>
   )
 }
+
+export default UnauthorizedPage

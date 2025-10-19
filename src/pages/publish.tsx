@@ -63,6 +63,8 @@ export function PublishPage() {
   )
 }
 
+export default PublishPage
+
 function PublishForm() {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(1)

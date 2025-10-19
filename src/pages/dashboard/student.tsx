@@ -95,3 +95,5 @@ export function StudentDashboard() {
     </div>
   )
 }
+
+export default StudentDashboard

@@ -162,3 +162,5 @@ export function PracticeDetailPage() {
     </div>
   )
 }
+
+export default PracticeDetailPage

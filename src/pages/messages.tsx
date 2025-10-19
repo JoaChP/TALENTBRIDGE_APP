@@ -80,6 +80,8 @@ export function MessagesPage() {
   )
 }
 
+export default MessagesPage
+
 function ConversationView({ threadId }: { threadId: string }) {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)

@@ -35,3 +35,5 @@ export function CompanyDashboard() {
     </div>
   )
 }
+
+export default CompanyDashboard
