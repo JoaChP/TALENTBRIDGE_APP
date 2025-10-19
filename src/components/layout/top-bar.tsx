@@ -41,7 +41,7 @@ export function TopBar() {
             type="search"
             placeholder="Buscar prácticas... (presiona /)"
             className="pl-9"
-            onFocus={() => router.push("/buscar")}
+            onFocus={() => router.push("/search")}
             aria-label="Buscar prácticas"
           />
         </div>

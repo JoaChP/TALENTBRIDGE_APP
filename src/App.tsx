@@ -34,7 +34,7 @@ export default function App() {
           }
         >
           <Route path="/" element={<HomePage />} />
-          <Route path="/buscar" element={<SearchPage />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/publicar" element={<PublishPage />} />
           <Route path="/mensajes" element={<MessagesPage />} />
           <Route path="/mensajes/:id" element={<MessagesPage />} />

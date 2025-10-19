@@ -81,7 +81,7 @@ export default function StudentDashboardClient() {
           description="Explora las prácticas disponibles y comienza a aplicar"
           action={{
             label: "Buscar Prácticas",
-            onClick: () => router.push("/buscar"),
+            onClick: () => router.push("/search"),
           }}
         />
       ) : (

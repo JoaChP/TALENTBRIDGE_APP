@@ -80,7 +80,7 @@ export function ProfilePage() {
 
       {user?.role === "estudiante" && (
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button className="flex-1" onClick={() => router.push("/buscar")}>
+          <Button className="flex-1" onClick={() => router.push("/search")}>
             Buscar Prácticas
           </Button>
           <Button variant="outline" className="flex-1 bg-transparent" onClick={() => router.push("/dashboard/estudiante")}>

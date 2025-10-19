@@ -64,7 +64,7 @@ export function PracticeDetailPage() {
     return (
       <div className="text-center">
         <p className="text-zinc-600 dark:text-zinc-400">Práctica no encontrada</p>
-        <Button className="mt-4" onClick={() => router.push("/buscar")}>
+        <Button className="mt-4" onClick={() => router.push("/search")}>
           Volver a búsqueda
         </Button>
       </div>
