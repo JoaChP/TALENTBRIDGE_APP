@@ -119,6 +119,10 @@ export function RegisterPage() {
             </Button>
           </form>
 
+          <div className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+            <p>Al crear tu cuenta seleccionarás el rol que te identifica (estudiante, empresa o administrador).</p>
+          </div>
+
           <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
             ¿Ya tienes cuenta?{" "}
             <Link href="/login" className="font-medium text-indigo-600 hover:underline">

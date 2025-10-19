@@ -66,6 +66,7 @@ export function LoginPage() {
                 {...register("email")}
                 placeholder="tu@email.com"
                 aria-invalid={!!errors.email}
+                autoComplete="email"
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600" role="alert">
@@ -82,6 +83,7 @@ export function LoginPage() {
                 {...register("password")}
                 placeholder="••••••"
                 aria-invalid={!!errors.password}
+                autoComplete="current-password"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600" role="alert">
@@ -95,29 +97,23 @@ export function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 space-y-4">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-zinc-200 dark:border-zinc-800" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-zinc-500 dark:bg-zinc-950">Usuarios demo</span>
-              </div>
+          <div className="mt-6">
+            <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">Usuarios demo</p>
+              <ul className="mt-2 space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
+                <li>
+                  <strong>Estudiante:</strong> estudiante@demo.com / 123456
+                </li>
+                <li>
+                  <strong>Empresa:</strong> empresa@demo.com / 123456
+                </li>
+                <li>
+                  <strong>Admin:</strong> admin@demo.com / 123456
+                </li>
+              </ul>
             </div>
 
-            <div className="space-y-2 text-xs text-zinc-600 dark:text-zinc-400">
-              <p>
-                <strong>Estudiante:</strong> estudiante@demo.com / 123456
-              </p>
-              <p>
-                <strong>Empresa:</strong> empresa@demo.com / 123456
-              </p>
-              <p>
-                <strong>Admin:</strong> admin@demo.com / 123456
-              </p>
-            </div>
-
-            <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
               ¿No tienes cuenta?{" "}
               <Link href="/registro" className="font-medium text-indigo-600 hover:underline">
                 Regístrate

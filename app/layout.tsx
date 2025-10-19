@@ -1,7 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Toaster } from "sonner"
-import "../src/index.css"
+import "./globals.css"
 
 export const metadata: Metadata = {
   title: "TalentBridge - Conectando Talento con Oportunidades",
