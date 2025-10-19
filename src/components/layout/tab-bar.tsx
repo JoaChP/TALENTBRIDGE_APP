@@ -2,6 +2,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Search, PlusCircle, MessageCircle, User } from "lucide-react"
 import { cn } from "../../lib/utils"
+import { useAuthStore } from "../../stores/auth-store"
 
 const navItems = [
   { to: "/", icon: Home, label: "Inicio" },
@@ -13,6 +14,12 @@ const navItems = [
 
 export function TabBar() {
   const pathname = usePathname() || "/"
+  const user = useAuthStore((s) => s.user)
+
+  const filteredItems = navItems.filter((item) => {
+    if (item.to === "/publish" && user?.role === "estudiante") return false
+    return true
+  })
 
   return (
     <nav
@@ -20,7 +27,7 @@ export function TabBar() {
       aria-label="Navegación principal"
     >
       <div className="flex h-16 items-center justify-around">
-        {navItems.map(({ to, icon: Icon, label }) => {
+        {filteredItems.map(({ to, icon: Icon, label }) => {
           const isActive = pathname === to
           return (
             <Link

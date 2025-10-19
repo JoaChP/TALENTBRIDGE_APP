@@ -2,6 +2,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Search, PlusCircle, MessageCircle, User } from "lucide-react"
 import { cn } from "../../lib/utils"
+import { useAuthStore } from "../../stores/auth-store"
 
 const navItems = [
   { to: "/", icon: Home, label: "Inicio" },
@@ -13,11 +14,18 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname() || "/"
+  const user = useAuthStore((s) => s.user)
+
+  const filteredItems = navItems.filter((item) => {
+    // Hide 'Publicar' for student users
+    if (item.to === "/publish" && user?.role === "estudiante") return false
+    return true
+  })
 
   return (
     <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-zinc-200 lg:bg-white lg:pt-16 dark:lg:border-zinc-800 dark:lg:bg-zinc-950">
-  <nav className="flex-1 space-y-1 p-4" aria-label="Navegación principal">
-        {navItems.map(({ to, icon: Icon, label }) => {
+      <nav className="flex-1 space-y-1 p-4" aria-label="Navegación principal">
+        {filteredItems.map(({ to, icon: Icon, label }) => {
           const isActive = pathname === to
           return (
             <Link
