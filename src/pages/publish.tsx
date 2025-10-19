@@ -221,11 +221,11 @@ function PublishForm() {
       {currentStep === 1 && (
         <form className="space-y-4" onChange={() => setHasChanges(true)}>
           <div>
-            <Label htmlFor="title">Título de la práctica *</Label>
+            <Label htmlFor="title">Tipo de puesto *</Label>
             <Input
               id="title"
               {...form1.register("title")}
-              placeholder="ej. Desarrollador Frontend React"
+              placeholder="Tipo de puesto"
               aria-invalid={!!form1.formState.errors.title}
             />
             {form1.formState.errors.title && (
@@ -256,7 +256,7 @@ function PublishForm() {
               <Input
                 id="city"
                 {...form1.register("city")}
-                placeholder="ej. Ciudad de México"
+                placeholder="Ciudad"
                 aria-invalid={!!form1.formState.errors.city}
               />
               {form1.formState.errors.city && (
@@ -271,7 +271,7 @@ function PublishForm() {
               <Input
                 id="country"
                 {...form1.register("country")}
-                placeholder="ej. México"
+                placeholder="País"
                 aria-invalid={!!form1.formState.errors.country}
               />
               {form1.formState.errors.country && (
