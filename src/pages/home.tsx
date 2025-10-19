@@ -88,6 +88,56 @@ export function HomePage() {
           )}
         </div>
       </div>
+      {/* Quick actions */}
+      <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+        <h3 className="text-lg font-semibold mb-3">Acciones rápidas</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button
+            onClick={() => router.push("/search")}
+            className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3 text-left hover:shadow-sm"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-zinc-600">
+              <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="1.5" />
+              <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            <div>
+              <div className="font-medium">Buscar prácticas</div>
+              <div className="text-sm text-zinc-500">Explora oportunidades por título, empresa o habilidad</div>
+            </div>
+          </button>
+
+          {user?.role === "empresa" && (
+            <button
+              onClick={() => router.push("/publish")}
+              className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3 text-left hover:shadow-sm"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-indigo-600">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              <div>
+                <div className="font-medium">Publicar oferta</div>
+                <div className="text-sm text-zinc-500">Crea una nueva oferta y gestiona postulaciones</div>
+              </div>
+            </button>
+          )}
+
+          {user?.role === "estudiante" && (
+            <button
+              onClick={() => router.push("/profile")}
+              className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3 text-left hover:shadow-sm"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-zinc-600">
+                <path d="M12 12a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M3 21c1.5-4 7.5-6 9-6s7.5 2 9 6" stroke="currentColor" strokeWidth="1.5" />
+              </svg>
+              <div>
+                <div className="font-medium">Mis postulaciones</div>
+                <div className="text-sm text-zinc-500">Revisa y gestiona tus aplicaciones</div>
+              </div>
+            </button>
+          )}
+        </div>
+      </div>
       <div>
         <h1 className="text-3xl font-bold text-balance">Últimas Oportunidades</h1>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
