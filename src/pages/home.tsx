@@ -15,8 +15,8 @@ export function HomePage() {
   useEffect(() => {
     const loadPractices = async () => {
       try {
-        const data = await mockApi.listPractices()
-        setPractices(data.slice(0, 3)) // Show 3 most recent
+  const data = await mockApi.listPractices()
+  setPractices(data.slice(0, 6)) // Show up to 6 most recent
       } catch (error) {
         console.error("[v0] Error loading practices:", error)
       } finally {

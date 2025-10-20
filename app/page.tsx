@@ -11,22 +11,7 @@ export default function Page() {
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
               Conecta estudiantes con prácticas profesionales. Explora oportunidades, postula y gestiona procesos de selección.
             </p>
-
-            <div className="mt-4 flex gap-3">
-              <a
-                href="/search"
-                className="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
-              >
-                Buscar prácticas
-              </a>
-
-              <a
-                href="/login"
-                className="rounded-md border border-zinc-200 px-4 py-2 hover:bg-zinc-100 dark:border-zinc-800"
-              >
-                Iniciar sesión
-              </a>
-            </div>
+            {/* El hero server-rendered no muestra CTAs de búsqueda o login para evitar duplicación con la SPA cliente */}
           </div>
         </div>
       </main>
