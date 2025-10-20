@@ -27,13 +27,40 @@ export function PracticeDetailPage() {
 
   useEffect(() => {
     const loadPractice = async () => {
-      if (!id) return
+      if (!id) {
+        setPractice(null)
+        setLoading(false)
+        return
+      }
+
       try {
-        const data = await mockApi.getPractice(id)
-        setPractice(data)
-      } catch (error) {
-        console.error("[v0] Error loading practice:", error)
-        toast.error("Error al cargar la práctica")
+        let resolved = false
+
+        try {
+          const res = await fetch(`/api/practices?id=${encodeURIComponent(id)}`, { cache: "no-store" })
+          if (res.ok) {
+            const data: Practice = await res.json()
+            setPractice(data)
+            resolved = true
+          }
+        } catch (error) {
+          console.error("[v0] Error calling /api/practices:", error)
+        }
+
+        if (!resolved) {
+          try {
+            const fallback = await mockApi.getPractice(id)
+            setPractice(fallback)
+            resolved = true
+          } catch (error) {
+            console.error("[v0] Error loading practice:", error)
+            toast.error("Error al cargar la práctica")
+          }
+        }
+
+        if (!resolved) {
+          setPractice(null)
+        }
       } finally {
         setLoading(false)
       }

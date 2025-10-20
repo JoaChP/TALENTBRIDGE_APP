@@ -27,6 +27,17 @@ async function persistStore(request: Request, store: any) {
 export async function GET(request: Request) {
   try {
     const store = await fetchStore(request)
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (id) {
+      const practice = (store.practices || []).find((item: any) => String(item.id) === id)
+      if (!practice) {
+        return NextResponse.json({ error: 'Practice not found' }, { status: 404 })
+      }
+      return NextResponse.json(practice)
+    }
+
     return NextResponse.json(store.practices || [])
   } catch (error) {
     console.error('[api/practices] GET failed', error)
