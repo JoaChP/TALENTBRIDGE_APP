@@ -47,21 +47,76 @@ export function SearchPage() {
   useEffect(() => {
     const loadPractices = async () => {
       setLoading(true)
-      try {
-        const data = await mockApi.listPractices({
-          search: search || undefined,
-          location: location || undefined,
-          modality: modality || undefined,
-          duration: duration || undefined,
-          skills: selectedSkills.length > 0 ? selectedSkills : undefined,
-        })
-        setPractices(data)
-        setCurrentPage(1)
-      } catch (error) {
-        console.error("[v0] Error loading practices:", error)
-      } finally {
-        setLoading(false)
+
+      const applyFilters = (list: Practice[]): Practice[] => {
+        let filtered = [...list]
+
+        if (search) {
+          const term = search.toLowerCase()
+          filtered = filtered.filter(
+            (practice) =>
+              practice.title.toLowerCase().includes(term) ||
+              practice.company.name.toLowerCase().includes(term) ||
+              practice.description.toLowerCase().includes(term) ||
+              practice.skills.some((skill) => skill.toLowerCase().includes(term)),
+          )
+        }
+
+        if (location) {
+          const place = location.toLowerCase()
+          filtered = filtered.filter(
+            (practice) =>
+              practice.city.toLowerCase().includes(place) || practice.country.toLowerCase().includes(place),
+          )
+        }
+
+        if (modality) {
+          filtered = filtered.filter((practice) => practice.modality === modality)
+        }
+
+        if (duration) {
+          filtered = filtered.filter((practice) => practice.durationMonths === duration)
+        }
+
+        if (selectedSkills.length > 0) {
+          filtered = filtered.filter((practice) => selectedSkills.some((skill) => practice.skills.includes(skill)))
+        }
+
+        return filtered
       }
+
+      let resolved = false
+
+      try {
+        const res = await fetch("/api/practices", { cache: "no-store" })
+
+        if (res.ok) {
+          const data: Practice[] = await res.json()
+          setPractices(applyFilters(data))
+          setCurrentPage(1)
+          resolved = true
+        }
+      } catch (error) {
+        console.error("[v0] Error calling /api/practices:", error)
+      }
+
+      if (!resolved) {
+        try {
+          const fallback = await mockApi.listPractices({
+            search: search || undefined,
+            location: location || undefined,
+            modality: modality || undefined,
+            duration: duration || undefined,
+            skills: selectedSkills.length > 0 ? selectedSkills : undefined,
+          })
+          setPractices(fallback)
+          setCurrentPage(1)
+        } catch (error) {
+          console.error("[v0] Error loading practices:", error)
+        }
+      }
+
+      setLoading(false)
     }
 
     loadPractices()

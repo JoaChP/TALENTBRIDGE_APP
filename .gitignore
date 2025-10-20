@@ -19,6 +19,9 @@ yarn-error.log*
 # env files
 .env*
 
+# local datastore fallback
+data/store.json
+
 # vercel
 .vercel
 
