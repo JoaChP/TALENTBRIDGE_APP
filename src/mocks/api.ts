@@ -227,14 +227,24 @@ const getInitialData = (): MockData => {
         // Ensure sections exist and fall back to seeds when missing or empty
         const users = parsed.users && parsed.users.length > 0 ? parsed.users : defaultData.users
         const practices = parsed.practices && parsed.practices.length > 0 ? parsed.practices : defaultData.practices
-        const applications = parsed.applications ?? defaultData.applications
-        const threads = parsed.threads ?? defaultData.threads
-        const messages = parsed.messages ?? defaultData.messages
+
+        // For array sections, treat empty arrays as 'missing' and fall back to defaults
+        const applications = parsed.applications && parsed.applications.length > 0 ? parsed.applications : defaultData.applications
+        const threads = parsed.threads && parsed.threads.length > 0 ? parsed.threads : defaultData.threads
+        const messages = parsed.messages && parsed.messages.length > 0 ? parsed.messages : defaultData.messages
 
         const merged: MockData = { users, practices, applications, threads, messages }
 
-        // If we filled missing sections, persist merged back to localStorage
-        if (!parsed.users || !parsed.practices) {
+        // Persist merged data if any section was filled from defaults (to repair broken storage)
+        const shouldPersist =
+          !parsed.users || !parsed.practices || !parsed.applications || !parsed.threads || !parsed.messages ||
+          (parsed.users && parsed.users.length === 0) ||
+          (parsed.practices && parsed.practices.length === 0) ||
+          (parsed.applications && parsed.applications.length === 0) ||
+          (parsed.threads && parsed.threads.length === 0) ||
+          (parsed.messages && parsed.messages.length === 0)
+
+        if (shouldPersist) {
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
           } catch (e) {
