@@ -280,6 +280,18 @@ const saveData = () => {
 const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export const mockApi = {
+  // Repair storage by resetting to default seed data (useful when localStorage was corrupted)
+  repairStorage() {
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData))
+      }
+    } catch (e) {
+      // ignore
+    }
+    // mutate in-memory mockData
+    Object.assign(mockData, JSON.parse(JSON.stringify(defaultData)))
+  },
   async login(email: string, password: string) {
     await delay()
     const user = mockData.users.find((u) => u.email === email)

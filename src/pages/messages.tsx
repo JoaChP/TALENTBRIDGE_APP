@@ -135,7 +135,28 @@ function ConversationView({ threadId }: { threadId: string }) {
   }
 
   if (!thread) {
-    return <div>Conversación no encontrada</div>
+    return (
+      <div className="space-y-4">
+        <div>Conversación no encontrada</div>
+        <div>
+          <p className="text-sm text-zinc-600">Si crees que debería haber mensajes, es posible que los datos locales estén corruptos.</p>
+          <div className="mt-2 flex gap-2">
+            <Button
+              onClick={() => {
+                mockApi.repairStorage()
+                // reload the conversation
+                window.location.reload()
+              }}
+            >
+              Reparar datos
+            </Button>
+            <Button variant="ghost" onClick={() => router.push('/mensajes')}>
+              Volver a conversaciones
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
