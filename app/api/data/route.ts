@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server'
 import { defaultData } from '../../../src/mocks/api'
 import { promises as fs } from 'fs'
 import path from 'path'
+// try to load mariadb helper if available
+let mariadb: any = null
+try {
+  mariadb = require('../../../src/lib/mariadb').default
+} catch (e) {
+  mariadb = null
+}
 
 // Server file backed store (simple JSON file under /data/store.json)
 // Note: This works for demos and local dev. On serverless platforms persistence
@@ -25,6 +32,11 @@ async function ensureStoreExists() {
 
 export async function GET() {
   try {
+    // If DATABASE_URL is provided try DB first
+    if (process.env.DATABASE_URL && mariadb) {
+      const db = await (mariadb.getStoreFromDb ? mariadb.getStoreFromDb() : null)
+      if (db) return NextResponse.json(db)
+    }
     await ensureStoreExists()
     const content = await fs.readFile(STORE_FILE, 'utf8')
     const json = JSON.parse(content)
@@ -38,6 +50,16 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
+    // If DB available, try to persist there
+    if (process.env.DATABASE_URL && mariadb) {
+      try {
+        const ok = await mariadb.setStoreToDb(body)
+        if (ok) return NextResponse.json({ ok: true, data: body })
+      } catch (e) {
+        // fall through to file
+      }
+    }
+
     await ensureStoreExists()
     await fs.writeFile(STORE_FILE, JSON.stringify(body, null, 2), 'utf8')
     return NextResponse.json({ ok: true, data: body })
