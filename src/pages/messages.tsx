@@ -135,21 +135,35 @@ function ConversationView({ threadId }: { threadId: string }) {
   }
 
   if (!thread) {
+    // Attempt automatic repair once: fetch server seed and restore to localStorage.
+    useEffect(() => {
+      let attempted = false
+      const tryRepair = async () => {
+        if (attempted) return
+        attempted = true
+        try {
+          const res = await fetch('/api/data')
+          if (!res.ok) throw new Error('No server data')
+          const json = await res.json()
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('talentbridge_data', JSON.stringify(json))
+          }
+          toast.success('Datos restaurados. Recargando conversación...')
+          setTimeout(() => window.location.reload(), 700)
+        } catch (e) {
+          toast.error('No fue posible restaurar los datos automáticamente')
+        }
+      }
+
+      tryRepair()
+    }, [])
+
     return (
       <div className="space-y-4">
         <div>Conversación no encontrada</div>
         <div>
-          <p className="text-sm text-zinc-600">Si crees que debería haber mensajes, es posible que los datos locales estén corruptos.</p>
-          <div className="mt-2 flex gap-2">
-            <Button
-              onClick={() => {
-                mockApi.repairStorage()
-                // reload the conversation
-                window.location.reload()
-              }}
-            >
-              Reparar datos
-            </Button>
+          <p className="text-sm text-zinc-600">Si crees que debería haber mensajes, intentamos restaurar los datos automáticamente.</p>
+          <div className="mt-2">
             <Button variant="ghost" onClick={() => router.push('/mensajes')}>
               Volver a conversaciones
             </Button>

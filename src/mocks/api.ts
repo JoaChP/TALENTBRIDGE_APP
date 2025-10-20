@@ -12,7 +12,7 @@ interface MockData {
 }
 
 // Default seed data used when no localStorage or when storage is missing sections
-const defaultData: MockData = {
+export const defaultData: MockData = {
   users: [
     {
       id: "1",
