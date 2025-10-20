@@ -1,36 +1,54 @@
 import { NextResponse } from 'next/server'
 
-async function fetchStore() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_ORIGIN || ''}/api/data`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('failed to load store')
-  return res.json()
+function resolveStoreUrl(request: Request) {
+  const url = new URL(request.url)
+  url.pathname = '/api/data'
+  url.search = ''
+  url.hash = ''
+  return url.toString()
 }
 
-async function persistStore(store: any) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_ORIGIN || ''}/api/data`, {
+async function fetchStore(request: Request) {
+  const response = await fetch(resolveStoreUrl(request), { cache: 'no-store' })
+  if (!response.ok) throw new Error(`failed to load store (${response.status})`)
+  return response.json()
+}
+
+async function persistStore(request: Request, store: any) {
+  const response = await fetch(resolveStoreUrl(request), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(store),
   })
-  if (!res.ok) throw new Error('failed to persist store')
-  return res.json()
+  if (!response.ok) throw new Error(`failed to persist store (${response.status})`)
+  return response.json()
 }
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const threadId = searchParams.get('threadId')
-  if (!threadId) return NextResponse.json([])
-  const store = await fetchStore()
-  const messages = (store.messages || []).filter((m: any) => m.threadId === threadId)
-  return NextResponse.json(messages)
+  try {
+    const { searchParams } = new URL(request.url)
+    const threadId = searchParams.get('threadId')
+    if (!threadId) return NextResponse.json([])
+    const store = await fetchStore(request)
+    const messages = (store.messages || []).filter((m: any) => m.threadId === threadId)
+    return NextResponse.json(messages)
+  } catch (error) {
+    console.error('[api/messages] GET failed', error)
+    return NextResponse.json({ error: 'Failed to load messages' }, { status: 500 })
+  }
 }
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const store = await fetchStore()
-  store.messages = store.messages || []
-  const newMsg = { ...body, id: `m_${Date.now()}`, createdAt: new Date().toISOString() }
-  store.messages.push(newMsg)
-  await persistStore(store)
-  return NextResponse.json(newMsg)
+  try {
+    const body = await request.json()
+    const store = await fetchStore(request)
+    store.messages = store.messages || []
+    const newMsg = { ...body, id: `m_${Date.now()}`, createdAt: new Date().toISOString() }
+    store.messages.push(newMsg)
+    await persistStore(request, store)
+    return NextResponse.json(newMsg)
+  } catch (error) {
+    console.error('[api/messages] POST failed', error)
+    return NextResponse.json({ error: 'Failed to persist message' }, { status: 500 })
+  }
 }

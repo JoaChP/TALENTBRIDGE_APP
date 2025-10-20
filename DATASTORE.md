@@ -4,6 +4,7 @@ This project includes a simple datastore strategy:
 
 - By default, seed data lives in `src/mocks/api.ts` and the server exposes it at `/api/data`.
 - The server tries to use MariaDB when `DATABASE_URL` is set and `mysql2` is installed. If not available it falls back to a JSON file stored at `data/store.json`.
+- When deployed to a platform with a read-only filesystem (e.g. Vercel), the server automatically keeps a mutable in-memory copy instead of writing files. You can opt into this behaviour locally by setting `DISABLE_FS_STORE=true`.
 - There are convenience API endpoints under `/api/practices`, `/api/threads` and `/api/messages` which proxy to the store and persist changes.
 
 Local MariaDB setup (quick)

@@ -1,32 +1,50 @@
 import { NextResponse } from 'next/server'
 
-async function fetchStore() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_ORIGIN || ''}/api/data`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('failed to load store')
-  return res.json()
+function resolveStoreUrl(request: Request) {
+  const url = new URL(request.url)
+  url.pathname = '/api/data'
+  url.search = ''
+  url.hash = ''
+  return url.toString()
 }
 
-async function persistStore(store: any) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_ORIGIN || ''}/api/data`, {
+async function fetchStore(request: Request) {
+  const response = await fetch(resolveStoreUrl(request), { cache: 'no-store' })
+  if (!response.ok) throw new Error(`failed to load store (${response.status})`)
+  return response.json()
+}
+
+async function persistStore(request: Request, store: any) {
+  const response = await fetch(resolveStoreUrl(request), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(store),
   })
-  if (!res.ok) throw new Error('failed to persist store')
-  return res.json()
+  if (!response.ok) throw new Error(`failed to persist store (${response.status})`)
+  return response.json()
 }
 
-export async function GET() {
-  const store = await fetchStore()
-  return NextResponse.json(store.practices || [])
+export async function GET(request: Request) {
+  try {
+    const store = await fetchStore(request)
+    return NextResponse.json(store.practices || [])
+  } catch (error) {
+    console.error('[api/practices] GET failed', error)
+    return NextResponse.json({ error: 'Failed to load practices' }, { status: 500 })
+  }
 }
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const store = await fetchStore()
-  const newPractice = { ...body, id: `p_${Date.now()}` }
-  store.practices = store.practices || []
-  store.practices.unshift(newPractice)
-  await persistStore(store)
-  return NextResponse.json(newPractice)
+  try {
+    const body = await request.json()
+    const store = await fetchStore(request)
+    const newPractice = { ...body, id: `p_${Date.now()}` }
+    store.practices = store.practices || []
+    store.practices.unshift(newPractice)
+    await persistStore(request, store)
+    return NextResponse.json(newPractice)
+  } catch (error) {
+    console.error('[api/practices] POST failed', error)
+    return NextResponse.json({ error: 'Failed to create practice' }, { status: 500 })
+  }
 }

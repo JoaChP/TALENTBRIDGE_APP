@@ -16,7 +16,25 @@ try {
 const STORE_DIR = path.join(process.cwd(), 'data')
 const STORE_FILE = path.join(STORE_DIR, 'store.json')
 
+// Vercel and other serverless providers expose a read-only filesystem for the
+// deployment bundle. Allow opting into an in-memory store so GET requests keep
+// working without a database configured.
+const globalStore = globalThis as typeof globalThis & {
+  __talentbridgeMemoryStore?: unknown
+}
+
+const useMemoryStore = Boolean(process.env.VERCEL || process.env.DISABLE_FS_STORE === 'true')
+
+function getMemoryStore() {
+  if (!globalStore.__talentbridgeMemoryStore) {
+    // Clone to avoid accidental mutations of the default seed reference.
+    globalStore.__talentbridgeMemoryStore = JSON.parse(JSON.stringify(defaultData))
+  }
+  return globalStore.__talentbridgeMemoryStore
+}
+
 async function ensureStoreExists() {
+  if (useMemoryStore) return
   try {
     await fs.mkdir(STORE_DIR, { recursive: true })
     try {
@@ -32,6 +50,9 @@ async function ensureStoreExists() {
 
 export async function GET() {
   try {
+    if (useMemoryStore) {
+      return NextResponse.json(getMemoryStore())
+    }
     // If DATABASE_URL is provided try DB first
     if (process.env.DATABASE_URL && mariadb) {
       const db = await (mariadb.getStoreFromDb ? mariadb.getStoreFromDb() : null)
@@ -50,6 +71,10 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
+    if (useMemoryStore) {
+      globalStore.__talentbridgeMemoryStore = body
+      return NextResponse.json({ ok: true, data: body, persisted: 'memory' })
+    }
     // If DB available, try to persist there
     if (process.env.DATABASE_URL && mariadb) {
       try {
