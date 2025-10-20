@@ -14,15 +14,15 @@ export function HomePage() {
 
   useEffect(() => {
     const loadPractices = async () => {
-      try {
-  const data = await mockApi.listPractices()
-  setPractices(data.slice(0, 6)) // Show up to 6 most recent
-      } catch (error) {
-        console.error("[v0] Error loading practices:", error)
-      } finally {
-        setLoading(false)
+        try {
+          const data = await mockApi.listPractices()
+          setPractices(data) // Show all practices from the mock API
+        } catch (error) {
+          console.error("[v0] Error loading practices:", error)
+        } finally {
+          setLoading(false)
+        }
       }
-    }
 
     loadPractices()
   }, [])
