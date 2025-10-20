@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useParams } from "react-router-dom"
 import { MapPin, Clock, Briefcase, Users, ChevronLeft } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
@@ -13,12 +14,8 @@ import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
 
 export function PracticeDetailPage() {
-  // Resilient id extraction: prefer react-router in SPA, but fall back to parsing the URL
-  let id: string | undefined = undefined
-  if (typeof window !== "undefined") {
-    const parts = window.location.pathname.split("/").filter(Boolean)
-    id = parts[parts.length - 1]
-  }
+  const params = useParams<{ id: string }>()
+  const id = params.id
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const [practice, setPractice] = useState<Practice | null>(null)
@@ -26,6 +23,8 @@ export function PracticeDetailPage() {
   const [applying, setApplying] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
+
     const loadPractice = async () => {
       if (!id) {
         setPractice(null)
@@ -33,40 +32,43 @@ export function PracticeDetailPage() {
         return
       }
 
+      setLoading(true)
+
       try {
-        let resolved = false
-
-        try {
-          const res = await fetch(`/api/practices?id=${encodeURIComponent(id)}`, { cache: "no-store" })
-          if (res.ok) {
-            const data: Practice = await res.json()
-            setPractice(data)
-            resolved = true
-          }
-        } catch (error) {
-          console.error("[v0] Error calling /api/practices:", error)
+        const res = await fetch(`/api/practices?id=${encodeURIComponent(id)}`, { cache: "no-store" })
+        if (!cancelled && res.ok) {
+          const data: Practice = await res.json()
+          setPractice(data)
+          setLoading(false)
+          return
         }
+      } catch (error) {
+        console.error("[v0] Error calling /api/practices:", error)
+      }
 
-        if (!resolved) {
-          try {
-            const fallback = await mockApi.getPractice(id)
-            setPractice(fallback)
-            resolved = true
-          } catch (error) {
-            console.error("[v0] Error loading practice:", error)
-            toast.error("Error al cargar la práctica")
-          }
+      try {
+        const fallback = await mockApi.getPractice(id)
+        if (!cancelled) {
+          setPractice(fallback)
         }
-
-        if (!resolved) {
+      } catch (error) {
+        console.error("[v0] Error loading practice:", error)
+        if (!cancelled) {
+          toast.error("Error al cargar la práctica")
           setPractice(null)
         }
       } finally {
-        setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
 
     loadPractice()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   const handleApply = async () => {
