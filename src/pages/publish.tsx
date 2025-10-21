@@ -65,6 +65,11 @@ export function PublishPage() {
 
 export default PublishPage
 
+// Force SSR to avoid static generation issues with client-side routing
+export async function getServerSideProps() {
+  return { props: {} }
+}
+
 function PublishForm() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)

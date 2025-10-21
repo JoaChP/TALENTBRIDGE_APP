@@ -90,6 +90,11 @@ export function MessagesPage() {
 
 export default MessagesPage
 
+// Force SSR to avoid static generation issues with client-side routing
+export async function getServerSideProps() {
+  return { props: {} }
+}
+
 function ConversationView({ threadId }: { threadId: string }) {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)

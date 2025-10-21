@@ -159,3 +159,8 @@ export function HomePage() {
 }
 
 export default HomePage
+
+// Force SSR to avoid static generation issues with client-side routing
+export async function getServerSideProps() {
+  return { props: {} }
+}

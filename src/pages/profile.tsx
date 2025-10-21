@@ -238,3 +238,8 @@ export function ProfilePage() {
 }
 
 export default ProfilePage
+
+// Force SSR to avoid static generation issues with client-side routing
+export async function getServerSideProps() {
+  return { props: {} }
+}

@@ -182,3 +182,8 @@ export function ApplicationsPage() {
 }
 
 export default ApplicationsPage
+
+// Force SSR to avoid static generation issues with client-side routing
+export async function getServerSideProps() {
+  return { props: {} }
+}
