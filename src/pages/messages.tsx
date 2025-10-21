@@ -16,7 +16,7 @@ import { toast } from "sonner"
 
 export function MessagesPage() {
   const params = useParams<{ id?: string }>()
-  const id = params.id
+  const id = params?.id
   const router = useRouter()
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
