@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
+import { persist, createJSONStorage } from "zustand/middleware"
 import type { AuthState, User } from "../types"
 import { mockApi } from "../mocks/api"
 
@@ -28,6 +28,8 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
+      skipHydration: false,
     },
   ),
 )
