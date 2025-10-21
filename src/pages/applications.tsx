@@ -130,7 +130,7 @@ export function ApplicationsPage() {
                       <Button
                         variant="outline"
                         className="w-full md:w-auto"
-                        onClick={() => router.push(`/oferta/${application.practice!.id}`)}
+                        onClick={() => window.location.href = `/oferta/${application.practice!.id}`}
                       >
                         Ver Oferta
                         <ArrowRight className="ml-2 h-4 w-4" />

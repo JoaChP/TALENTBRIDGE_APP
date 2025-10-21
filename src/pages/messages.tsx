@@ -17,7 +17,6 @@ import { toast } from "sonner"
 export function MessagesPage() {
   const params = useParams<{ id?: string }>()
   const id = params?.id
-  const router = useRouter()
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -57,7 +56,7 @@ export function MessagesPage() {
             <Card
               key={thread.id}
               className="cursor-pointer p-4 transition-shadow hover:shadow-md"
-              onClick={() => router.push(`/messages/${thread.id}`)}
+              onClick={() => window.location.href = `/messages/${thread.id}`}
             >
               <div className="flex items-start gap-3">
                 <Image

@@ -273,31 +273,30 @@ let mockData = getInitialData()
 // Re-initialize mockData from localStorage when running on client
 // This is necessary because SSR initializes with defaultData, but we need to reload from storage on hydration
 if (typeof window !== "undefined") {
-  // Use a small delay to ensure this runs after Next.js hydration
-  setTimeout(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as Partial<MockData>
-        // Ensure sections exist
-        const users = parsed.users && parsed.users.length > 0 ? parsed.users : defaultData.users
-        const practices = parsed.practices && parsed.practices.length > 0 ? parsed.practices : defaultData.practices
-        const applications = parsed.applications || []
-        const threads = parsed.threads || defaultData.threads
-        const messages = parsed.messages || defaultData.messages
+  // Reload synchronously on initial load
+  const stored = localStorage.getItem(STORAGE_KEY)
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored) as Partial<MockData>
+      const users = parsed.users && parsed.users.length > 0 ? parsed.users : defaultData.users
+      const practices = parsed.practices && parsed.practices.length > 0 ? parsed.practices : defaultData.practices
+      const applications = parsed.applications || []
+      const threads = parsed.threads || defaultData.threads
+      const messages = parsed.messages || defaultData.messages
 
-        mockData = { users, practices, applications, threads, messages }
-      } catch {
-        // If parsing fails, keep current mockData
-      }
+      mockData = { users, practices, applications, threads, messages }
+      console.log('[mockApi] Initial data loaded from localStorage:', mockData)
+    } catch (error) {
+      console.error('[mockApi] Error loading initial data:', error)
     }
-  }, 0)
+  }
 }
 
 const saveData = () => {
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(mockData))
+      console.log('[mockApi] Data saved to localStorage')
     } catch (error) {
       console.error("Error saving to localStorage:", error)
     }
@@ -322,8 +321,10 @@ export const mockApi = {
           const messages = parsed.messages || defaultData.messages
 
           Object.assign(mockData, { users, practices, applications, threads, messages })
+          console.log('[mockApi] reloadFromStorage completed:', mockData)
           return true
-        } catch {
+        } catch (error) {
+          console.error('[mockApi] reloadFromStorage error:', error)
           return false
         }
       }
