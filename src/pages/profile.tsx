@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation"
 import { Mail, Phone, Edit, LogOut, Camera } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
@@ -17,7 +17,7 @@ export function ProfilePage() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const updateProfile = useAuthStore((state) => state.updateProfile)
-  const navigate = useNavigate()
+  const router = useRouter()
   
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -56,7 +56,7 @@ export function ProfilePage() {
 
   const handleLogout = () => {
     logout()
-    navigate("/login")
+    router.push("/login")
   }
 
   const handleSaveProfile = () => {
@@ -158,10 +158,10 @@ export function ProfilePage() {
 
       {user?.role === "estudiante" && (
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button className="flex-1" onClick={() => navigate("/search")}>
+          <Button className="flex-1" onClick={() => router.push("/search")}>
             Buscar Prácticas
           </Button>
-          <Button variant="outline" className="flex-1 bg-transparent" onClick={() => navigate("/postulaciones")}>
+          <Button variant="outline" className="flex-1 bg-transparent" onClick={() => router.push("/postulaciones")}>
             Ver Mis Postulaciones
           </Button>
         </div>

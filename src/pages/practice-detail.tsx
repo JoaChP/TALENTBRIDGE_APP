@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useRouter, useParams } from "next/navigation"
 import { MapPin, Clock, Briefcase, Users, ChevronLeft } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
@@ -16,7 +16,7 @@ import Image from "next/image"
 export function PracticeDetailPage() {
   const params = useParams<{ id: string }>()
   const id = params.id
-  const navigate = useNavigate()
+  const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const [practice, setPractice] = useState<Practice | null>(null)
   const [loading, setLoading] = useState(true)
@@ -113,7 +113,7 @@ export function PracticeDetailPage() {
     return (
       <div className="text-center">
         <p className="text-zinc-600 dark:text-zinc-400">Práctica no encontrada</p>
-        <Button className="mt-4" onClick={() => navigate("/search")}>
+        <Button className="mt-4" onClick={() => router.push("/search")}>
           Volver a búsqueda
         </Button>
       </div>
@@ -123,7 +123,7 @@ export function PracticeDetailPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => navigate(-1)} aria-label="Volver">
+        <Button variant="ghost" onClick={() => router.back()} aria-label="Volver">
           <ChevronLeft className="h-5 w-5" />
           <span className="hidden sm:inline">Volver</span>
         </Button>
@@ -218,7 +218,7 @@ export function PracticeDetailPage() {
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 Puedes ver el estado de tu postulación en{" "}
                 <button
-                  onClick={() => navigate("/postulaciones")}
+                  onClick={() => router.push("/postulaciones")}
                   className="text-blue-600 hover:underline dark:text-blue-400"
                 >
                   Mis Postulaciones
