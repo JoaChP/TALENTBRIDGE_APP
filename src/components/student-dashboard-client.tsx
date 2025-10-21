@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
@@ -95,9 +96,11 @@ export default function StudentDashboardClient() {
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
-                      <img
+                      <Image
                         src={practice.company.logoUrl || "/placeholder.svg"}
                         alt={`Logo de ${practice.company.name}`}
+                        width={48}
+                        height={48}
                         className="h-12 w-12 rounded-lg object-cover"
                       />
                       <div>

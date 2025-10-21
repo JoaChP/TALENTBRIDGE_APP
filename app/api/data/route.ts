@@ -1,13 +1,24 @@
-import { NextResponse } from 'next/server'
-import { defaultData } from '../../../src/mocks/api'
 import { promises as fs } from 'fs'
 import path from 'path'
-// try to load mariadb helper if available
-let mariadb: any = null
-try {
-  mariadb = require('../../../src/lib/mariadb').default
-} catch (e) {
-  mariadb = null
+import { NextResponse } from 'next/server'
+import { defaultData } from '../../../src/mocks/api'
+
+type DataStore = typeof defaultData
+
+type MariaDbModule = {
+  getStoreFromDb?: () => Promise<DataStore | null>
+  setStoreToDb?: (data: DataStore) => Promise<boolean>
+}
+
+let mariaDbModulePromise: Promise<MariaDbModule | null> | null = null
+
+async function loadMariaDb(): Promise<MariaDbModule | null> {
+  if (!mariaDbModulePromise) {
+    mariaDbModulePromise = import('../../../src/lib/mariadb')
+      .then((module) => (module.default ?? module) as MariaDbModule)
+      .catch(() => null)
+  }
+  return mariaDbModulePromise
 }
 
 // Server file backed store (simple JSON file under /data/store.json)
@@ -20,7 +31,7 @@ const STORE_FILE = path.join(STORE_DIR, 'store.json')
 // deployment bundle. Allow opting into an in-memory store so GET requests keep
 // working without a database configured.
 const globalStore = globalThis as typeof globalThis & {
-  __talentbridgeMemoryStore?: unknown
+  __talentbridgeMemoryStore?: DataStore
 }
 
 const useMemoryStore = Boolean(process.env.VERCEL || process.env.DISABLE_FS_STORE === 'true')
@@ -39,11 +50,11 @@ async function ensureStoreExists() {
     await fs.mkdir(STORE_DIR, { recursive: true })
     try {
       await fs.access(STORE_FILE)
-    } catch (_) {
+    } catch {
       // write default
       await fs.writeFile(STORE_FILE, JSON.stringify(defaultData, null, 2), 'utf8')
     }
-  } catch (e) {
+  } catch {
     // ignore - will fall back to defaultData
   }
 }
@@ -54,15 +65,16 @@ export async function GET() {
       return NextResponse.json(getMemoryStore())
     }
     // If DATABASE_URL is provided try DB first
-    if (process.env.DATABASE_URL && mariadb) {
-      const db = await (mariadb.getStoreFromDb ? mariadb.getStoreFromDb() : null)
+    if (process.env.DATABASE_URL) {
+      const mariadb = await loadMariaDb()
+      const db = await (mariadb?.getStoreFromDb ? mariadb.getStoreFromDb() : null)
       if (db) return NextResponse.json(db)
     }
     await ensureStoreExists()
     const content = await fs.readFile(STORE_FILE, 'utf8')
     const json = JSON.parse(content)
     return NextResponse.json(json)
-  } catch (e) {
+  } catch {
     // fallback
     return NextResponse.json(defaultData)
   }
@@ -70,25 +82,28 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const body = (await request.json()) as DataStore
     if (useMemoryStore) {
       globalStore.__talentbridgeMemoryStore = body
       return NextResponse.json({ ok: true, data: body, persisted: 'memory' })
     }
     // If DB available, try to persist there
-    if (process.env.DATABASE_URL && mariadb) {
-      try {
-        const ok = await mariadb.setStoreToDb(body)
-        if (ok) return NextResponse.json({ ok: true, data: body })
-      } catch (e) {
-        // fall through to file
+    if (process.env.DATABASE_URL) {
+      const mariadb = await loadMariaDb()
+      if (mariadb?.setStoreToDb) {
+        try {
+          const ok = await mariadb.setStoreToDb(body)
+          if (ok) return NextResponse.json({ ok: true, data: body })
+        } catch {
+          // fall through to file
+        }
       }
     }
 
     await ensureStoreExists()
     await fs.writeFile(STORE_FILE, JSON.stringify(body, null, 2), 'utf8')
     return NextResponse.json({ ok: true, data: body })
-  } catch (e) {
-    return NextResponse.json({ ok: false, error: String(e) }, { status: 500 })
+  } catch (error) {
+    return NextResponse.json({ ok: false, error: String(error) }, { status: 500 })
   }
 }

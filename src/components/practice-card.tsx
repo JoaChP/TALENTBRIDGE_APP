@@ -1,26 +1,29 @@
 "use client"
 
+import Image from "next/image"
 import { MapPin, Clock, Briefcase } from "lucide-react"
 import { Card, CardContent } from "./ui/card"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import type { Practice } from "../types"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 
 interface PracticeCardProps {
   practice: Practice
 }
 
 export function PracticeCard({ practice }: PracticeCardProps) {
-  const router = useRouter()
+  const navigate = useNavigate()
 
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
       <CardContent className="p-6">
         <div className="flex gap-4">
-          <img
+          <Image
             src={practice.company.logoUrl || "/placeholder.svg"}
             alt={`Logo de ${practice.company.name}`}
+            width={48}
+            height={48}
             className="h-12 w-12 rounded-lg object-cover"
           />
           <div className="flex-1 space-y-3">
@@ -57,7 +60,7 @@ export function PracticeCard({ practice }: PracticeCardProps) {
             </div>
 
             <div className="flex gap-2 pt-2">
-              <Button className="flex-1" onClick={() => router.push(`/oferta/${practice.id}`)}>
+              <Button className="flex-1" onClick={() => navigate(`/oferta/${practice.id}`)}>
                 Ver detalles
               </Button>
               <Button variant="outline" size="icon" aria-label="Guardar práctica">

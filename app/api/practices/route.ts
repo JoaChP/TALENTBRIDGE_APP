@@ -1,4 +1,9 @@
 import { NextResponse } from 'next/server'
+import { defaultData } from '../../../src/mocks/api'
+import type { Practice } from '../../../src/types'
+
+type DataStore = typeof defaultData
+type PracticeInput = Omit<Practice, 'id'>
 
 function resolveStoreUrl(request: Request) {
   const url = new URL(request.url)
@@ -8,13 +13,13 @@ function resolveStoreUrl(request: Request) {
   return url.toString()
 }
 
-async function fetchStore(request: Request) {
+async function fetchStore(request: Request): Promise<DataStore> {
   const response = await fetch(resolveStoreUrl(request), { cache: 'no-store' })
   if (!response.ok) throw new Error(`failed to load store (${response.status})`)
-  return response.json()
+  return (await response.json()) as DataStore
 }
 
-async function persistStore(request: Request, store: any) {
+async function persistStore(request: Request, store: DataStore) {
   const response = await fetch(resolveStoreUrl(request), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -31,7 +36,7 @@ export async function GET(request: Request) {
     const id = searchParams.get('id')
 
     if (id) {
-      const practice = (store.practices || []).find((item: any) => String(item.id) === id)
+  const practice = (store.practices || []).find((item: Practice) => String(item.id) === id)
       if (!practice) {
         return NextResponse.json({ error: 'Practice not found' }, { status: 404 })
       }
@@ -47,11 +52,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const store = await fetchStore(request)
-    const newPractice = { ...body, id: `p_${Date.now()}` }
-    store.practices = store.practices || []
-    store.practices.unshift(newPractice)
+  const body = (await request.json()) as PracticeInput
+  const store = await fetchStore(request)
+  store.practices = store.practices || []
+  const newPractice: Practice = { ...body, id: `p_${Date.now()}` }
+  store.practices.unshift(newPractice)
     await persistStore(request, store)
     return NextResponse.json(newPractice)
   } catch (error) {

@@ -136,10 +136,11 @@ function PublishForm() {
         benefits: data3.benefits,
       })
 
-  toast.success("Borrador guardado exitosamente")
+      toast.success("Borrador guardado exitosamente")
       setHasChanges(false)
-  router.push("/")
+      router.push("/")
     } catch (error) {
+      console.error("[v0] Error al guardar el borrador", error)
       toast.error("Error al guardar el borrador")
     }
   }
@@ -179,8 +180,9 @@ function PublishForm() {
       })
 
       setHasChanges(false)
-  router.push("/")
+      router.push("/")
     } catch (error) {
+      console.error("[v0] Error al publicar la práctica", error)
       toast.error("Error al publicar la práctica")
     }
   }

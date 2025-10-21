@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { MapPin, Clock, Briefcase, Users, ChevronLeft } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
@@ -12,15 +11,17 @@ import type { Practice } from "../types"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
+import Image from "next/image"
 
 export function PracticeDetailPage() {
   const params = useParams<{ id: string }>()
   const id = params.id
-  const router = useRouter()
+  const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const [practice, setPractice] = useState<Practice | null>(null)
   const [loading, setLoading] = useState(true)
   const [applying, setApplying] = useState(false)
+  const [hasApplied, setHasApplied] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -71,6 +72,23 @@ export function PracticeDetailPage() {
     }
   }, [id])
 
+  // Check if user has already applied
+  useEffect(() => {
+    const checkApplication = async () => {
+      if (!user || !id) return
+      
+      try {
+        const applications = await mockApi.listApplications(user.id)
+        const applied = applications.some((app) => app.practiceId === id)
+        setHasApplied(applied)
+      } catch (error) {
+        console.error("Error checking application:", error)
+      }
+    }
+
+    checkApplication()
+  }, [user, id])
+
   const handleApply = async () => {
     if (!user || !practice) return
 
@@ -78,8 +96,10 @@ export function PracticeDetailPage() {
     try {
       await mockApi.applyToPractice(practice.id, user.id)
       toast.success("¡Aplicación enviada exitosamente!")
-    } catch (error: any) {
-      toast.error(error.message || "Error al aplicar")
+      setHasApplied(true)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error al aplicar"
+      toast.error(message)
     } finally {
       setApplying(false)
     }
@@ -93,7 +113,7 @@ export function PracticeDetailPage() {
     return (
       <div className="text-center">
         <p className="text-zinc-600 dark:text-zinc-400">Práctica no encontrada</p>
-        <Button className="mt-4" onClick={() => router.push("/search")}>
+        <Button className="mt-4" onClick={() => navigate("/search")}>
           Volver a búsqueda
         </Button>
       </div>
@@ -103,7 +123,7 @@ export function PracticeDetailPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center gap-4">
-  <Button variant="ghost" onClick={() => router.back()} aria-label="Volver">
+        <Button variant="ghost" onClick={() => navigate(-1)} aria-label="Volver">
           <ChevronLeft className="h-5 w-5" />
           <span className="hidden sm:inline">Volver</span>
         </Button>
@@ -113,9 +133,11 @@ export function PracticeDetailPage() {
       <Card>
         <CardContent className="p-6">
           <div className="flex gap-4">
-            <img
+            <Image
               src={practice.company.logoUrl || "/placeholder.svg"}
               alt={`Logo de ${practice.company.name}`}
+              width={64}
+              height={64}
               className="h-16 w-16 rounded-lg object-cover"
             />
             <div className="flex-1 space-y-3">
@@ -188,9 +210,26 @@ export function PracticeDetailPage() {
 
       {user?.role === "estudiante" && (
         <div className="sticky bottom-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-950 lg:static lg:shadow-none">
-          <Button className="w-full" size="lg" onClick={handleApply} disabled={applying}>
-            {applying ? "Enviando..." : "Postularme"}
-          </Button>
+          {hasApplied ? (
+            <div className="text-center space-y-2">
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 text-sm py-2 px-4">
+                ✓ Ya te postulaste a esta oferta
+              </Badge>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Puedes ver el estado de tu postulación en{" "}
+                <button
+                  onClick={() => navigate("/postulaciones")}
+                  className="text-blue-600 hover:underline dark:text-blue-400"
+                >
+                  Mis Postulaciones
+                </button>
+              </p>
+            </div>
+          ) : (
+            <Button className="w-full" size="lg" onClick={handleApply} disabled={applying}>
+              {applying ? "Enviando..." : "Postularme"}
+            </Button>
+          )}
         </div>
       )}
     </div>

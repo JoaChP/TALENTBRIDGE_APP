@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useRef } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import Image from "next/image"
 import { Send, ChevronLeft } from "lucide-react"
 import { Card } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
@@ -14,16 +15,9 @@ import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
 
 export function MessagesPage() {
-  // Extract thread id from the path when present (client-side). This avoids depending on react-router during prerender.
-  let id: string | undefined = undefined
-  if (typeof window !== "undefined") {
-    const parts = window.location.pathname.split("/").filter(Boolean)
-    // expected path /mensajes/:id
-    if (parts[0] === "mensajes" && parts.length > 1) {
-      id = parts[1]
-    }
-  }
-  const router = useRouter()
+  const params = useParams<{ id?: string }>()
+  const id = params.id
+  const navigate = useNavigate()
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -63,10 +57,16 @@ export function MessagesPage() {
             <Card
               key={thread.id}
               className="cursor-pointer p-4 transition-shadow hover:shadow-md"
-              onClick={() => router.push(`/mensajes/${thread.id}`)}
+              onClick={() => navigate(`/messages/${thread.id}`)}
             >
               <div className="flex items-start gap-3">
-                <img src="/diverse-avatars.png" alt="" className="h-12 w-12 rounded-full" />
+                <Image
+                  src="/diverse-avatars.png"
+                  alt={`Avatar de ${thread.partnerName}`}
+                  width={48}
+                  height={48}
+                  className="h-12 w-12 rounded-full"
+                />
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold">{thread.partnerName}</h3>
@@ -91,12 +91,13 @@ export function MessagesPage() {
 export default MessagesPage
 
 function ConversationView({ threadId }: { threadId: string }) {
-  const router = useRouter()
+  const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const [thread, setThread] = useState<Thread | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [loading, setLoading] = useState(true)
+  const attemptedRepairRef = useRef(false)
 
   useEffect(() => {
     const loadConversation = async () => {
@@ -115,8 +116,34 @@ function ConversationView({ threadId }: { threadId: string }) {
       }
     }
 
-    loadConversation()
+    void loadConversation()
   }, [threadId])
+
+  useEffect(() => {
+    if (loading || thread || attemptedRepairRef.current) {
+      return
+    }
+
+    attemptedRepairRef.current = true
+
+    const tryRepair = async () => {
+      try {
+        const res = await fetch("/api/data")
+        if (!res.ok) throw new Error("No server data")
+        const json = await res.json()
+        if (typeof window !== "undefined") {
+          localStorage.setItem("talentbridge_data", JSON.stringify(json))
+        }
+        toast.success("Datos restaurados. Recargando conversación...")
+        setTimeout(() => window.location.reload(), 700)
+      } catch (error) {
+        console.error("[v0] No fue posible restaurar los datos automáticamente", error)
+        toast.error("No fue posible restaurar los datos automáticamente")
+      }
+    }
+
+    void tryRepair()
+  }, [loading, thread])
 
   const handleSend = async () => {
     if (!newMessage.trim() || !user) return
@@ -126,6 +153,7 @@ function ConversationView({ threadId }: { threadId: string }) {
       setMessages((prev) => [...prev, message])
       setNewMessage("")
     } catch (error) {
+      console.error("[v0] Error sending message", error)
       toast.error("Error al enviar el mensaje")
     }
   }
@@ -135,36 +163,15 @@ function ConversationView({ threadId }: { threadId: string }) {
   }
 
   if (!thread) {
-    // Attempt automatic repair once: fetch server seed and restore to localStorage.
-    useEffect(() => {
-      let attempted = false
-      const tryRepair = async () => {
-        if (attempted) return
-        attempted = true
-        try {
-          const res = await fetch('/api/data')
-          if (!res.ok) throw new Error('No server data')
-          const json = await res.json()
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('talentbridge_data', JSON.stringify(json))
-          }
-          toast.success('Datos restaurados. Recargando conversación...')
-          setTimeout(() => window.location.reload(), 700)
-        } catch (e) {
-          toast.error('No fue posible restaurar los datos automáticamente')
-        }
-      }
-
-      tryRepair()
-    }, [])
-
     return (
       <div className="space-y-4">
         <div>Conversación no encontrada</div>
         <div>
-          <p className="text-sm text-zinc-600">Si crees que debería haber mensajes, intentamos restaurar los datos automáticamente.</p>
+          <p className="text-sm text-zinc-600">
+            Si crees que debería haber mensajes, intentamos restaurar los datos automáticamente.
+          </p>
           <div className="mt-2">
-            <Button variant="ghost" onClick={() => router.push('/mensajes')}>
+            <Button variant="ghost" onClick={() => navigate("/messages")}>
               Volver a conversaciones
             </Button>
           </div>
@@ -176,7 +183,7 @@ function ConversationView({ threadId }: { threadId: string }) {
   return (
     <div className="flex h-[calc(100vh-12rem)] flex-col">
       <div className="mb-4 flex items-center gap-4">
-  <Button variant="ghost" size="icon" onClick={() => router.push("/mensajes")} aria-label="Volver a mensajes">
+  <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} aria-label="Volver a mensajes">
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2">

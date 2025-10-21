@@ -1,25 +1,26 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Home, Search, PlusCircle, MessageCircle, User } from "lucide-react"
+import { NavLink } from "react-router-dom"
+import { Home, Search, MessageCircle, User, FileCheck } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
 
 const navItems = [
   { to: "/", icon: Home, label: "Inicio" },
   { to: "/search", icon: Search, label: "Buscar" },
-  { to: "/publish", icon: PlusCircle, label: "Publicar" },
+  { to: "/postulaciones", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"] },
   { to: "/messages", icon: MessageCircle, label: "Mensajes" },
   { to: "/profile", icon: User, label: "Perfil" },
 ]
 
 export function TabBar() {
-  const pathname = usePathname() || "/"
   const user = useAuthStore((s) => s.user)
 
   const filteredItems = navItems.filter((item) => {
-    if (item.to === "/publish") return user?.role === "empresa"
+    // Filter items by role if roleRequired is specified
+    if (item.roleRequired) {
+      return user?.role && item.roleRequired.includes(user.role)
+    }
     return true
   })
 
@@ -29,25 +30,24 @@ export function TabBar() {
       aria-label="Navegación principal"
     >
       <div className="flex h-16 items-center justify-around">
-        {filteredItems.map(({ to, icon: Icon, label }) => {
-          const isActive = pathname === to
-          return (
-            <Link
-              key={to}
-              href={to}
-              aria-label={label}
-              className={cn(
+        {filteredItems.map(({ to, icon: Icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            aria-label={label}
+            className={({ isActive }) =>
+              cn(
                 "flex min-w-[44px] flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors",
                 isActive
                   ? "text-indigo-800 dark:text-indigo-200"
                   : "text-zinc-800 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100",
-              )}
-            >
-              <Icon className="h-5 w-5" aria-hidden="true" />
-              <span className={cn("font-medium", "font-semibold")}>{label}</span>
-            </Link>
-          )
-        })}
+              )
+            }
+          >
+            <Icon className="h-5 w-5" aria-hidden="true" />
+            <span className={cn("font-medium", "font-semibold")}>{label}</span>
+          </NavLink>
+        ))}
       </div>
     </nav>
   )

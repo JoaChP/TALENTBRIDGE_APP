@@ -1,4 +1,9 @@
 import { NextResponse } from 'next/server'
+import { defaultData } from '../../../src/mocks/api'
+import type { Message } from '../../../src/types'
+
+type DataStore = typeof defaultData
+type MessageInput = Omit<Message, 'id' | 'createdAt'>
 
 function resolveStoreUrl(request: Request) {
   const url = new URL(request.url)
@@ -8,13 +13,13 @@ function resolveStoreUrl(request: Request) {
   return url.toString()
 }
 
-async function fetchStore(request: Request) {
+async function fetchStore(request: Request): Promise<DataStore> {
   const response = await fetch(resolveStoreUrl(request), { cache: 'no-store' })
   if (!response.ok) throw new Error(`failed to load store (${response.status})`)
-  return response.json()
+  return (await response.json()) as DataStore
 }
 
-async function persistStore(request: Request, store: any) {
+async function persistStore(request: Request, store: DataStore) {
   const response = await fetch(resolveStoreUrl(request), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -29,8 +34,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const threadId = searchParams.get('threadId')
     if (!threadId) return NextResponse.json([])
-    const store = await fetchStore(request)
-    const messages = (store.messages || []).filter((m: any) => m.threadId === threadId)
+  const store = await fetchStore(request)
+  const messages = (store.messages || []).filter((message: Message) => message.threadId === threadId)
     return NextResponse.json(messages)
   } catch (error) {
     console.error('[api/messages] GET failed', error)
@@ -40,10 +45,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const body = (await request.json()) as MessageInput
     const store = await fetchStore(request)
     store.messages = store.messages || []
-    const newMsg = { ...body, id: `m_${Date.now()}`, createdAt: new Date().toISOString() }
+    const newMsg: Message = {
+      ...body,
+      id: `m_${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    }
     store.messages.push(newMsg)
     await persistStore(request, store)
     return NextResponse.json(newMsg)

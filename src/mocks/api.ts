@@ -247,17 +247,17 @@ const getInitialData = (): MockData => {
         if (shouldPersist) {
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
-          } catch (e) {
+          } catch {
             // ignore storage errors
           }
         }
 
         return merged
-      } catch (e) {
+      } catch {
         // If stored is corrupted, fall back to defaults and reset storage
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData))
-        } catch (err) {
+        } catch {
           // ignore
         }
         return defaultData
@@ -286,7 +286,7 @@ export const mockApi = {
       if (typeof window !== "undefined") {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData))
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
     // mutate in-memory mockData

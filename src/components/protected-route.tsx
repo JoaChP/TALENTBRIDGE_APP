@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { Navigate, useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/auth-store"
 
 interface ProtectedRouteProps {
@@ -10,15 +10,18 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const user = useAuthStore((state) => state.user)
-  const router = useRouter()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!user) {
-      router.push("/login")
+      navigate("/login", { replace: true })
     }
-  }, [user, router])
+  }, [user, navigate])
 
-  if (!user) return null
+  // Instead of returning null, immediately redirect
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
 
   return <>{children}</>
 }
