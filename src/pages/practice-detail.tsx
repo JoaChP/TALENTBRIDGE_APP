@@ -15,7 +15,7 @@ import Image from "next/image"
 
 export function PracticeDetailPage() {
   const params = useParams<{ id: string }>()
-  const id = params.id
+  const id = params?.id
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const [practice, setPractice] = useState<Practice | null>(null)
