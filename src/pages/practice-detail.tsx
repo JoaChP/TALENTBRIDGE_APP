@@ -33,6 +33,8 @@ export function PracticeDetailPage() {
         return
       }
 
+      // Reset state immediately when id changes
+      setPractice(null)
       setLoading(true)
 
       try {
