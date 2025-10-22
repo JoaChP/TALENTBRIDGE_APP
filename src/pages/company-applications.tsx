@@ -49,17 +49,22 @@ export function CompanyApplicationsPage() {
 
       if (user.role === "admin") {
         // Admin puede ver TODAS las prácticas y solicitudes
+        console.log('[CompanyApplications] Admin mode - showing all applications')
         relevantPractices = allPractices
         relevantApplications = allApplications
+        console.log(`[CompanyApplications] Total practices: ${allPractices.length}, Total applications: ${allApplications.length}`)
       } else {
         // Empresa solo ve SUS prácticas y solicitudes
+        console.log(`[CompanyApplications] Company mode - userId: ${user.id}`)
         relevantPractices = allPractices.filter(
           (p) => p.company.ownerUserId === user.id
         )
+        console.log(`[CompanyApplications] My practices: ${relevantPractices.length}`)
         const myPracticeIds = relevantPractices.map((p) => p.id)
         relevantApplications = allApplications.filter((app) =>
           myPracticeIds.includes(app.practiceId)
         )
+        console.log(`[CompanyApplications] My applications: ${relevantApplications.length}`)
       }
 
       setPractices(relevantPractices)
