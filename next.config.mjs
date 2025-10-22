@@ -9,11 +9,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Disable pre-rendering for pages directory since we use client-side React Router
-  experimental: {
-    skipTrailingSlashRedirect: true,
-    skipMiddlewareUrlNormalize: true,
-  },
+  // Moved from experimental in Next.js 15
+  skipTrailingSlashRedirect: true,
+  skipMiddlewareUrlNormalize: true,
 }
 
 export default nextConfig
