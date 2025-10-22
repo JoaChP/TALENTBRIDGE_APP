@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -25,7 +24,6 @@ const registerSchema = z.object({
 type RegisterData = z.infer<typeof registerSchema>
 
 export function RegisterPage() {
-  const router = useRouter()
   const register = useAuthStore((state) => state.register)
   const [loading, setLoading] = useState(false)
 
@@ -43,7 +41,9 @@ export function RegisterPage() {
     try {
       await register(data.name, data.email, data.password, data.role as Role)
       toast.success("¡Cuenta creada exitosamente!")
-      router.push("/")
+      console.log("Usuario registrado con rol:", data.role)
+      // Usar location.href para forzar recarga y que App.tsx detecte el usuario
+      window.location.href = "/"
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Error al crear la cuenta"
       toast.error(message)
