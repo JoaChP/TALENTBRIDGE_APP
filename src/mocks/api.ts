@@ -485,8 +485,58 @@ export const mockApi = {
       createdAt: new Date().toISOString(),
     }
     mockData.messages.push(message)
+    
+    // Update thread's last snippet
+    const thread = mockData.threads.find((t) => t.id === threadId)
+    if (thread) {
+      thread.lastSnippet = text.length > 50 ? text.substring(0, 50) + "..." : text
+      thread.unread = false
+    }
+    
     saveData()
     return message
+  },
+
+  async createThreadForApplication(practiceId: string, userId: string) {
+    await delay()
+    
+    // Check if thread already exists
+    const existingThread = mockData.threads.find((t) => t.practiceId === practiceId && t.userId === userId)
+    if (existingThread) {
+      return existingThread
+    }
+    
+    // Get practice info
+    const practice = mockData.practices.find((p) => p.id === practiceId)
+    if (!practice) throw new Error("Práctica no encontrada")
+    
+    // Create new thread
+    const thread: Thread = {
+      id: `t_${Date.now()}`,
+      practiceId,
+      userId,
+      partnerName: practice.company.name,
+      partnerIsEmpresa: true,
+      lastSnippet: "Inicia una conversación...",
+      unread: false,
+    }
+    
+    mockData.threads.push(thread)
+    
+    // Create welcome message from company
+    const welcomeMessage: Message = {
+      id: `msg_${Date.now()}_welcome`,
+      threadId: thread.id,
+      fromUserId: practice.company.ownerUserId,
+      text: `¡Hola! Gracias por tu interés en la posición de ${practice.title}. ¿En qué podemos ayudarte?`,
+      createdAt: new Date().toISOString(),
+    }
+    
+    mockData.messages.push(welcomeMessage)
+    thread.lastSnippet = welcomeMessage.text.length > 50 ? welcomeMessage.text.substring(0, 50) + "..." : welcomeMessage.text
+    
+    saveData()
+    return thread
   },
   // Simple counters for dashboard/home
   async countPractices() {

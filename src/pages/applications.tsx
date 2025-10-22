@@ -9,7 +9,8 @@ import { EmptyState } from "../components/empty-state"
 import type { Application, Practice } from "../types"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
-import { Calendar, Building2, MapPin, ArrowRight, ChevronLeft } from "lucide-react"
+import { Calendar, Building2, MapPin, ArrowRight, ChevronLeft, MessageSquare } from "lucide-react"
+import { toast } from "sonner"
 
 const STATUS_COLORS = {
   Enviada: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
@@ -30,6 +31,19 @@ export function ApplicationsPage() {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
     e.preventDefault()
     window.location.href = path
+  }
+
+  const handleSendMessage = async (practiceId: string) => {
+    if (!user) return
+    
+    try {
+      const thread = await mockApi.createThreadForApplication(practiceId, user.id)
+      toast.success("Conversación iniciada")
+      window.location.href = `/messages/${thread.id}`
+    } catch (error) {
+      console.error("Error creating thread:", error)
+      toast.error("Error al iniciar la conversación")
+    }
   }
 
   useEffect(() => {
@@ -133,6 +147,14 @@ export function ApplicationsPage() {
                     </div>
 
                     <div className="flex flex-col gap-2 md:w-auto w-full">
+                      <Button 
+                        variant="default" 
+                        className="w-full"
+                        onClick={() => handleSendMessage(application.practiceId)}
+                      >
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        Enviar mensaje
+                      </Button>
                       <a 
                         href={`/oferta/${application.practice!.id}`} 
                         onClick={(e) => handleClick(e, `/oferta/${application.practice!.id}`)}

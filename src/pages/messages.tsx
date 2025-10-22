@@ -17,6 +17,7 @@ import { toast } from "sonner"
 export function MessagesPage() {
   const params = useParams<{ id?: string }>()
   const id = params?.id
+  const user = useAuthStore((state) => state.user)
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -26,9 +27,13 @@ export function MessagesPage() {
 
   useEffect(() => {
     const loadThreads = async () => {
+      if (!user) return
+      
       try {
         const data = await mockApi.listThreads()
-        setThreads(data)
+        // Filter threads for current user
+        const userThreads = data.filter((t) => t.userId === user.id)
+        setThreads(userThreads)
       } catch (error) {
         console.error("[v0] Error loading threads:", error)
       } finally {
@@ -37,7 +42,7 @@ export function MessagesPage() {
     }
 
     loadThreads()
-  }, [])
+  }, [user])
 
   if (id) {
     return <ConversationView threadId={id} />

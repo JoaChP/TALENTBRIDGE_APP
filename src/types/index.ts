@@ -61,6 +61,7 @@ export interface Application {
 export interface Thread {
   id: string
   practiceId?: string
+  userId?: string
   partnerName: string
   partnerIsEmpresa: boolean
   lastSnippet: string
