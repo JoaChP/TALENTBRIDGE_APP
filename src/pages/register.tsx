@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -126,9 +125,17 @@ export function RegisterPage() {
 
           <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
             ¿Ya tienes cuenta?{" "}
-            <Link href="/login" className="font-medium text-indigo-600 hover:underline">
+            <a 
+              href="/login" 
+              onClick={(e) => {
+                e.preventDefault()
+                window.history.pushState({}, "", "/login")
+                window.dispatchEvent(new Event("popstate"))
+              }}
+              className="font-medium text-indigo-600 hover:underline cursor-pointer"
+            >
               Inicia sesión
-            </Link>
+            </a>
           </p>
         </CardContent>
       </Card>
