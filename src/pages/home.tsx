@@ -6,26 +6,13 @@ import { LoadingSkeleton } from "../components/loading-skeleton"
 import type { Practice } from "../types"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
+import { useCounts } from "../hooks/use-counts"
 
 export function HomePage() {
   const [practices, setPractices] = useState<Practice[]>([])
   const [loading, setLoading] = useState(true)
-  const [counts, setCounts] = useState({ practices: 0, applications: 0, companies: 0 })
+  const { counts } = useCounts()
   const user = useAuthStore((s) => s.user)
-
-  // Función para cargar los contadores
-  const loadCounts = async () => {
-    try {
-      const [pr, ap, co] = await Promise.all([
-        mockApi.countPractices(),
-        mockApi.countApplications(),
-        mockApi.countCompanies(),
-      ])
-      setCounts({ practices: pr, applications: ap, companies: co })
-    } catch {
-      // ignore
-    }
-  }
 
   useEffect(() => {
     const loadPractices = async () => {
@@ -40,30 +27,6 @@ export function HomePage() {
       }
 
     loadPractices()
-    loadCounts()
-  }, [])
-
-  // Recargar contadores cada vez que cambie el localStorage (cuando se hace una nueva aplicación)
-  useEffect(() => {
-    const handleDataUpdate = () => {
-      loadCounts()
-    }
-
-    // Escuchar el evento personalizado de actualización de datos
-    window.addEventListener('talentbridge-data-updated', handleDataUpdate)
-    
-    // También recargar cuando el componente se vuelve visible
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        loadCounts()
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    return () => {
-      window.removeEventListener('talentbridge-data-updated', handleDataUpdate)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
   }, [])
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
