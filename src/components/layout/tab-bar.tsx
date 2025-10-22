@@ -1,6 +1,6 @@
 "use client"
 
-import { NavLink } from "react-router-dom"
+import { useEffect, useState } from "react"
 import { Home, Search, MessageCircle, User, FileCheck } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
@@ -15,6 +15,18 @@ const navItems = [
 
 export function TabBar() {
   const user = useAuthStore((s) => s.user)
+  const [currentPath, setCurrentPath] = useState("")
+
+  useEffect(() => {
+    setCurrentPath(window.location.pathname)
+    
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname)
+    }
+    
+    window.addEventListener("popstate", handlePopState)
+    return () => window.removeEventListener("popstate", handlePopState)
+  }, [])
 
   const filteredItems = navItems.filter((item) => {
     // Filter items by role if roleRequired is specified
@@ -30,24 +42,30 @@ export function TabBar() {
       aria-label="Navegación principal"
     >
       <div className="flex h-16 items-center justify-around">
-        {filteredItems.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            aria-label={label}
-            className={({ isActive }) =>
-              cn(
+        {filteredItems.map(({ to, icon: Icon, label }) => {
+          const isActive = currentPath === to || (to !== "/" && currentPath.startsWith(to))
+          
+          return (
+            <a
+              key={to}
+              href={to}
+              onClick={(e) => {
+                e.preventDefault()
+                window.location.href = to
+              }}
+              aria-label={label}
+              className={cn(
                 "flex min-w-[44px] flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors",
                 isActive
                   ? "text-indigo-800 dark:text-indigo-200"
                   : "text-zinc-800 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100",
-              )
-            }
-          >
-            <Icon className="h-5 w-5" aria-hidden="true" />
-            <span className={cn("font-medium", "font-semibold")}>{label}</span>
-          </NavLink>
-        ))}
+              )}
+            >
+              <Icon className="h-5 w-5" aria-hidden="true" />
+              <span className={cn("font-medium", "font-semibold")}>{label}</span>
+            </a>
+          )
+        })}
       </div>
     </nav>
   )

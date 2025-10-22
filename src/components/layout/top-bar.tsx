@@ -3,11 +3,9 @@
 import { Search, Bell } from "lucide-react"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
-import { useNavigate } from "react-router-dom"
 import { useEffect, useRef } from "react"
 
 export function TopBar() {
-  const navigate = useNavigate()
   const searchRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -26,7 +24,7 @@ export function TopBar() {
     <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-zinc-800 dark:bg-zinc-950/95">
   <div className="container mx-auto flex h-16 items-center gap-4 px-4 lg:ml-64">
         <button
-          onClick={() => navigate("/")}
+          onClick={() => window.location.href = "/"}
           className="flex items-center gap-2 font-bold text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 rounded-lg"
           aria-label="Ir a inicio"
         >
@@ -41,7 +39,7 @@ export function TopBar() {
             type="search"
             placeholder="Buscar prácticas... (presiona /)"
             className="pl-9"
-            onFocus={() => navigate("/search")}
+            onFocus={() => window.location.href = "/search"}
             aria-label="Buscar prácticas"
           />
         </div>
