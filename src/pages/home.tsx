@@ -11,8 +11,11 @@ import { useCounts } from "../hooks/use-counts"
 export function HomePage() {
   const [practices, setPractices] = useState<Practice[]>([])
   const [loading, setLoading] = useState(true)
-  const { counts } = useCounts()
   const user = useAuthStore((s) => s.user)
+  // Si es estudiante, mostrar solo sus solicitudes. Si es empresa/admin, mostrar todas
+  const { counts } = useCounts({ 
+    userId: user?.role === "estudiante" ? user.id : undefined 
+  })
 
   useEffect(() => {
     const loadPractices = async () => {
@@ -47,7 +50,9 @@ export function HomePage() {
             <div className="text-2xl font-bold text-indigo-700">{counts.practices}</div>
           </div>
           <div className="rounded-lg bg-zinc-50 px-4 py-3">
-            <div className="text-sm text-zinc-600">Solicitudes</div>
+            <div className="text-sm text-zinc-600">
+              {user?.role === "estudiante" ? "Mis solicitudes" : "Solicitudes"}
+            </div>
             <div className="text-2xl font-bold">{counts.applications}</div>
           </div>
           <div className="rounded-lg bg-zinc-50 px-4 py-3">

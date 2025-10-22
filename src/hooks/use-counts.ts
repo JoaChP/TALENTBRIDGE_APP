@@ -7,7 +7,11 @@ interface Counts {
   companies: number
 }
 
-export function useCounts() {
+interface UseCountsOptions {
+  userId?: string
+}
+
+export function useCounts(options?: UseCountsOptions) {
   const [counts, setCounts] = useState<Counts>({ 
     practices: 0, 
     applications: 0, 
@@ -19,7 +23,9 @@ export function useCounts() {
     try {
       const [pr, ap, co] = await Promise.all([
         mockApi.countPractices(),
-        mockApi.countApplications(),
+        options?.userId 
+          ? mockApi.listApplications(options.userId).then(apps => apps.length)
+          : mockApi.countApplications(),
         mockApi.countCompanies(),
       ])
       setCounts({ practices: pr, applications: ap, companies: co })
@@ -54,7 +60,7 @@ export function useCounts() {
       window.removeEventListener('talentbridge-data-updated', handleDataUpdate)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [])
+  }, [options?.userId])
 
   return { counts, loading, reload: loadCounts }
 }

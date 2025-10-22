@@ -46,31 +46,43 @@ export function ApplicationsPage() {
     }
   }
 
-  useEffect(() => {
-    const loadApplications = async () => {
-      if (!user) return
+  const loadApplications = async () => {
+    if (!user) return
+    
+    try {
+      const [appsData, practicesData] = await Promise.all([
+        mockApi.listApplications(user.id),
+        mockApi.listPractices(),
+      ])
       
-      try {
-        const [appsData, practicesData] = await Promise.all([
-          mockApi.listApplications(user.id),
-          mockApi.listPractices(),
-        ])
-        
-        // Enrich applications with practice data
-        const enrichedApps = appsData.map((app) => ({
-          ...app,
-          practice: practicesData.find((p) => p.id === app.practiceId),
-        }))
-        
-        setApplications(enrichedApps)
-      } catch (error) {
-        console.error("Error loading applications:", error)
-      } finally {
-        setLoading(false)
-      }
+      // Enrich applications with practice data
+      const enrichedApps = appsData.map((app) => ({
+        ...app,
+        practice: practicesData.find((p) => p.id === app.practiceId),
+      }))
+      
+      setApplications(enrichedApps)
+    } catch (error) {
+      console.error("Error loading applications:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadApplications()
+
+    // Escuchar el evento de actualización de datos
+    const handleDataUpdate = () => {
+      console.log('[ApplicationsPage] Data updated, reloading applications...')
+      loadApplications()
     }
 
-    loadApplications()
+    window.addEventListener('talentbridge-data-updated', handleDataUpdate)
+
+    return () => {
+      window.removeEventListener('talentbridge-data-updated', handleDataUpdate)
+    }
   }, [user])
 
   if (loading) {
