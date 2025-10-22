@@ -30,50 +30,70 @@ export function CompanyApplicationsPage() {
   const [practices, setPractices] = useState<Practice[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (!user) return
+  const loadData = async () => {
+    if (!user) return
 
-      try {
-        // Reload from localStorage to get latest data
-        mockApi.reloadFromStorage()
+    try {
+      // Reload from localStorage to get latest data
+      mockApi.reloadFromStorage()
 
-        // Get all practices and applications
-        const [allPractices, allApplications, allUsers] = await Promise.all([
-          mockApi.listPractices(),
-          mockApi.listApplications("all"), // We'll need to modify this
-          mockApi.listUsers?.() || Promise.resolve([]),
-        ])
+      // Get all practices and applications
+      const [allPractices, allApplications, allUsers] = await Promise.all([
+        mockApi.listPractices(),
+        mockApi.listApplications("all"),
+        mockApi.listUsers?.() || Promise.resolve([]),
+      ])
 
-        // Filter practices owned by this company
-        const myPractices = allPractices.filter(
+      let relevantPractices: Practice[]
+      let relevantApplications: Application[]
+
+      if (user.role === "admin") {
+        // Admin puede ver TODAS las prácticas y solicitudes
+        relevantPractices = allPractices
+        relevantApplications = allApplications
+      } else {
+        // Empresa solo ve SUS prácticas y solicitudes
+        relevantPractices = allPractices.filter(
           (p) => p.company.ownerUserId === user.id
         )
-        setPractices(myPractices)
-
-        // Get applications for my practices
-        const myPracticeIds = myPractices.map((p) => p.id)
-        const myApplications = allApplications.filter((app) =>
+        const myPracticeIds = relevantPractices.map((p) => p.id)
+        relevantApplications = allApplications.filter((app) =>
           myPracticeIds.includes(app.practiceId)
         )
-
-        // Enrich with practice and user data
-        const enriched = myApplications.map((app) => ({
-          ...app,
-          practice: myPractices.find((p) => p.id === app.practiceId),
-          applicant: allUsers.find((u) => u.id === app.userId),
-        }))
-
-        setApplications(enriched)
-      } catch (error) {
-        console.error("Error loading applications:", error)
-        toast.error("Error al cargar las aplicaciones")
-      } finally {
-        setLoading(false)
       }
+
+      setPractices(relevantPractices)
+
+      // Enrich with practice and user data
+      const enriched = relevantApplications.map((app) => ({
+        ...app,
+        practice: relevantPractices.find((p) => p.id === app.practiceId),
+        applicant: allUsers.find((u) => u.id === app.userId),
+      }))
+
+      setApplications(enriched)
+    } catch (error) {
+      console.error("Error loading applications:", error)
+      toast.error("Error al cargar las aplicaciones")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadData()
+
+    // Escuchar actualizaciones de datos
+    const handleDataUpdate = () => {
+      console.log('[CompanyApplicationsPage] Data updated, reloading...')
+      loadData()
     }
 
-    loadData()
+    window.addEventListener('talentbridge-data-updated', handleDataUpdate)
+
+    return () => {
+      window.removeEventListener('talentbridge-data-updated', handleDataUpdate)
+    }
   }, [user])
 
   const handleStartChat = async (application: ApplicationWithDetails) => {
@@ -109,18 +129,22 @@ export function CompanyApplicationsPage() {
           </Button>
         </div>
         <h1 className="text-3xl font-bold text-balance">
-          Aplicaciones Recibidas
+          {user?.role === "admin" ? "Todas las Aplicaciones" : "Aplicaciones Recibidas"}
         </h1>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
-          Gestiona las solicitudes de estudiantes para tus prácticas
+          {user?.role === "admin" 
+            ? "Gestiona todas las solicitudes de estudiantes del sistema"
+            : "Gestiona las solicitudes de estudiantes para tus prácticas"}
         </p>
       </div>
 
       {practices.length === 0 ? (
         <EmptyState
-          title="No has publicado prácticas"
-          description="Publica tu primera práctica para empezar a recibir aplicaciones"
-          action={{
+          title={user?.role === "admin" ? "No hay prácticas en el sistema" : "No has publicado prácticas"}
+          description={user?.role === "admin" 
+            ? "Aún no hay prácticas publicadas en la plataforma"
+            : "Publica tu primera práctica para empezar a recibir aplicaciones"}
+          action={user?.role === "admin" ? undefined : {
             label: "Publicar Práctica",
             onClick: () => {
               window.history.pushState({}, "", "/publish")
