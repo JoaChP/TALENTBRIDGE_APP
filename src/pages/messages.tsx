@@ -194,8 +194,9 @@ function ConversationView({ threadId }: { threadId: string }) {
   return (
     <div className="flex h-[calc(100vh-12rem)] flex-col">
       <div className="mb-4 flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => handleNavigation("/messages")} aria-label="Volver a mensajes">
+        <Button variant="ghost" onClick={() => handleNavigation("/messages")} className="gap-2">
           <ChevronLeft className="h-5 w-5" />
+          Volver
         </Button>
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold">{thread.partnerName}</h1>
