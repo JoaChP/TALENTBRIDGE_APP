@@ -178,21 +178,24 @@ export const defaultData: MockData = {
     {
       id: "t1",
       practiceId: "1",
-      partnerName: "TechCorp",
-      partnerIsEmpresa: true,
+      userId: "1", // Ana García (estudiante)
+      partnerName: "Ana García",
+      partnerIsEmpresa: false,
       lastSnippet: "Gracias por tu interés en la posición...",
       unread: true,
     },
     {
       id: "t2",
       practiceId: "2",
-      partnerName: "Marketing Pro",
-      partnerIsEmpresa: true,
+      userId: "1", // Ana García (estudiante)
+      partnerName: "Ana García",
+      partnerIsEmpresa: false,
       lastSnippet: "Hemos revisado tu perfil y nos gustaría...",
       unread: false,
     },
     {
       id: "t3",
+      userId: "1", // Ana García (estudiante)
       partnerName: "Carlos Mendoza",
       partnerIsEmpresa: false,
       lastSnippet: "Hola, tengo una pregunta sobre...",
