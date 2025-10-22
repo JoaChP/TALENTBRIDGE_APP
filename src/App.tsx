@@ -1,12 +1,10 @@
 "use client"
 
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { useEffect, useState } from "react"
 import { AppShell } from "./components/layout/app-shell"
-import { ProtectedRoute } from "./components/protected-route"
 import { HomePage } from "./pages/home"
 import { SearchPage } from "./pages/search"
 import { PublishPage } from "./pages/publish"
-import { RoleGate } from "./components/role-gate"
 import { MessagesPage } from "./pages/messages"
 import { ProfilePage } from "./pages/profile"
 import { PracticeDetailPage } from "./pages/practice-detail"
@@ -21,38 +19,111 @@ import { useAuthStore } from "./stores/auth-store"
 
 export default function App() {
   const user = useAuthStore((state) => state.user)
+  const [currentPath, setCurrentPath] = useState("")
+
+  useEffect(() => {
+    // Get current path
+    const path = window.location.pathname
+    setCurrentPath(path)
+
+    // Listen for popstate (back/forward browser buttons)
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname)
+    }
+
+    window.addEventListener("popstate", handlePopState)
+    return () => window.removeEventListener("popstate", handlePopState)
+  }, [])
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user && currentPath !== "/login" && currentPath !== "/registro") {
+      window.location.href = "/login"
+    }
+  }, [user, currentPath])
+
+  // Redirect to home if already logged in
+  if (user && (currentPath === "/login" || currentPath === "/registro")) {
+    window.location.href = "/"
+    return null
+  }
+
+  // Login/Register pages (no AppShell)
+  if (currentPath === "/login") {
+    return <LoginPage />
+  }
+
+  if (currentPath === "/registro") {
+    return <RegisterPage />
+  }
+
+  // Protected pages (with AppShell)
+  if (!user) {
+    return null // Will redirect in useEffect
+  }
+
+  const renderPage = () => {
+    // Messages routes
+    if (currentPath === "/messages" || currentPath === "/mensajes") {
+      return <MessagesPage />
+    }
+    if (currentPath.startsWith("/messages/") || currentPath.startsWith("/mensajes/")) {
+      return <MessagesPage />
+    }
+
+    // Profile routes
+    if (currentPath === "/profile" || currentPath === "/perfil") {
+      return <ProfilePage />
+    }
+
+    // Applications routes
+    if (currentPath === "/applications" || currentPath === "/postulaciones") {
+      return <ApplicationsPage />
+    }
+
+    // Practice detail
+    if (currentPath.startsWith("/oferta/")) {
+      return <PracticeDetailPage />
+    }
+
+    // Dashboard routes
+    if (currentPath === "/dashboard/estudiante") {
+      return <StudentDashboard />
+    }
+    if (currentPath === "/dashboard/empresa") {
+      if (user.role !== "empresa" && user.role !== "admin") {
+        return <UnauthorizedPage />
+      }
+      return <CompanyDashboard />
+    }
+    if (currentPath === "/dashboard/admin") {
+      if (user.role !== "admin") {
+        return <UnauthorizedPage />
+      }
+      return <AdminDashboard />
+    }
+
+    // Other routes
+    if (currentPath === "/search") {
+      return <SearchPage />
+    }
+    if (currentPath === "/publish") {
+      if (user.role !== "empresa" && user.role !== "admin") {
+        return <UnauthorizedPage />
+      }
+      return <PublishPage />
+    }
+    if (currentPath === "/no-autorizado") {
+      return <UnauthorizedPage />
+    }
+
+    // Default to home
+    return <HomePage />
+  }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
-        <Route path="/registro" element={user ? <Navigate to="/" replace /> : <RegisterPage />} />
-
-        <Route
-          element={
-            <ProtectedRoute>
-              <AppShell />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/" element={<HomePage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/publish" element={<RoleGate allowedRoles={["empresa","admin"]}><PublishPage /></RoleGate>} />
-          <Route path="/messages" element={<MessagesPage />} />
-          <Route path="/messages/:id" element={<MessagesPage />} />
-          <Route path="/mensajes" element={<MessagesPage />} />
-          <Route path="/mensajes/:id" element={<MessagesPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/perfil" element={<ProfilePage />} />
-          <Route path="/applications" element={<ApplicationsPage />} />
-          <Route path="/postulaciones" element={<ApplicationsPage />} />
-          <Route path="/oferta/:id" element={<PracticeDetailPage />} />
-          <Route path="/dashboard/estudiante" element={<StudentDashboard />} />
-          <Route path="/dashboard/empresa" element={<CompanyDashboard />} />
-          <Route path="/dashboard/admin" element={<AdminDashboard />} />
-          <Route path="/no-autorizado" element={<UnauthorizedPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AppShell>
+      {renderPage()}
+    </AppShell>
   )
 }

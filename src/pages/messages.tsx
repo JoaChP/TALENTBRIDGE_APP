@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useParams } from "react-router-dom"
 import Image from "next/image"
 import { Send, ChevronLeft } from "lucide-react"
 import { Card } from "../components/ui/card"
@@ -15,11 +14,15 @@ import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
 
 export function MessagesPage() {
-  const params = useParams<{ id?: string }>()
-  const id = params?.id
   const user = useAuthStore((state) => state.user)
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Extract ID from URL path
+  const pathname = typeof window !== "undefined" ? window.location.pathname : ""
+  const id = pathname.startsWith("/messages/") || pathname.startsWith("/mensajes/") 
+    ? pathname.split("/").pop() 
+    : undefined
 
   const handleNavigation = (path: string) => {
     window.location.href = path
