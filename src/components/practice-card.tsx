@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image"
-import { useNavigate } from "react-router-dom"
 import { MapPin, Clock, Briefcase } from "lucide-react"
 import { Card, CardContent } from "./ui/card"
 import { Badge } from "./ui/badge"
@@ -13,10 +12,11 @@ interface PracticeCardProps {
 }
 
 export function PracticeCard({ practice }: PracticeCardProps) {
-  const navigate = useNavigate()
-
   const handleNavigate = () => {
-    navigate(`/oferta/${practice.id}`)
+    // Use Link-like behavior with client-side navigation
+    const link = document.createElement('a')
+    link.href = `/oferta/${practice.id}`
+    link.click()
   }
 
   return (

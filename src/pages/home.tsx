@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { PracticeCard } from "../components/practice-card"
 import { LoadingSkeleton } from "../components/loading-skeleton"
 import type { Practice } from "../types"
@@ -46,10 +45,11 @@ export function HomePage() {
   }, [])
 
   const user = useAuthStore((s) => s.user)
-  const navigate = useNavigate()
 
   const handleNavigation = (path: string) => {
-    navigate(path)
+    const link = document.createElement('a')
+    link.href = path
+    link.click()
   }
 
   return (
