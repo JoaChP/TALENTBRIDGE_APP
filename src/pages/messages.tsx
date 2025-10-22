@@ -35,12 +35,14 @@ export function MessagesPage() {
       try {
         const data = await mockApi.listThreads()
         
-        // For students: filter by userId
-        // For companies: filter by threads related to their practices
         let userThreads: Thread[] = []
         
-        if (user.role === "empresa" || user.role === "admin") {
-          // Get all practices owned by this company
+        if (user.role === "admin") {
+          // Admins see ALL threads
+          userThreads = data
+          console.log("Admin viewing all threads:", data.length)
+        } else if (user.role === "empresa") {
+          // Companies: filter by threads related to their practices only
           const practices = await mockApi.listPractices()
           const myPracticeIds = practices
             .filter(p => p.company.ownerUserId === user.id)
@@ -50,9 +52,11 @@ export function MessagesPage() {
           userThreads = data.filter((t) => 
             t.practiceId && myPracticeIds.includes(t.practiceId)
           )
+          console.log("Company viewing their threads:", userThreads.length, "out of", data.length)
         } else {
           // Students: filter by userId
           userThreads = data.filter((t) => t.userId === user.id)
+          console.log("Student viewing their threads:", userThreads.length)
         }
         
         setThreads(userThreads)
@@ -139,13 +143,43 @@ function ConversationView({ threadId }: { threadId: string }) {
 
   useEffect(() => {
     const loadConversation = async () => {
+      if (!user) return
+      
       try {
         const [threadData, messagesData] = await Promise.all([
           mockApi.getThread(threadId),
           mockApi.listMessages(threadId),
         ])
-        setThread(threadData)
-        setMessages(messagesData)
+        
+        // Validate access permissions
+        if (user.role === "admin") {
+          // Admins can see all conversations
+          setThread(threadData)
+          setMessages(messagesData)
+        } else if (user.role === "empresa") {
+          // Companies can only see conversations for their practices
+          const practices = await mockApi.listPractices()
+          const myPracticeIds = practices
+            .filter(p => p.company.ownerUserId === user.id)
+            .map(p => p.id)
+          
+          if (threadData.practiceId && myPracticeIds.includes(threadData.practiceId)) {
+            setThread(threadData)
+            setMessages(messagesData)
+          } else {
+            toast.error("No tienes permiso para ver esta conversación")
+            window.history.back()
+          }
+        } else {
+          // Students can only see their own conversations
+          if (threadData.userId === user.id) {
+            setThread(threadData)
+            setMessages(messagesData)
+          } else {
+            toast.error("No tienes permiso para ver esta conversación")
+            window.history.back()
+          }
+        }
       } catch (error) {
         console.error("[v0] Error loading conversation:", error)
         toast.error("Error al cargar la conversación")
@@ -155,7 +189,7 @@ function ConversationView({ threadId }: { threadId: string }) {
     }
 
     void loadConversation()
-  }, [threadId])
+  }, [threadId, user])
 
   useEffect(() => {
     if (loading || thread || attemptedRepairRef.current) {

@@ -194,7 +194,10 @@ export function CompanyApplicationsPage() {
                         variant="outline"
                         className="w-full"
                         onClick={() => {
-                          window.location.href = `/profile?user=${application.userId}`
+                          console.log("Ver perfil clicked, userId:", application.userId)
+                          console.log("Full application:", application)
+                          window.history.pushState({}, "", `/user/${application.userId}`)
+                          window.dispatchEvent(new Event("popstate"))
                         }}
                       >
                         Ver perfil

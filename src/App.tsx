@@ -17,6 +17,7 @@ import StudentDashboard from "./components/student-dashboard-client"
 import { CompanyDashboard } from "./pages/dashboard/company"
 import { AdminDashboard } from "./pages/dashboard/admin"
 import { useAuthStore } from "./stores/auth-store"
+import { UserProfilePage } from "./pages/user-profile"
 
 export default function App() {
   const user = useAuthStore((state) => state.user)
@@ -75,6 +76,11 @@ export default function App() {
     // Profile routes
     if (currentPath === "/profile" || currentPath === "/perfil") {
       return <ProfilePage />
+    }
+    
+    // User profile (viewing other users)
+    if (currentPath.startsWith("/user/")) {
+      return <UserProfilePage />
     }
 
     // Applications routes
