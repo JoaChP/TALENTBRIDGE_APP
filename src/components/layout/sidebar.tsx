@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Home, Search, PlusCircle, MessageCircle, User, FileCheck } from "lucide-react"
+import { Home, Search, PlusCircle, MessageCircle, User, FileCheck, LogOut } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
+import { Button } from "../ui/button"
 
 const navItems = [
   { to: "/", icon: Home, label: "Inicio" },
@@ -16,6 +17,7 @@ const navItems = [
 
 export function Sidebar() {
   const user = useAuthStore((s) => s.user)
+  const logout = useAuthStore((s) => s.logout)
   const [currentPath, setCurrentPath] = useState("")
 
   useEffect(() => {
@@ -36,6 +38,11 @@ export function Sidebar() {
     }
     return true
   })
+
+  const handleLogout = () => {
+    logout()
+    window.location.href = "/login"
+  }
 
   return (
     <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-zinc-200 lg:bg-white lg:pt-16 dark:lg:border-zinc-800 dark:lg:bg-zinc-950">
@@ -66,6 +73,17 @@ export function Sidebar() {
           )
         })}
       </nav>
+      
+      <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+        <Button 
+          variant="outline" 
+          className="w-full gap-2 justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+          onClick={handleLogout}
+        >
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+          Cerrar Sesión
+        </Button>
+      </div>
     </aside>
   )
 }
