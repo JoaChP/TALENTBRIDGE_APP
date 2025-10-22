@@ -300,6 +300,8 @@ const saveData = () => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(mockData))
       console.log('[mockApi] Data saved to localStorage')
+      // Disparar evento personalizado para notificar cambios
+      window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
     } catch (error) {
       console.error("Error saving to localStorage:", error)
     }
