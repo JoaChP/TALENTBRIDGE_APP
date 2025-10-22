@@ -34,8 +34,27 @@ export function MessagesPage() {
       
       try {
         const data = await mockApi.listThreads()
-        // Filter threads for current user
-        const userThreads = data.filter((t) => t.userId === user.id)
+        
+        // For students: filter by userId
+        // For companies: filter by threads related to their practices
+        let userThreads: Thread[] = []
+        
+        if (user.role === "empresa" || user.role === "admin") {
+          // Get all practices owned by this company
+          const practices = await mockApi.listPractices()
+          const myPracticeIds = practices
+            .filter(p => p.company.ownerUserId === user.id)
+            .map(p => p.id)
+          
+          // Get threads related to my practices
+          userThreads = data.filter((t) => 
+            t.practiceId && myPracticeIds.includes(t.practiceId)
+          )
+        } else {
+          // Students: filter by userId
+          userThreads = data.filter((t) => t.userId === user.id)
+        }
+        
         setThreads(userThreads)
       } catch (error) {
         console.error("[v0] Error loading threads:", error)

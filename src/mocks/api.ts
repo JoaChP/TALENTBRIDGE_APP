@@ -514,17 +514,20 @@ export const mockApi = {
       return existingThread
     }
     
-    // Get practice info
+    // Get practice info and user info
     const practice = mockData.practices.find((p) => p.id === practiceId)
     if (!practice) throw new Error("Práctica no encontrada")
     
-    // Create new thread
+    const student = mockData.users.find((u) => u.id === userId)
+    if (!student) throw new Error("Usuario no encontrado")
+    
+    // Create new thread with student name as partner (for company view)
     const thread: Thread = {
       id: `t_${Date.now()}`,
       practiceId,
       userId,
-      partnerName: practice.company.name,
-      partnerIsEmpresa: true,
+      partnerName: student.name, // Changed to show student name
+      partnerIsEmpresa: false, // Changed to false since partner is student
       lastSnippet: "Inicia una conversación...",
       unread: false,
     }
