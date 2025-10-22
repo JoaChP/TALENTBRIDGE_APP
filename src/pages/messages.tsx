@@ -21,9 +21,7 @@ export function MessagesPage() {
   const [loading, setLoading] = useState(true)
 
   const handleNavigation = (path: string) => {
-    const link = document.createElement('a')
-    link.href = path
-    link.click()
+    window.location.href = path
   }
 
   useEffect(() => {
@@ -109,9 +107,7 @@ function ConversationView({ threadId }: { threadId: string }) {
   const attemptedRepairRef = useRef(false)
 
   const handleNavigation = (path: string) => {
-    const link = document.createElement('a')
-    link.href = path
-    link.click()
+    window.location.href = path
   }
 
   useEffect(() => {
