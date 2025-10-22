@@ -29,8 +29,7 @@ export function ApplicationsPage() {
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
     e.preventDefault()
-    window.history.pushState({}, '', path)
-    window.dispatchEvent(new PopStateEvent('popstate'))
+    window.location.href = path
   }
 
   useEffect(() => {

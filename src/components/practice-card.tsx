@@ -14,9 +14,7 @@ interface PracticeCardProps {
 export function PracticeCard({ practice }: PracticeCardProps) {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
-    const path = `/oferta/${practice.id}`
-    window.history.pushState({}, '', path)
-    window.dispatchEvent(new PopStateEvent('popstate'))
+    window.location.href = `/oferta/${practice.id}`
   }
 
   return (
