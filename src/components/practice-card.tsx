@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import { useNavigate } from "react-router-dom"
 import { MapPin, Clock, Briefcase } from "lucide-react"
 import { Card, CardContent } from "./ui/card"
 import { Badge } from "./ui/badge"
@@ -12,8 +13,10 @@ interface PracticeCardProps {
 }
 
 export function PracticeCard({ practice }: PracticeCardProps) {
+  const navigate = useNavigate()
+
   const handleNavigate = () => {
-    window.location.href = `/oferta/${practice.id}`
+    navigate(`/oferta/${practice.id}`)
   }
 
   return (

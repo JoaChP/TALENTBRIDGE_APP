@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useParams, useNavigate } from "react-router-dom"
 import Image from "next/image"
 import { Send, ChevronLeft } from "lucide-react"
 import { Card } from "../components/ui/card"
@@ -17,6 +17,7 @@ import { toast } from "sonner"
 export function MessagesPage() {
   const params = useParams<{ id?: string }>()
   const id = params?.id
+  const navigate = useNavigate()
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -56,7 +57,7 @@ export function MessagesPage() {
             <Card
               key={thread.id}
               className="cursor-pointer p-4 transition-shadow hover:shadow-md"
-              onClick={() => window.location.href = `/messages/${thread.id}`}
+              onClick={() => navigate(`/messages/${thread.id}`)}
             >
               <div className="flex items-start gap-3">
                 <Image
@@ -95,7 +96,7 @@ export async function getServerSideProps() {
 }
 
 function ConversationView({ threadId }: { threadId: string }) {
-  const router = useRouter()
+  const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const [thread, setThread] = useState<Thread | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -175,7 +176,7 @@ function ConversationView({ threadId }: { threadId: string }) {
             Si crees que debería haber mensajes, intentamos restaurar los datos automáticamente.
           </p>
           <div className="mt-2">
-            <Button variant="ghost" onClick={() => router.push("/messages")}>
+            <Button variant="ghost" onClick={() => navigate("/messages")}>
               Volver a conversaciones
             </Button>
           </div>
@@ -187,7 +188,7 @@ function ConversationView({ threadId }: { threadId: string }) {
   return (
     <div className="flex h-[calc(100vh-12rem)] flex-col">
       <div className="mb-4 flex items-center gap-4">
-  <Button variant="ghost" size="icon" onClick={() => router.push("/messages")} aria-label="Volver a mensajes">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} aria-label="Volver a mensajes">
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2">

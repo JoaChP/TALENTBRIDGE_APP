@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import { PracticeCard } from "../components/practice-card"
 import { LoadingSkeleton } from "../components/loading-skeleton"
 import type { Practice } from "../types"
@@ -46,7 +46,11 @@ export function HomePage() {
   }, [])
 
   const user = useAuthStore((s) => s.user)
-  const router = useRouter()
+  const navigate = useNavigate()
+
+  const handleNavigation = (path: string) => {
+    navigate(path)
+  }
 
   return (
     <div className="space-y-6">
@@ -71,7 +75,7 @@ export function HomePage() {
         <div className="mt-4 flex gap-3">
           {user?.role === "empresa" && (
             <button
-              onClick={() => router.push("/publish")}
+              onClick={() => handleNavigation("/publish")}
               className="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
             >
               Publicar oferta
@@ -80,7 +84,7 @@ export function HomePage() {
 
           {user?.role === "estudiante" && (
             <button
-              onClick={() => router.push("/profile")}
+              onClick={() => handleNavigation("/profile")}
               className="rounded-md border border-zinc-200 px-4 py-2 hover:bg-zinc-100 dark:border-zinc-800"
             >
               Ver mis postulaciones
@@ -93,7 +97,7 @@ export function HomePage() {
         <h3 className="text-lg font-semibold mb-3">Acciones rápidas</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button
-            onClick={() => router.push("/search")}
+            onClick={() => handleNavigation("/search")}
             className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3 text-left hover:shadow-sm"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-zinc-600">
@@ -108,7 +112,7 @@ export function HomePage() {
 
           {user?.role === "empresa" && (
             <button
-              onClick={() => router.push("/publish")}
+              onClick={() => handleNavigation("/publish")}
               className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3 text-left hover:shadow-sm"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-indigo-600">
@@ -123,7 +127,7 @@ export function HomePage() {
 
           {user?.role === "estudiante" && (
             <button
-              onClick={() => router.push("/profile")}
+              onClick={() => handleNavigation("/profile")}
               className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3 text-left hover:shadow-sm"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-zinc-600">

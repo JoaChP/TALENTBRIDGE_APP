@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
@@ -25,7 +25,7 @@ interface ApplicationWithPractice extends Application {
 
 export function ApplicationsPage() {
   const user = useAuthStore((state) => state.user)
-  const router = useRouter()
+  const navigate = useNavigate()
   const [applications, setApplications] = useState<ApplicationWithPractice[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -64,7 +64,7 @@ export function ApplicationsPage() {
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-4 mb-2">
-          <Button variant="ghost" onClick={() => router.back()} aria-label="Volver">
+          <Button variant="ghost" onClick={() => navigate(-1)} aria-label="Volver">
             <ChevronLeft className="h-5 w-5" />
             <span className="hidden sm:inline">Atrás</span>
           </Button>
@@ -81,7 +81,7 @@ export function ApplicationsPage() {
           description="Comienza a explorar oportunidades y postula a las prácticas que te interesen"
           action={{
             label: "Buscar Prácticas",
-            onClick: () => router.push("/search"),
+            onClick: () => navigate("/search"),
           }}
         />
       ) : (
@@ -130,7 +130,7 @@ export function ApplicationsPage() {
                       <Button
                         variant="outline"
                         className="w-full md:w-auto"
-                        onClick={() => window.location.href = `/oferta/${application.practice!.id}`}
+                        onClick={() => navigate(`/oferta/${application.practice!.id}`)}
                       >
                         Ver Oferta
                         <ArrowRight className="ml-2 h-4 w-4" />
