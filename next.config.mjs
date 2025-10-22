@@ -12,6 +12,10 @@ const nextConfig = {
   // Moved from experimental in Next.js 15
   skipTrailingSlashRedirect: true,
   skipMiddlewareUrlNormalize: true,
+  // Force new build
+  generateBuildId: async () => {
+    return 'build-' + Date.now()
+  },
 }
 
 export default nextConfig
