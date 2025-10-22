@@ -48,6 +48,11 @@ export function SearchPage() {
     const loadPractices = async () => {
       setLoading(true)
 
+      // Force reload from localStorage to get latest data
+      if (typeof window !== "undefined") {
+        mockApi.reloadFromStorage()
+      }
+
       const applyFilters = (list: Practice[]): Practice[] => {
         let filtered = [...list]
 

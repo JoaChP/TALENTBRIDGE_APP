@@ -453,9 +453,17 @@ export const mockApi = {
     return application
   },
 
-  async listApplications(userId: string) {
+  async listApplications(userId: string | "all" = "all") {
     await delay(300)
+    if (userId === "all") {
+      return mockData.applications
+    }
     return mockData.applications.filter((a) => a.userId === userId)
+  },
+
+  async listUsers() {
+    await delay(300)
+    return mockData.users
   },
 
   async listThreads() {

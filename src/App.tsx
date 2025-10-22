@@ -12,6 +12,7 @@ import { LoginPage } from "./pages/login"
 import { RegisterPage } from "./pages/register"
 import { UnauthorizedPage } from "./pages/unauthorized"
 import { ApplicationsPage } from "./pages/applications"
+import { CompanyApplicationsPage } from "./pages/company-applications"
 import StudentDashboard from "./components/student-dashboard-client"
 import { CompanyDashboard } from "./pages/dashboard/company"
 import { AdminDashboard } from "./pages/dashboard/admin"
@@ -79,6 +80,14 @@ export default function App() {
     // Applications routes
     if (currentPath === "/applications" || currentPath === "/postulaciones") {
       return <ApplicationsPage />
+    }
+    
+    // Company applications route
+    if (currentPath === "/company-applications" || currentPath === "/aplicaciones-empresa") {
+      if (user.role !== "empresa" && user.role !== "admin") {
+        return <UnauthorizedPage />
+      }
+      return <CompanyApplicationsPage />
     }
 
     // Practice detail

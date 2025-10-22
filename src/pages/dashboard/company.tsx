@@ -29,7 +29,18 @@ export function CompanyDashboard() {
           <CardTitle>Candidatos Recientes</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">No hay candidatos aún</p>
+          <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+            Revisa las aplicaciones que has recibido
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => {
+              window.history.pushState({}, "", "/company-applications")
+              window.dispatchEvent(new PopStateEvent("popstate"))
+            }}
+          >
+            Ver Aplicaciones
+          </Button>
         </CardContent>
       </Card>
     </div>
