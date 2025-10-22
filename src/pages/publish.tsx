@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -71,7 +70,6 @@ export async function getServerSideProps() {
 }
 
 function PublishForm() {
-  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>([])
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -143,7 +141,8 @@ function PublishForm() {
 
       toast.success("Borrador guardado exitosamente")
       setHasChanges(false)
-      router.push("/")
+      window.history.pushState({}, '', "/")
+      window.dispatchEvent(new PopStateEvent('popstate'))
     } catch (error) {
       console.error("[v0] Error al guardar el borrador", error)
       toast.error("Error al guardar el borrador")
@@ -185,7 +184,8 @@ function PublishForm() {
       })
 
       setHasChanges(false)
-      router.push("/")
+      window.history.pushState({}, '', "/")
+      window.dispatchEvent(new PopStateEvent('popstate'))
     } catch (error) {
       console.error("[v0] Error al publicar la práctica", error)
       toast.error("Error al publicar la práctica")
@@ -196,7 +196,7 @@ function PublishForm() {
     if (hasChanges) {
       setShowConfirmDialog(true)
     } else {
-      router.back()
+      window.history.back()
     }
   }
 
@@ -431,7 +431,7 @@ function PublishForm() {
               variant="default"
               onClick={() => {
                 setShowConfirmDialog(false)
-                router.back()
+                window.history.back()
               }}
               className="flex-1"
             >
