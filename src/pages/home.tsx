@@ -46,10 +46,10 @@ export function HomePage() {
 
   const user = useAuthStore((s) => s.user)
 
-  const handleNavigation = (path: string) => {
-    const link = document.createElement('a')
-    link.href = path
-    link.click()
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    e.preventDefault()
+    window.history.pushState({}, '', path)
+    window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
   return (
@@ -74,21 +74,23 @@ export function HomePage() {
         </div>
         <div className="mt-4 flex gap-3">
           {user?.role === "empresa" && (
-            <button
-              onClick={() => handleNavigation("/publish")}
+            <a
+              href="/publish"
+              onClick={(e) => handleClick(e, "/publish")}
               className="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
             >
               Publicar oferta
-            </button>
+            </a>
           )}
 
           {user?.role === "estudiante" && (
-            <button
-              onClick={() => handleNavigation("/profile")}
+            <a
+              href="/postulaciones"
+              onClick={(e) => handleClick(e, "/postulaciones")}
               className="rounded-md border border-zinc-200 px-4 py-2 hover:bg-zinc-100 dark:border-zinc-800"
             >
               Ver mis postulaciones
-            </button>
+            </a>
           )}
         </div>
       </div>
@@ -96,8 +98,9 @@ export function HomePage() {
       <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <h3 className="text-lg font-semibold mb-3">Acciones rápidas</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button
-            onClick={() => handleNavigation("/search")}
+          <a
+            href="/search"
+            onClick={(e) => handleClick(e, "/search")}
             className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3 text-left hover:shadow-sm"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-zinc-600">
@@ -108,11 +111,12 @@ export function HomePage() {
               <div className="font-medium">Buscar prácticas</div>
               <div className="text-sm text-zinc-500">Explora oportunidades por título, empresa o habilidad</div>
             </div>
-          </button>
+          </a>
 
           {user?.role === "empresa" && (
-            <button
-              onClick={() => handleNavigation("/publish")}
+            <a
+              href="/publish"
+              onClick={(e) => handleClick(e, "/publish")}
               className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3 text-left hover:shadow-sm"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-indigo-600">
@@ -122,12 +126,13 @@ export function HomePage() {
                 <div className="font-medium">Publicar oferta</div>
                 <div className="text-sm text-zinc-500">Crea una nueva oferta y gestiona postulaciones</div>
               </div>
-            </button>
+            </a>
           )}
 
           {user?.role === "estudiante" && (
-            <button
-              onClick={() => handleNavigation("/profile")}
+            <a
+              href="/postulaciones"
+              onClick={(e) => handleClick(e, "/postulaciones")}
               className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3 text-left hover:shadow-sm"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-zinc-600">
@@ -138,7 +143,7 @@ export function HomePage() {
                 <div className="font-medium">Mis postulaciones</div>
                 <div className="text-sm text-zinc-500">Revisa y gestiona tus aplicaciones</div>
               </div>
-            </button>
+            </a>
           )}
         </div>
       </div>

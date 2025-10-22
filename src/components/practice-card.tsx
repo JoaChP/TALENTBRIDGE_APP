@@ -12,11 +12,11 @@ interface PracticeCardProps {
 }
 
 export function PracticeCard({ practice }: PracticeCardProps) {
-  const handleNavigate = () => {
-    // Use Link-like behavior with client-side navigation
-    const link = document.createElement('a')
-    link.href = `/oferta/${practice.id}`
-    link.click()
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    const path = `/oferta/${practice.id}`
+    window.history.pushState({}, '', path)
+    window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
   return (
@@ -64,9 +64,11 @@ export function PracticeCard({ practice }: PracticeCardProps) {
             </div>
 
             <div className="flex gap-2 pt-2">
-              <Button className="flex-1" onClick={handleNavigate}>
-                Ver detalles
-              </Button>
+              <a href={`/oferta/${practice.id}`} onClick={handleClick} className="flex-1">
+                <Button className="w-full">
+                  Ver detalles
+                </Button>
+              </a>
               <Button variant="outline" size="icon" aria-label="Guardar práctica">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

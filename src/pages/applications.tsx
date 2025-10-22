@@ -27,10 +27,10 @@ export function ApplicationsPage() {
   const [applications, setApplications] = useState<ApplicationWithPractice[]>([])
   const [loading, setLoading] = useState(true)
 
-  const handleNavigation = (path: string) => {
-    const link = document.createElement('a')
-    link.href = path
-    link.click()
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    e.preventDefault()
+    window.history.pushState({}, '', path)
+    window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
   useEffect(() => {
@@ -85,7 +85,10 @@ export function ApplicationsPage() {
           description="Comienza a explorar oportunidades y postula a las prácticas que te interesen"
           action={{
             label: "Buscar Prácticas",
-            onClick: () => handleNavigation("/search"),
+            onClick: () => {
+              window.history.pushState({}, '', "/search")
+              window.dispatchEvent(new PopStateEvent('popstate'))
+            },
           }}
         />
       ) : (
@@ -131,14 +134,16 @@ export function ApplicationsPage() {
                     </div>
 
                     <div className="flex flex-col gap-2 md:w-auto w-full">
-                      <Button
-                        variant="outline"
+                      <a 
+                        href={`/oferta/${application.practice!.id}`} 
+                        onClick={(e) => handleClick(e, `/oferta/${application.practice!.id}`)}
                         className="w-full md:w-auto"
-                        onClick={() => handleNavigation(`/oferta/${application.practice!.id}`)}
                       >
-                        Ver Oferta
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
+                        <Button variant="outline" className="w-full">
+                          Ver Oferta
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </a>
                     </div>
                   </div>
                 </CardContent>
