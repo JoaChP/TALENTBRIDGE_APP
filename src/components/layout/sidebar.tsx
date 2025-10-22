@@ -49,7 +49,8 @@ export function Sidebar() {
               href={to}
               onClick={(e) => {
                 e.preventDefault()
-                window.location.href = to
+                window.history.pushState({}, '', to)
+                window.dispatchEvent(new PopStateEvent('popstate'))
               }}
               aria-label={label}
               className={cn(

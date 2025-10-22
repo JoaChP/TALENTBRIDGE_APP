@@ -156,10 +156,16 @@ export function ProfilePage() {
 
       {user?.role === "estudiante" && (
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button className="flex-1" onClick={() => window.location.href = "/search"}>
+          <Button className="flex-1" onClick={() => {
+            window.history.pushState({}, '', "/search")
+            window.dispatchEvent(new PopStateEvent('popstate'))
+          }}>
             Buscar Prácticas
           </Button>
-          <Button variant="outline" className="flex-1 bg-transparent" onClick={() => window.location.href = "/postulaciones"}>
+          <Button variant="outline" className="flex-1 bg-transparent" onClick={() => {
+            window.history.pushState({}, '', "/postulaciones")
+            window.dispatchEvent(new PopStateEvent('popstate'))
+          }}>
             Ver Mis Postulaciones
           </Button>
         </div>
