@@ -1,5 +1,8 @@
 # Ignore conflicting pages directory if it exists
 pages/
-src/pages/
+# Ignore specific pages that are now in App Router
+src/pages/applications.tsx
+src/pages/company-applications.tsx
+src/pages/login.tsx
 .next/
 node_modules/

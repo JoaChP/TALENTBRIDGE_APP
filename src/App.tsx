@@ -8,11 +8,8 @@ import { PublishPage } from "./pages/publish"
 import { MessagesPage } from "./pages/messages"
 import { ProfilePage } from "./pages/profile"
 import { PracticeDetailPage } from "./pages/practice-detail"
-import { LoginPage } from "./pages/login"
 import { RegisterPage } from "./pages/register"
 import { UnauthorizedPage } from "./pages/unauthorized"
-import { ApplicationsPage } from "./pages/applications"
-import { CompanyApplicationsPage } from "./pages/company-applications"
 import StudentDashboard from "./components/student-dashboard-client"
 import { CompanyDashboard } from "./pages/dashboard/company"
 import { AdminDashboard } from "./pages/dashboard/admin"
@@ -50,9 +47,10 @@ export default function App() {
     return null
   }
 
-  // Login/Register pages (no AppShell)
+  // Login/Register pages (redirect to App Router)
   if (currentPath === "/login") {
-    return <LoginPage />
+    window.location.href = "/login"
+    return null
   }
 
   if (currentPath === "/registro") {
@@ -83,17 +81,16 @@ export default function App() {
       return <UserProfilePage />
     }
 
-    // Applications routes
+    // Applications routes (redirect to App Router)
     if (currentPath === "/applications" || currentPath === "/postulaciones") {
-      return <ApplicationsPage />
+      window.location.href = "/applications"
+      return null
     }
     
-    // Company applications route
+    // Company applications route (redirect to App Router)
     if (currentPath === "/company-applications" || currentPath === "/aplicaciones-empresa") {
-      if (user.role !== "empresa" && user.role !== "admin") {
-        return <UnauthorizedPage />
-      }
-      return <CompanyApplicationsPage />
+      window.location.href = "/company-applications"
+      return null
     }
 
     // Practice detail
