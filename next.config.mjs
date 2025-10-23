@@ -12,9 +12,9 @@ const nextConfig = {
   // Moved from experimental in Next.js 15
   skipTrailingSlashRedirect: true,
   skipMiddlewareUrlNormalize: true,
-  // Force new build
+  // Force new build - fix Vercel cache issue
   generateBuildId: async () => {
-    return 'build-' + Date.now()
+    return 'build-' + Date.now() + '-force-clean'
   },
 }
 

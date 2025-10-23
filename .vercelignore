@@ -1,0 +1,5 @@
+# Ignore conflicting pages directory if it exists
+pages/
+src/pages/
+.next/
+node_modules/
