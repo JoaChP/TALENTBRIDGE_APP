@@ -1,8 +1,12 @@
-# Ignore conflicting pages directory if it exists
-pages/
-# Ignore specific pages that are now in App Router
+# Build ID: v2.1 - Fixed imports for Vercel deployment
+# Solo ignorar archivos específicos que causan conflictos con App Router
+# Estos archivos ya están implementados en app/ y causarían conflictos
+
+# Archivos que ya existen en App Router - evitar duplicados
 src/pages/applications.tsx
-src/pages/company-applications.tsx
+src/pages/company-applications.tsx  
 src/pages/login.tsx
+
+# Archivos de build y cache
 .next/
 node_modules/
