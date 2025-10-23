@@ -37,12 +37,20 @@ export default function RegistroPage() {
 
   const onSubmit = async (data: RegisterData) => {
     setLoading(true)
+    console.log("Iniciando registro:", { name: data.name, email: data.email, role: data.role })
+    
     try {
       await registerUser(data.name, data.email, data.password, data.role)
-      toast.success("¡Cuenta creada exitosamente!")
-      // Redireccionar a login
-      window.location.href = "/login"
+      console.log("Registro exitoso")
+      toast.success("¡Cuenta creada exitosamente! Redirigiendo...")
+      
+      // Dar tiempo para que se guarde el estado y mostrar el toast
+      setTimeout(() => {
+        window.location.href = "/"
+      }, 1500)
+      
     } catch (error: any) {
+      console.error("Error en registro:", error)
       toast.error(error?.message || "Error al crear la cuenta")
     } finally {
       setLoading(false)
@@ -132,6 +140,40 @@ export default function RegistroPage() {
               {loading ? "Creando cuenta..." : "Crear Cuenta"}
             </Button>
           </form>
+
+          {/* Botón de prueba para desarrollo */}
+          <div className="mt-4 pt-4 border-t border-zinc-200">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={async () => {
+                const timestamp = Date.now()
+                const testData = {
+                  name: `Usuario Test ${timestamp}`,
+                  email: `test${timestamp}@test.com`,
+                  password: "123456",
+                  role: "estudiante" as const
+                }
+                
+                setLoading(true)
+                try {
+                  await registerUser(testData.name, testData.email, testData.password, testData.role)
+                  toast.success("Usuario de prueba creado exitosamente!")
+                  setTimeout(() => {
+                    window.location.href = "/"
+                  }, 1500)
+                } catch (error: any) {
+                  toast.error(error?.message || "Error al crear usuario de prueba")
+                } finally {
+                  setLoading(false)
+                }
+              }}
+              disabled={loading}
+            >
+              🔧 Crear Usuario de Prueba
+            </Button>
+          </div>
 
           <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
             ¿Ya tienes cuenta?{" "}
