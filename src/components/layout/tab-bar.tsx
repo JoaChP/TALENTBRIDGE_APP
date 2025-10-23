@@ -8,7 +8,8 @@ import { useAuthStore } from "../../stores/auth-store"
 const navItems = [
   { to: "/", icon: Home, label: "Inicio" },
   { to: "/search", icon: Search, label: "Buscar" },
-  { to: "/postulaciones", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"] },
+  { to: "/applications", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"] },
+  { to: "/company-applications", icon: FileCheck, label: "Aplicaciones", roleRequired: ["empresa"] },
   { to: "/messages", icon: MessageCircle, label: "Mensajes" },
   { to: "/profile", icon: User, label: "Perfil" },
 ]

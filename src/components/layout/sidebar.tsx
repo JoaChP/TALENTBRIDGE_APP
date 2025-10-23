@@ -11,7 +11,7 @@ const navItems = [
   { to: "/search", icon: Search, label: "Buscar" },
   { to: "/publish", icon: PlusCircle, label: "Publicar", roleRequired: ["empresa", "admin"] },
   { to: "/company-applications", icon: FileCheck, label: "Aplicaciones", roleRequired: ["empresa", "admin"] },
-  { to: "/postulaciones", icon: FileCheck, label: "Postulaciones", roleRequired: ["estudiante"] },
+  { to: "/applications", icon: FileCheck, label: "Postulaciones", roleRequired: ["estudiante"] },
   { to: "/messages", icon: MessageCircle, label: "Mensajes" },
   { to: "/profile", icon: User, label: "Perfil" },
 ]
