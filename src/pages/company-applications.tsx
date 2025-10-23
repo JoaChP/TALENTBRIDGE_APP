@@ -6,10 +6,10 @@ import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
 import { LoadingSkeleton } from "../components/loading-skeleton"
 import { EmptyState } from "../components/empty-state"
-import type { Application, Practice, User } from "../types"
+import type { Application, Practice, User, ApplicationStatus } from "../types"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
-import { Calendar, User as UserIcon, MessageSquare, ChevronLeft } from "lucide-react"
+import { Calendar, User as UserIcon, MessageSquare, ChevronLeft, Check, X } from "lucide-react"
 import { toast } from "sonner"
 
 const STATUS_COLORS = {
@@ -100,6 +100,20 @@ export function CompanyApplicationsPage() {
       window.removeEventListener('talentbridge-data-updated', handleDataUpdate)
     }
   }, [user])
+
+  const handleUpdateStatus = async (applicationId: string, newStatus: ApplicationStatus) => {
+    if (!user) return
+
+    try {
+      await mockApi.updateApplicationStatus(applicationId, newStatus, user.id)
+      toast.success(`Aplicación ${newStatus.toLowerCase()} exitosamente`)
+      // Recargar datos para mostrar el cambio
+      loadData()
+    } catch (error) {
+      console.error("Error updating application status:", error)
+      toast.error("Error al actualizar la aplicación")
+    }
+  }
 
   const handleStartChat = async (application: ApplicationWithDetails) => {
     if (!user || !application.applicant) return
@@ -231,6 +245,45 @@ export function CompanyApplicationsPage() {
                       >
                         Ver perfil
                       </Button>
+                      
+                      {/* Botones de aceptar/rechazar solo para aplicaciones pendientes */}
+                      {(application.status === "Enviada" || application.status === "Revisando") && (
+                        <div className="flex gap-2 w-full">
+                          <Button
+                            variant="default"
+                            size="sm"
+                            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => handleUpdateStatus(application.id, "Aceptada")}
+                          >
+                            <Check className="mr-2 h-4 w-4" />
+                            Aceptar
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleUpdateStatus(application.id, "Rechazada")}
+                          >
+                            <X className="mr-2 h-4 w-4" />
+                            Rechazar
+                          </Button>
+                        </div>
+                      )}
+                      
+                      {/* Mostrar estado final para aplicaciones ya procesadas */}
+                      {(application.status === "Aceptada" || application.status === "Rechazada") && (
+                        <div className="w-full p-2 rounded-md text-center text-sm font-medium">
+                          {application.status === "Aceptada" ? (
+                            <span className="text-green-700 bg-green-50 px-3 py-1 rounded-full">
+                              ✅ Aplicación Aceptada
+                            </span>
+                          ) : (
+                            <span className="text-red-700 bg-red-50 px-3 py-1 rounded-full">
+                              ❌ Aplicación Rechazada
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>

@@ -1,4 +1,4 @@
-import type { User, Practice, Application, Thread, Message, Role, Skill, Modality } from "../types"
+import type { User, Practice, Application, Thread, Message, Role, Skill, Modality, ApplicationStatus } from "../types"
 
 // Mock data storage
 const STORAGE_KEY = "talentbridge_data"
@@ -173,7 +173,36 @@ export const defaultData: MockData = {
       benefits: "Trabajo remoto, horario flexible, experiencia internacional",
     },
   ],
-  applications: [],
+  applications: [
+    {
+      id: "app1",
+      practiceId: "1", // Desarrollador Frontend React
+      userId: "1", // Ana García (estudiante)
+      status: "Enviada",
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // Hace 2 días
+    },
+    {
+      id: "app2", 
+      practiceId: "2", // Analista de Marketing Digital
+      userId: "1", // Ana García (estudiante)
+      status: "Revisando",
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // Hace 1 día
+    },
+    {
+      id: "app3",
+      practiceId: "1", // Desarrollador Frontend React 
+      userId: "3", // Carlos Mendoza (estudiante)
+      status: "Aceptada",
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // Hace 5 días
+    },
+    {
+      id: "app4",
+      practiceId: "4", // Diseñador UX/UI Junior
+      userId: "1", // Ana García (estudiante)  
+      status: "Enviada",
+      createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // Hace 3 horas
+    },
+  ],
   threads: [
     {
       id: "t1",
@@ -566,5 +595,39 @@ export const mockApi = {
   async countCompanies() {
     await delay(150)
     return mockData.users.filter((u) => u.role === "empresa").length
+  },
+
+  // Actualizar estado de aplicación (para empresas)
+  async updateApplicationStatus(applicationId: string, newStatus: ApplicationStatus, reviewerUserId: string) {
+    await delay(300)
+    
+    const application = mockData.applications.find(app => app.id === applicationId)
+    if (!application) {
+      throw new Error("Aplicación no encontrada")
+    }
+
+    // Verificar que el reviewer es el dueño de la práctica o admin
+    const practice = mockData.practices.find(p => p.id === application.practiceId)
+    if (!practice) {
+      throw new Error("Práctica no encontrada")
+    }
+
+    const reviewer = mockData.users.find(u => u.id === reviewerUserId)
+    if (!reviewer) {
+      throw new Error("Usuario revisor no encontrado")
+    }
+
+    // Solo el dueño de la práctica o admin puede actualizar
+    if (reviewer.role !== "admin" && practice.company.ownerUserId !== reviewerUserId) {
+      throw new Error("No tienes permisos para actualizar esta aplicación")
+    }
+
+    // Actualizar el estado
+    application.status = newStatus
+    
+    saveData()
+    console.log(`[mockApi] Application ${applicationId} status updated to ${newStatus} by ${reviewer.name}`)
+    
+    return application
   },
 }
