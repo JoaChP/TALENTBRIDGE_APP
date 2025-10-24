@@ -9,7 +9,9 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       login: async (email: string, password: string) => {
+        console.log("[AuthStore] Login attempt for:", email)
         const { user, token } = await mockApi.login(email, password)
+        console.log("[AuthStore] Login successful, setting user:", user)
         set({ user, token })
       },
       register: async (name: string, email: string, password: string, role) => {
@@ -17,6 +19,7 @@ export const useAuthStore = create<AuthState>()(
         set({ user, token })
       },
       logout: () => {
+        console.log("[AuthStore] Logging out")
         mockApi.logout()
         set({ user: null, token: null })
       },
@@ -29,7 +32,13 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
-      skipHydration: false,
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.error("[AuthStore] Rehydration error:", error)
+        } else {
+          console.log("[AuthStore] Rehydrated with state:", state)
+        }
+      },
     },
   ),
 )
