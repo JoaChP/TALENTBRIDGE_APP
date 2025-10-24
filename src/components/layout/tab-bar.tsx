@@ -21,7 +21,7 @@ const navItems = [
   { to: "/test", icon: Shield, label: "Pruebas", roleRequired: ["admin"], spa: false },
   
   // Comunes a todos
-  { to: "/messages", icon: MessageCircle, label: "Mensajes", spa: true },
+  { to: "/messages", icon: MessageCircle, label: "Mensajes", spa: false },
   { to: "/profile", icon: User, label: "Perfil", spa: true },
 ]
 
