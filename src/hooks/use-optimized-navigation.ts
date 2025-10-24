@@ -1,21 +1,11 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
-import { debounce } from '../utils/performance'
+import { useState, useEffect, useCallback } from 'react'
 
 /**
- * Hook optimizado para navegación que previene actualizaciones innecesarias
- * y mejora el rendimiento de las transiciones entre páginas
+ * Hook optimizado para navegación que proporciona navegación rápida y directa
  */
 export function useOptimizedNavigation() {
   const [currentPath, setCurrentPath] = useState('')
   const [isNavigating, setIsNavigating] = useState(false)
-
-  // Debounced path update para prevenir re-renders excesivos
-  const updatePath = useMemo(() => 
-    debounce((path: string) => {
-      setCurrentPath(path)
-      setIsNavigating(false)
-    }, 50), []
-  )
 
   useEffect(() => {
     // Inicializar con la ruta actual
@@ -23,14 +13,16 @@ export function useOptimizedNavigation() {
     
     const handlePopState = () => {
       setIsNavigating(true)
-      updatePath(window.location.pathname)
+      setCurrentPath(window.location.pathname)
+      // Reset navigation state quickly
+      setTimeout(() => setIsNavigating(false), 100)
     }
     
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
-  }, [updatePath])
+  }, [])
 
-  // Función de navegación optimizada
+  // Función de navegación directa y rápida
   const navigate = useCallback((to: string) => {
     if (currentPath === to) return // No navegar si ya estamos en la ruta
     

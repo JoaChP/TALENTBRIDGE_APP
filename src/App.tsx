@@ -15,18 +15,11 @@ import { CompanyDashboard } from "./pages/dashboard/company"
 import { AdminDashboard } from "./pages/dashboard/admin"
 import { useAuthStore } from "./stores/auth-store"
 import { UserProfilePage } from "./pages/user-profile"
-import { PerformanceMonitor, debounce } from "./utils/performance"
+import { PerformanceMonitor } from "./utils/performance"
 
 export default function App() {
   const user = useAuthStore((state) => state.user)
   const [currentPath, setCurrentPath] = useState("")
-
-  // Debounced path update to prevent excessive re-renders
-  const updatePath = useMemo(() => 
-    debounce((path: string) => {
-      setCurrentPath(path)
-    }, 100), []
-  )
 
   useEffect(() => {
     PerformanceMonitor.start('app-init')
@@ -37,7 +30,7 @@ export default function App() {
 
     // Listen for popstate (back/forward browser buttons)
     const handlePopState = () => {
-      updatePath(window.location.pathname)
+      setCurrentPath(window.location.pathname)
     }
 
     window.addEventListener("popstate", handlePopState)
@@ -47,7 +40,7 @@ export default function App() {
     return () => {
       window.removeEventListener("popstate", handlePopState)
     }
-  }, [updatePath])
+  }, [])
 
   // Optimize redirects with immediate navigation
   useEffect(() => {

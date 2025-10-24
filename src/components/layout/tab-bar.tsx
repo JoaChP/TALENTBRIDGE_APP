@@ -4,7 +4,6 @@ import { useEffect, useState, memo, useMemo, useCallback } from "react"
 import { Home, Search, MessageCircle, User, FileCheck, PlusCircle, Shield } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
-import { debounce } from "../../utils/performance"
 
 const navItems = [
   { to: "/", icon: Home, label: "Inicio" },
@@ -30,23 +29,16 @@ export const TabBar = memo(function TabBar() {
   const user = useAuthStore((s) => s.user)
   const [currentPath, setCurrentPath] = useState("")
 
-  // Debounced path update
-  const updatePath = useMemo(() => 
-    debounce((path: string) => {
-      setCurrentPath(path)
-    }, 50), []
-  )
-
   useEffect(() => {
     setCurrentPath(window.location.pathname)
     
     const handlePopState = () => {
-      updatePath(window.location.pathname)
+      setCurrentPath(window.location.pathname)
     }
     
     window.addEventListener("popstate", handlePopState)
     return () => window.removeEventListener("popstate", handlePopState)
-  }, [updatePath])
+  }, [])
 
   // Memoize filtered items to prevent recalculation
   const filteredItems = useMemo(() => {
