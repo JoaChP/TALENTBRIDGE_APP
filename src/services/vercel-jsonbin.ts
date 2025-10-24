@@ -33,31 +33,29 @@ class VercelJSONBinService {
 
   async fetchInitialData(): Promise<JSONBinData | null> {
     if (!this.enabled) {
-      console.log('[VercelJSONBin] JSONBin disabled, using localStorage only')
       return null
     }
 
     if (this.isCacheValid()) {
-      console.log('[VercelJSONBin] Using cached data')
       return this.cache
     }
 
     try {
-      console.log('[VercelJSONBin] Fetching initial data from JSONBin...')
       const response = await axios.get(this.apiUrl, {
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        timeout: 10000 // 10 second timeout
       })
 
       this.cache = response.data.record
       this.lastSync = Date.now()
       
-      console.log('[VercelJSONBin] Initial data fetched successfully')
+      console.log('[JSONBin] Data loaded successfully')
       return this.cache
 
     } catch (error: any) {
-      console.warn('[VercelJSONBin] Failed to fetch initial data:', error.message)
+      console.warn('[JSONBin] Using local storage fallback')
       return null
     }
   }

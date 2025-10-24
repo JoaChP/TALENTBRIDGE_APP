@@ -311,14 +311,14 @@ const initializeWithJSONBin = async () => {
       const initializedData = await vercelJsonBinService.initializeData()
       if (initializedData) {
         Object.assign(mockData, initializedData)
-        console.log('[mockApi] Data initialized with JSONBin service')
+        console.log('[TalentBridge] Data loaded from JSONBin successfully')
         
         // Dispatch event to notify components
         window.dispatchEvent(new CustomEvent('talentbridge-data-initialized'))
         return true
       }
     } catch (error) {
-      console.warn('[mockApi] JSONBin initialization failed, using localStorage:', error)
+      console.warn('[TalentBridge] Using local storage fallback')
     }
   }
   return false
