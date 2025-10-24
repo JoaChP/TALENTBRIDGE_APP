@@ -213,7 +213,7 @@ export default function AutoTestPage() {
                 <div>
                   <h4 className="font-semibold mb-2">LocalStorage auth-storage:</h4>
                   <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs overflow-auto">
-                    {localStorage.getItem('auth-storage') || 'No data'}
+                    {typeof window !== 'undefined' ? localStorage.getItem('auth-storage') || 'No data' : 'SSR Mode'}
                   </pre>
                 </div>
                 <div>
