@@ -318,9 +318,10 @@ const initializeWithJSONBin = async () => {
         return true
       }
     } catch (error) {
-      console.warn('[TalentBridge] Using local storage fallback')
+      console.log('[TalentBridge] JSONBin unavailable, using localStorage mode')
     }
   }
+  console.log('[TalentBridge] Running in localStorage-only mode')
   return false
 }
 

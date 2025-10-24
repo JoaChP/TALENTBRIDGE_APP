@@ -55,7 +55,15 @@ class VercelJSONBinService {
       return this.cache
 
     } catch (error: any) {
-      console.warn('[JSONBin] Using local storage fallback')
+      if (error.response?.status === 401) {
+        console.warn('[JSONBin] Authentication failed (401) - using localStorage fallback')
+      } else if (error.response?.status === 404) {
+        console.warn('[JSONBin] Bin not found (404) - using localStorage fallback')
+      } else if (error.code === 'ECONNABORTED') {
+        console.warn('[JSONBin] Request timeout - using localStorage fallback')
+      } else {
+        console.warn('[JSONBin] Connection failed - using localStorage fallback:', error.message)
+      }
       return null
     }
   }
