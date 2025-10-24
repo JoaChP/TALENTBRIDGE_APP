@@ -6,23 +6,23 @@ import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
 
 const navItems = [
-  { to: "/", icon: Home, label: "Inicio" },
-  { to: "/search", icon: Search, label: "Buscar" },
+  { to: "/", icon: Home, label: "Inicio", spa: true },
+  { to: "/search", icon: Search, label: "Buscar", spa: true },
   
-  // Estudiantes - Ver sus postulaciones
-  { to: "/applications", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"] },
+  // Estudiantes - Ver sus postulaciones (App Router)
+  { to: "/applications", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"], spa: false },
   
   // Empresas - Publicar y gestionar aplicaciones  
-  { to: "/publish", icon: PlusCircle, label: "Publicar", roleRequired: ["empresa"] },
-  { to: "/company-applications", icon: FileCheck, label: "Aplicaciones", roleRequired: ["empresa"] },
+  { to: "/publish", icon: PlusCircle, label: "Publicar", roleRequired: ["empresa"], spa: true },
+  { to: "/company-applications", icon: FileCheck, label: "Aplicaciones", roleRequired: ["empresa"], spa: false },
   
   // Administradores - Ver todas las aplicaciones y acceso a pruebas
-  { to: "/company-applications", icon: Shield, label: "Gestión", roleRequired: ["admin"] },
-  { to: "/test", icon: Shield, label: "Pruebas", roleRequired: ["admin"] },
+  { to: "/company-applications", icon: Shield, label: "Gestión", roleRequired: ["admin"], spa: false },
+  { to: "/test", icon: Shield, label: "Pruebas", roleRequired: ["admin"], spa: false },
   
   // Comunes a todos
-  { to: "/messages", icon: MessageCircle, label: "Mensajes" },
-  { to: "/profile", icon: User, label: "Perfil" },
+  { to: "/messages", icon: MessageCircle, label: "Mensajes", spa: true },
+  { to: "/profile", icon: User, label: "Perfil", spa: true },
 ]
 
 export const TabBar = memo(function TabBar() {
@@ -52,12 +52,19 @@ export const TabBar = memo(function TabBar() {
   }, [user?.role])
 
   // Optimized navigation handler
-  const handleNavigation = useCallback((to: string) => {
+  const handleNavigation = useCallback((to: string, useSpa: boolean) => {
     return (e: React.MouseEvent) => {
       e.preventDefault()
-      if (currentPath !== to) {
-        window.history.pushState({}, '', to)
-        window.dispatchEvent(new PopStateEvent('popstate'))
+      
+      if (useSpa) {
+        // SPA navigation for routes handled by src/App.tsx
+        if (currentPath !== to) {
+          window.history.pushState({}, '', to)
+          window.dispatchEvent(new PopStateEvent('popstate'))
+        }
+      } else {
+        // HTML navigation for App Router routes
+        window.location.href = to
       }
     }
   }, [currentPath])
@@ -68,14 +75,14 @@ export const TabBar = memo(function TabBar() {
       aria-label="Navegación principal"
     >
       <div className="flex h-16 items-center justify-around">
-        {filteredItems.map(({ to, icon: Icon, label }) => {
+        {filteredItems.map(({ to, icon: Icon, label, spa = true }) => {
           const isActive = currentPath === to || (to !== "/" && currentPath.startsWith(to))
           
           return (
             <a
               key={to}
               href={to}
-              onClick={handleNavigation(to)}
+              onClick={handleNavigation(to, spa)}
               aria-label={label}
               className={cn(
                 "flex min-w-[44px] flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors",

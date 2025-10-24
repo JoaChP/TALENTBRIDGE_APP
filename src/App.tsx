@@ -99,17 +99,8 @@ export default function App() {
       return <UserProfilePage />
     }
 
-    // Applications routes (redirect to App Router)
-    if (currentPath === "/applications" || currentPath === "/postulaciones") {
-      window.location.href = "/applications"
-      return null
-    }
-    
-    // Company applications route (redirect to App Router)
-    if (currentPath === "/company-applications" || currentPath === "/aplicaciones-empresa") {
-      window.location.href = "/company-applications"
-      return null
-    }
+    // NOTE: /applications and /company-applications are handled by App Router
+    // Don't redirect these routes, let App Router handle them naturally
 
     // Practice detail
     if (currentPath.startsWith("/oferta/")) {
