@@ -1,15 +1,26 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Home, Search, MessageCircle, User, FileCheck } from "lucide-react"
+import { Home, Search, MessageCircle, User, FileCheck, PlusCircle, Shield } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
 
 const navItems = [
   { to: "/", icon: Home, label: "Inicio" },
   { to: "/search", icon: Search, label: "Buscar" },
+  
+  // Estudiantes - Ver sus postulaciones
   { to: "/applications", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"] },
+  
+  // Empresas - Publicar y gestionar aplicaciones  
+  { to: "/publish", icon: PlusCircle, label: "Publicar", roleRequired: ["empresa"] },
   { to: "/company-applications", icon: FileCheck, label: "Aplicaciones", roleRequired: ["empresa"] },
+  
+  // Administradores - Ver todas las aplicaciones y acceso a pruebas
+  { to: "/company-applications", icon: Shield, label: "Gestión", roleRequired: ["admin"] },
+  { to: "/test", icon: Shield, label: "Pruebas", roleRequired: ["admin"] },
+  
+  // Comunes a todos
   { to: "/messages", icon: MessageCircle, label: "Mensajes" },
   { to: "/profile", icon: User, label: "Perfil" },
 ]
@@ -29,13 +40,14 @@ export function TabBar() {
     return () => window.removeEventListener("popstate", handlePopState)
   }, [])
 
+  // Filtrar items por rol y limitar a máximo 5 para móvil
   const filteredItems = navItems.filter((item) => {
     // Filter items by role if roleRequired is specified
     if (item.roleRequired) {
       return user?.role && item.roleRequired.includes(user.role)
     }
     return true
-  })
+  }).slice(0, 5) // Límite de 5 items para móvil
 
   return (
     <nav

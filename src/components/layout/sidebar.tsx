@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Home, Search, PlusCircle, MessageCircle, User, FileCheck, LogOut } from "lucide-react"
+import { Home, Search, PlusCircle, MessageCircle, User, FileCheck, LogOut, TestTube } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
 import { Button } from "../ui/button"
@@ -12,6 +12,7 @@ const navItems = [
   { to: "/publish", icon: PlusCircle, label: "Publicar", roleRequired: ["empresa", "admin"] },
   { to: "/company-applications", icon: FileCheck, label: "Aplicaciones", roleRequired: ["empresa", "admin"] },
   { to: "/applications", icon: FileCheck, label: "Postulaciones", roleRequired: ["estudiante"] },
+  { to: "/test", icon: TestTube, label: "Pruebas Sistema", roleRequired: ["admin"] },
   { to: "/messages", icon: MessageCircle, label: "Mensajes" },
   { to: "/profile", icon: User, label: "Perfil" },
 ]
