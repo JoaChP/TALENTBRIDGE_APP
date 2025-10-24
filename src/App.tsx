@@ -5,7 +5,6 @@ import { AppShell } from "./components/layout/app-shell"
 import { HomePage } from "./pages/home"
 import { SearchPage } from "./pages/search"
 import { PublishPage } from "./pages/publish"
-import { MessagesPage } from "./pages/messages"
 import { ProfilePage } from "./pages/profile"
 import { PracticeDetailPage } from "./pages/practice-detail"
 import { RegisterPage } from "./pages/register"
@@ -77,15 +76,8 @@ export default function App() {
   const currentPage = useMemo(() => {
     PerformanceMonitor.start('page-render')
     
-    // Messages routes
-    if (currentPath === "/messages" || currentPath === "/mensajes") {
-      PerformanceMonitor.end('page-render')
-      return <MessagesPage />
-    }
-    if (currentPath.startsWith("/messages/") || currentPath.startsWith("/mensajes/")) {
-      PerformanceMonitor.end('page-render')
-      return <MessagesPage />
-    }
+    // NOTE: /messages routes are handled by App Router
+    // Don't handle /messages or /messages/* routes here
 
     // Profile routes
     if (currentPath === "/profile" || currentPath === "/perfil") {
