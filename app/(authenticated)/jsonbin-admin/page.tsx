@@ -9,7 +9,7 @@ import { Label } from "../../../components/ui/label"
 import { Switch } from "../../../components/ui/switch"
 import { Textarea } from "../../../components/ui/textarea"
 import { hybridApi } from "../../../src/mocks/hybrid-api"
-import { jsonBinService } from "../../../src/services/jsonbin"
+import { vercelJsonBinService } from "../../../src/services/vercel-jsonbin"
 import { toast } from "sonner"
 import { RefreshCw, Upload, Download, Database, Server, HardDrive } from "lucide-react"
 
@@ -57,7 +57,7 @@ export default function JSONBinAdminPage() {
   const loadRemoteData = async () => {
     setIsLoading(true)
     try {
-      const data = await jsonBinService.fetchData()
+      const data = await vercelJsonBinService.fetchInitialData()
       setRemoteData(data)
       toast.success("Remote data loaded")
     } catch (error: any) {
@@ -108,7 +108,7 @@ export default function JSONBinAdminPage() {
   const testConnection = async () => {
     setIsLoading(true)
     try {
-      await jsonBinService.fetchData()
+      await vercelJsonBinService.fetchInitialData()
       toast.success("Connection successful!")
       await loadStatus()
     } catch (error: any) {

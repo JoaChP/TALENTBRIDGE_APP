@@ -1,4 +1,5 @@
 import type { User, Practice, Application, Thread, Message, Role, Skill, Modality, ApplicationStatus } from "../types"
+import { vercelJsonBinService } from "../services/vercel-jsonbin"
 
 // Mock data storage
 const STORAGE_KEY = "talentbridge_data"
@@ -302,26 +303,52 @@ const getInitialData = (): MockData => {
 
 let mockData = getInitialData()
 
+// Enhanced initialization with Vercel JSONBin support
+const initializeWithJSONBin = async () => {
+  if (typeof window !== "undefined") {
+    try {
+      // Try to initialize data with JSONBin, fallback to localStorage/defaults
+      const initializedData = await vercelJsonBinService.initializeData()
+      if (initializedData) {
+        Object.assign(mockData, initializedData)
+        console.log('[mockApi] Data initialized with JSONBin service')
+        
+        // Dispatch event to notify components
+        window.dispatchEvent(new CustomEvent('talentbridge-data-initialized'))
+        return true
+      }
+    } catch (error) {
+      console.warn('[mockApi] JSONBin initialization failed, using localStorage:', error)
+    }
+  }
+  return false
+}
+
 // Re-initialize mockData from localStorage when running on client
 // This is necessary because SSR initializes with defaultData, but we need to reload from storage on hydration
 if (typeof window !== "undefined") {
-  // Reload synchronously on initial load
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored) as Partial<MockData>
-      const users = parsed.users && parsed.users.length > 0 ? parsed.users : defaultData.users
-      const practices = parsed.practices && parsed.practices.length > 0 ? parsed.practices : defaultData.practices
-      const applications = parsed.applications || []
-      const threads = parsed.threads || defaultData.threads
-      const messages = parsed.messages || defaultData.messages
+  // Try JSONBin initialization first, then fallback to localStorage
+  initializeWithJSONBin().then((jsonBinSuccess) => {
+    if (!jsonBinSuccess) {
+      // Fallback to localStorage
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored) as Partial<MockData>
+          const users = parsed.users && parsed.users.length > 0 ? parsed.users : defaultData.users
+          const practices = parsed.practices && parsed.practices.length > 0 ? parsed.practices : defaultData.practices
+          const applications = parsed.applications || []
+          const threads = parsed.threads || defaultData.threads
+          const messages = parsed.messages || defaultData.messages
 
-      mockData = { users, practices, applications, threads, messages }
-      console.log('[mockApi] Initial data loaded from localStorage:', mockData)
-    } catch (error) {
-      console.error('[mockApi] Error loading initial data:', error)
+          mockData = { users, practices, applications, threads, messages }
+          console.log('[mockApi] Initial data loaded from localStorage:', mockData)
+        } catch (error) {
+          console.error('[mockApi] Error loading initial data:', error)
+        }
+      }
     }
-  }
+  })
 }
 
 const saveData = () => {

@@ -49,7 +49,7 @@ class JSONBinMockApi {
     return { user, token: `token_${user.id}` }
   }
 
-  async register(name: string, email: string, password: string, role: Role) {
+  async register(name: string, email: string, _password: string, role: Role) {
     const data = await this.getCurrentData()
     
     if (data.users.find((u: User) => u.email === email)) {
@@ -74,7 +74,7 @@ class JSONBinMockApi {
     // No need to do anything for mock
   }
 
-  async listPractices(filters?: any) {
+  async listPractices(_filters?: any) {
     await new Promise(resolve => setTimeout(resolve, 300))
     const data = await this.getCurrentData()
     return data.practices.filter((p: Practice) => p.status === "Publicada")
@@ -119,7 +119,7 @@ class JSONBinMockApi {
   async updateApplicationStatus(
     applicationId: string,
     newStatus: ApplicationStatus,
-    updatedBy: string
+    _updatedBy: string
   ) {
     const data = await this.getCurrentData()
     
@@ -143,8 +143,8 @@ class JSONBinMockApi {
     return originalMockApi.createThreadForApplication(practiceId, applicantUserId)
   }
 
-  async listThreads(userId: string) {
-    return originalMockApi.listThreads(userId)
+  async listThreads(_userId: string) {
+    return originalMockApi.listThreads()
   }
 
   async getThread(threadId: string) {
@@ -156,7 +156,7 @@ class JSONBinMockApi {
   }
 
   async getMessages(threadId: string) {
-    return originalMockApi.getMessages(threadId)
+    return originalMockApi.listMessages(threadId)
   }
 
   async getPractice(id: string) {

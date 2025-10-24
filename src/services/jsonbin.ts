@@ -25,16 +25,17 @@ class JSONBinService {
   constructor() {
     this.config = {
       binId: process.env.NEXT_PUBLIC_JSONBIN_BIN_ID || '',
-      secretKey: process.env.JSONBIN_SECRET_KEY || '',
+      // IMPORTANTE: En producción sin backend, no podemos usar secret keys del lado cliente
+      // Para Vercel, necesitaremos crear un bin público o usar solo modo readonly
+      secretKey: '', // No usar secret key en el cliente por seguridad
       useJSONBin: process.env.NEXT_PUBLIC_USE_JSONBIN === 'true'
     }
   }
 
   private get headers() {
+    // Sin secret key, solo podemos hacer GET requests
     return {
-      'Content-Type': 'application/json',
-      'X-Master-Key': this.config.secretKey,
-      'X-Bin-Name': 'TalentBridge Data'
+      'Content-Type': 'application/json'
     }
   }
 
@@ -95,24 +96,14 @@ class JSONBinService {
       return
     }
 
-    try {
-      await axios.put(this.apiUrl, data, {
-        headers: this.headers
-      })
-      
-      console.log('[JSONBin] Data saved successfully to remote')
-      
-      // Dispatch event for real-time updates
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
-      }
-
-    } catch (error: any) {
-      console.warn('[JSONBin] Failed to save to remote, but saved locally:', error.message)
-      // Still dispatch event for local updates
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
-      }
+    // Sin backend, no podemos hacer PUT requests con secret key
+    // Solo guardamos localmente y mostramos advertencia
+    console.warn('[JSONBin] Cannot save to remote in client-only mode (no secret key)')
+    console.log('[JSONBin] Data saved locally only')
+    
+    // Dispatch event for local updates
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
     }
   }
 
