@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { User, Practice, Application, Thread, Message } from "../types"
+import { OptimizedStorage } from "../utils/performance"
 
 // Types
 interface JSONBinData {
@@ -10,7 +11,7 @@ interface JSONBinData {
   messages: Message[]
 }
 
-// Vercel-compatible JSONBin service (readonly mode)
+// Vercel-compatible JSONBin service (readonly mode with performance optimization)
 class VercelJSONBinService {
   private cache: JSONBinData | null = null
   private lastSync: number = 0
@@ -33,7 +34,7 @@ class VercelJSONBinService {
 
   async fetchInitialData(): Promise<JSONBinData | null> {
     if (!this.enabled) {
-      console.log('[JSONBin] Disabled - using localStorage only')
+      console.log('[JSONBin] Disabled - using optimized localStorage only')
       return null
     }
 
@@ -42,7 +43,7 @@ class VercelJSONBinService {
     }
 
     // JSONBin disabled temporarily to avoid 401 errors
-    console.log('[JSONBin] Temporarily disabled - using localStorage fallback')
+    console.log('[JSONBin] Temporarily disabled - using optimized localStorage fallback')
     return null
   }
 
@@ -72,13 +73,14 @@ class VercelJSONBinService {
     }
   }
 
-  // Para uso con localStorage como fallback
+  // Para uso con localStorage como fallback optimizado
   getLocalStorageData(): JSONBinData | null {
     if (typeof window === 'undefined') return null
 
     try {
-      const stored = localStorage.getItem('talentbridge_data')
-      return stored ? JSON.parse(stored) : null
+      // Use optimized storage with caching
+      const stored = OptimizedStorage.get('talentbridge_data')
+      return stored
     } catch {
       return null
     }
@@ -87,8 +89,9 @@ class VercelJSONBinService {
   saveToLocalStorage(data: JSONBinData): void {
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem('talentbridge_data', JSON.stringify(data))
-        console.log('[VercelJSONBin] Data saved to localStorage')
+        // Use optimized storage
+        OptimizedStorage.set('talentbridge_data', data)
+        console.log('[VercelJSONBin] Data saved to optimized localStorage')
       } catch (error) {
         console.warn('[VercelJSONBin] Error saving to localStorage:', error)
       }

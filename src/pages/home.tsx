@@ -1,41 +1,55 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, memo, useMemo } from "react"
 import { PracticeCard } from "../components/practice-card"
 import { LoadingSkeleton } from "../components/loading-skeleton"
 import type { Practice } from "../types"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import { useCounts } from "../hooks/use-counts"
+import { useOptimizedNavigation } from "../hooks/use-optimized-navigation"
+import { PerformanceMonitor, BatchProcessor } from "../utils/performance"
 
-export function HomePage() {
+export const HomePage = memo(function HomePage() {
   const [practices, setPractices] = useState<Practice[]>([])
   const [loading, setLoading] = useState(true)
   const user = useAuthStore((s) => s.user)
+  const { navigate } = useOptimizedNavigation()
+  
   // Si es estudiante, mostrar solo sus solicitudes. Si es empresa/admin, mostrar todas
   const { counts } = useCounts({ 
     userId: user?.role === "estudiante" ? user.id : undefined 
   })
 
+  // Memoize las prácticas para evitar re-renders innecesarios
+  const memoizedPractices = useMemo(() => practices, [practices])
+
   useEffect(() => {
     const loadPractices = async () => {
-        try {
-          const data = await mockApi.listPractices()
-          setPractices(data) // Show all practices from the mock API
-        } catch (error) {
-          console.error("[v0] Error loading practices:", error)
-        } finally {
-          setLoading(false)
-        }
+      PerformanceMonitor.start('home-load-practices')
+      
+      try {
+        const data = await mockApi.listPractices()
+        
+        // Use batch processor para mejorar rendimiento con grandes listas
+        BatchProcessor.add(() => {
+          setPractices(data)
+          PerformanceMonitor.end('home-load-practices')
+        })
+      } catch (error) {
+        console.error("[HomePage] Error loading practices:", error)
+        PerformanceMonitor.end('home-load-practices')
+      } finally {
+        setLoading(false)
       }
+    }
 
     loadPractices()
   }, [])
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
     e.preventDefault()
-    window.history.pushState({}, '', path)
-    window.dispatchEvent(new PopStateEvent('popstate'))
+    navigate(path)
   }
 
   return (
@@ -146,14 +160,14 @@ export function HomePage() {
         <LoadingSkeleton />
       ) : (
         <div className="space-y-4">
-          {practices.map((practice) => (
+          {memoizedPractices.map((practice) => (
             <PracticeCard key={practice.id} practice={practice} />
           ))}
         </div>
       )}
     </div>
   )
-}
+})
 
 export default HomePage
 

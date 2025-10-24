@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { AppShell } from "./components/layout/app-shell"
 import { HomePage } from "./pages/home"
 import { SearchPage } from "./pages/search"
@@ -15,35 +15,53 @@ import { CompanyDashboard } from "./pages/dashboard/company"
 import { AdminDashboard } from "./pages/dashboard/admin"
 import { useAuthStore } from "./stores/auth-store"
 import { UserProfilePage } from "./pages/user-profile"
+import { PerformanceMonitor, debounce } from "./utils/performance"
 
 export default function App() {
   const user = useAuthStore((state) => state.user)
   const [currentPath, setCurrentPath] = useState("")
 
+  // Debounced path update to prevent excessive re-renders
+  const updatePath = useMemo(() => 
+    debounce((path: string) => {
+      setCurrentPath(path)
+    }, 100), []
+  )
+
   useEffect(() => {
+    PerformanceMonitor.start('app-init')
+    
     // Get current path
     const path = window.location.pathname
     setCurrentPath(path)
 
     // Listen for popstate (back/forward browser buttons)
     const handlePopState = () => {
-      setCurrentPath(window.location.pathname)
+      updatePath(window.location.pathname)
     }
 
     window.addEventListener("popstate", handlePopState)
-    return () => window.removeEventListener("popstate", handlePopState)
-  }, [])
+    
+    PerformanceMonitor.end('app-init')
+    
+    return () => {
+      window.removeEventListener("popstate", handlePopState)
+    }
+  }, [updatePath])
 
-  // Redirect to login if not authenticated
+  // Optimize redirects with immediate navigation
   useEffect(() => {
     if (!user && currentPath !== "/login" && currentPath !== "/registro") {
-      window.location.href = "/login"
+      // Use replace instead of href for better performance
+      window.history.replaceState({}, '', '/login')
+      setCurrentPath('/login')
     }
   }, [user, currentPath])
 
-  // Redirect to home if already logged in
+  // Early returns for better performance
   if (user && (currentPath === "/login" || currentPath === "/registro")) {
-    window.location.href = "/"
+    window.history.replaceState({}, '', '/')
+    setCurrentPath('/')
     return null
   }
 
@@ -62,22 +80,29 @@ export default function App() {
     return null // Will redirect in useEffect
   }
 
-  const renderPage = () => {
+  // Memoize the page rendering to prevent unnecessary re-renders
+  const currentPage = useMemo(() => {
+    PerformanceMonitor.start('page-render')
+    
     // Messages routes
     if (currentPath === "/messages" || currentPath === "/mensajes") {
+      PerformanceMonitor.end('page-render')
       return <MessagesPage />
     }
     if (currentPath.startsWith("/messages/") || currentPath.startsWith("/mensajes/")) {
+      PerformanceMonitor.end('page-render')
       return <MessagesPage />
     }
 
     // Profile routes
     if (currentPath === "/profile" || currentPath === "/perfil") {
+      PerformanceMonitor.end('page-render')
       return <ProfilePage />
     }
     
     // User profile (viewing other users)
     if (currentPath.startsWith("/user/")) {
+      PerformanceMonitor.end('page-render')
       return <UserProfilePage />
     }
 
@@ -95,47 +120,58 @@ export default function App() {
 
     // Practice detail
     if (currentPath.startsWith("/oferta/")) {
+      PerformanceMonitor.end('page-render')
       return <PracticeDetailPage />
     }
 
     // Dashboard routes
     if (currentPath === "/dashboard/estudiante") {
+      PerformanceMonitor.end('page-render')
       return <StudentDashboard />
     }
     if (currentPath === "/dashboard/empresa") {
       if (user.role !== "empresa" && user.role !== "admin") {
+        PerformanceMonitor.end('page-render')
         return <UnauthorizedPage />
       }
+      PerformanceMonitor.end('page-render')
       return <CompanyDashboard />
     }
     if (currentPath === "/dashboard/admin") {
       if (user.role !== "admin") {
+        PerformanceMonitor.end('page-render')
         return <UnauthorizedPage />
       }
+      PerformanceMonitor.end('page-render')
       return <AdminDashboard />
     }
 
     // Other routes
     if (currentPath === "/search") {
+      PerformanceMonitor.end('page-render')
       return <SearchPage />
     }
     if (currentPath === "/publish") {
       if (user.role !== "empresa" && user.role !== "admin") {
+        PerformanceMonitor.end('page-render')
         return <UnauthorizedPage />
       }
+      PerformanceMonitor.end('page-render')
       return <PublishPage />
     }
     if (currentPath === "/no-autorizado") {
+      PerformanceMonitor.end('page-render')
       return <UnauthorizedPage />
     }
 
     // Default to home
+    PerformanceMonitor.end('page-render')
     return <HomePage />
-  }
+  }, [currentPath, user?.role])
 
   return (
     <AppShell>
-      {renderPage()}
+      {currentPage}
     </AppShell>
   )
 }

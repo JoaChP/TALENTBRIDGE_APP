@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { TopBar } from "./top-bar"
 import { TabBar } from "./tab-bar"
 import { Sidebar } from "./sidebar"
@@ -6,7 +7,8 @@ interface AppShellProps {
   children: React.ReactNode
 }
 
-export function AppShell({ children }: AppShellProps) {
+// Memoize AppShell to prevent unnecessary re-renders
+export const AppShell = memo(function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <TopBar />
@@ -19,4 +21,4 @@ export function AppShell({ children }: AppShellProps) {
       <TabBar />
     </div>
   )
-}
+})

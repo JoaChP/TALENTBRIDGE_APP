@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, memo, useMemo, useCallback } from "react"
 import { Home, Search, MessageCircle, User, FileCheck, PlusCircle, Shield } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
+import { debounce } from "../../utils/performance"
 
 const navItems = [
   { to: "/", icon: Home, label: "Inicio" },
@@ -25,29 +26,49 @@ const navItems = [
   { to: "/profile", icon: User, label: "Perfil" },
 ]
 
-export function TabBar() {
+export const TabBar = memo(function TabBar() {
   const user = useAuthStore((s) => s.user)
   const [currentPath, setCurrentPath] = useState("")
+
+  // Debounced path update
+  const updatePath = useMemo(() => 
+    debounce((path: string) => {
+      setCurrentPath(path)
+    }, 50), []
+  )
 
   useEffect(() => {
     setCurrentPath(window.location.pathname)
     
     const handlePopState = () => {
-      setCurrentPath(window.location.pathname)
+      updatePath(window.location.pathname)
     }
     
     window.addEventListener("popstate", handlePopState)
     return () => window.removeEventListener("popstate", handlePopState)
-  }, [])
+  }, [updatePath])
 
-  // Filtrar items por rol y limitar a máximo 5 para móvil
-  const filteredItems = navItems.filter((item) => {
-    // Filter items by role if roleRequired is specified
-    if (item.roleRequired) {
-      return user?.role && item.roleRequired.includes(user.role)
+  // Memoize filtered items to prevent recalculation
+  const filteredItems = useMemo(() => {
+    return navItems.filter((item) => {
+      // Filter items by role if roleRequired is specified
+      if (item.roleRequired) {
+        return user?.role && item.roleRequired.includes(user.role)
+      }
+      return true
+    }).slice(0, 5) // Límite de 5 items para móvil
+  }, [user?.role])
+
+  // Optimized navigation handler
+  const handleNavigation = useCallback((to: string) => {
+    return (e: React.MouseEvent) => {
+      e.preventDefault()
+      if (currentPath !== to) {
+        window.history.pushState({}, '', to)
+        window.dispatchEvent(new PopStateEvent('popstate'))
+      }
     }
-    return true
-  }).slice(0, 5) // Límite de 5 items para móvil
+  }, [currentPath])
 
   return (
     <nav
@@ -62,11 +83,7 @@ export function TabBar() {
             <a
               key={to}
               href={to}
-              onClick={(e) => {
-                e.preventDefault()
-                window.history.pushState({}, '', to)
-                window.dispatchEvent(new PopStateEvent('popstate'))
-              }}
+              onClick={handleNavigation(to)}
               aria-label={label}
               className={cn(
                 "flex min-w-[44px] flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors",
