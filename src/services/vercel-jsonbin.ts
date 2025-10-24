@@ -33,6 +33,7 @@ class VercelJSONBinService {
 
   async fetchInitialData(): Promise<JSONBinData | null> {
     if (!this.enabled) {
+      console.log('[JSONBin] Disabled - using localStorage only')
       return null
     }
 
@@ -40,32 +41,9 @@ class VercelJSONBinService {
       return this.cache
     }
 
-    try {
-      const response = await axios.get(this.apiUrl, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000 // 10 second timeout
-      })
-
-      this.cache = response.data.record
-      this.lastSync = Date.now()
-      
-      console.log('[JSONBin] Data loaded successfully')
-      return this.cache
-
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        console.warn('[JSONBin] Authentication failed (401) - using localStorage fallback')
-      } else if (error.response?.status === 404) {
-        console.warn('[JSONBin] Bin not found (404) - using localStorage fallback')
-      } else if (error.code === 'ECONNABORTED') {
-        console.warn('[JSONBin] Request timeout - using localStorage fallback')
-      } else {
-        console.warn('[JSONBin] Connection failed - using localStorage fallback:', error.message)
-      }
-      return null
-    }
+    // JSONBin disabled temporarily to avoid 401 errors
+    console.log('[JSONBin] Temporarily disabled - using localStorage fallback')
+    return null
   }
 
   async getStatus() {
@@ -117,28 +95,21 @@ class VercelJSONBinService {
     }
   }
 
-  // Inicializar datos: intenta JSONBin primero, luego localStorage, finalmente defaults
+  // Inicializar datos: usa localStorage únicamente (JSONBin deshabilitado)
   async initializeData(): Promise<JSONBinData> {
     console.log('[VercelJSONBin] Initializing data...')
 
-    // 1. Intentar JSONBin si está habilitado
-    if (this.enabled) {
-      const remoteData = await this.fetchInitialData()
-      if (remoteData) {
-        // Guardar en localStorage como backup
-        this.saveToLocalStorage(remoteData)
-        return remoteData
-      }
-    }
+    // JSONBin temporalmente deshabilitado para evitar errores 401
+    console.log('[VercelJSONBin] JSONBin disabled - using localStorage only')
 
-    // 2. Intentar localStorage
+    // Intentar localStorage
     const localData = this.getLocalStorageData()
     if (localData && localData.users && localData.users.length > 0) {
       console.log('[VercelJSONBin] Using localStorage data')
       return localData
     }
 
-    // 3. Usar datos por defecto
+    // Usar datos por defecto si no hay localStorage
     console.log('[VercelJSONBin] Using default data')
     const defaultData = this.getDefaultData()
     this.saveToLocalStorage(defaultData)
