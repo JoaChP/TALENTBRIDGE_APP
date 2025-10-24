@@ -100,4 +100,4 @@ export const TabBar = memo(function TabBar() {
       </div>
     </nav>
   )
-}
+})
