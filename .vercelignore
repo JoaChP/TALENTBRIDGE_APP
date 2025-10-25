@@ -2,7 +2,6 @@
 # Solo ignorar archivos específicos que causan conflictos con App Router
 
 # Archivos que ya existen en App Router - evitar duplicados
-src/pages/company-applications.tsx  
 src/pages/login.tsx
 
 # Archivos de build y cache
