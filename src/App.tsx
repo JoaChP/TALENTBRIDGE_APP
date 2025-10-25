@@ -12,6 +12,8 @@ import { UnauthorizedPage } from "./pages/unauthorized"
 import StudentDashboard from "./components/student-dashboard-client"
 import { CompanyDashboard } from "./pages/dashboard/company"
 import { AdminDashboard } from "./pages/dashboard/admin"
+import MessagesPage from "./pages/messages"
+import ApplicationsPage from "./pages/applications"
 import { useAuthStore } from "./stores/auth-store"
 import { UserProfilePage } from "./pages/user-profile"
 import { PerformanceMonitor } from "./utils/performance"
@@ -76,11 +78,10 @@ export default function App() {
   const currentPage = useMemo(() => {
     PerformanceMonitor.start('page-render')
     
-    // Messages routes - handle in SPA for better navigation
+    // Messages routes - handle in SPA for seamless navigation
     if (currentPath === "/messages" || currentPath === "/mensajes") {
-      // Redirect to App Router page
-      window.location.href = "/messages"
-      return null
+      PerformanceMonitor.end('page-render')
+      return <MessagesPage />
     }
     if (currentPath.startsWith("/messages/") || currentPath.startsWith("/mensajes/")) {
       // Let App Router handle message details
@@ -88,11 +89,10 @@ export default function App() {
       return null
     }
 
-    // Applications routes - handle in SPA for better navigation  
+    // Applications routes - handle in SPA for seamless navigation  
     if (currentPath === "/applications" || currentPath === "/postulaciones") {
-      // Redirect to App Router page
-      window.location.href = "/applications"
-      return null
+      PerformanceMonitor.end('page-render')
+      return <ApplicationsPage />
     }
 
     // Profile routes

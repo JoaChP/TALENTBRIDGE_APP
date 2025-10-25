@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { Card } from "../../components/ui/card"
-import { LoadingSkeleton } from "../../src/components/loading-skeleton"
-import type { Thread } from "../../src/types"
-import { mockApi } from "../../src/mocks/api"
-import { useAuthStore } from "../../src/stores/auth-store"
+import { LoadingSkeleton } from "../components/loading-skeleton"
+import type { Thread } from "../types"
+import { mockApi } from "../mocks/api"
+import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
 
 export default function MessagesPage() {
@@ -14,7 +14,8 @@ export default function MessagesPage() {
   const [loading, setLoading] = useState(true)
 
   const handleNavigation = (path: string) => {
-    window.location.href = path
+    window.history.pushState({}, '', path)
+    window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
   useEffect(() => {
@@ -85,12 +86,6 @@ export default function MessagesPage() {
             Tus conversaciones con empresas y candidatos
           </p>
         </div>
-        <button 
-          onClick={() => window.location.href = "/"}
-          className="md:hidden text-sm text-zinc-600 hover:text-zinc-900"
-        >
-          ← Volver
-        </button>
       </div>
 
       {threads.length === 0 ? (

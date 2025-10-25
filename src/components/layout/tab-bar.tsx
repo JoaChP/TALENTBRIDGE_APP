@@ -9,8 +9,8 @@ const navItems = [
   { to: "/", icon: Home, label: "Inicio", spa: true },
   { to: "/search", icon: Search, label: "Buscar", spa: true },
   
-  // Estudiantes - Ver sus postulaciones (App Router)
-  { to: "/applications", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"], spa: false },
+  // Estudiantes - Ver sus postulaciones (SPA para mantener navegación)
+  { to: "/applications", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"], spa: true },
   
   // Empresas - Publicar y gestionar aplicaciones  
   { to: "/publish", icon: PlusCircle, label: "Publicar", roleRequired: ["empresa"], spa: true },
@@ -20,8 +20,8 @@ const navItems = [
   { to: "/company-applications", icon: Shield, label: "Gestión", roleRequired: ["admin"], spa: false },
   { to: "/test", icon: Shield, label: "Pruebas", roleRequired: ["admin"], spa: false },
   
-  // Comunes a todos
-  { to: "/messages", icon: MessageCircle, label: "Mensajes", spa: false },
+  // Comunes a todos (SPA para mantener navegación fluida)
+  { to: "/messages", icon: MessageCircle, label: "Mensajes", spa: true },
   { to: "/profile", icon: User, label: "Perfil", spa: true },
 ]
 
