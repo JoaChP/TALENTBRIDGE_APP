@@ -46,6 +46,18 @@ export const HomePage = memo(function HomePage() {
     }
 
     loadPractices()
+    
+    // Escuchar cambios en los datos
+    const handleDataUpdate = () => {
+      console.log("[HomePage] Data updated, reloading practices...")
+      loadPractices()
+    }
+    
+    window.addEventListener("talentbridge-data-updated", handleDataUpdate)
+    
+    return () => {
+      window.removeEventListener("talentbridge-data-updated", handleDataUpdate)
+    }
   }, [])
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {

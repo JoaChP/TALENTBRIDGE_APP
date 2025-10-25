@@ -102,7 +102,7 @@ export function SearchPage() {
           resolved = true
         }
       } catch (error) {
-        console.error("[v0] Error calling /api/practices:", error)
+        console.error("[SearchPage] Error calling /api/practices:", error)
       }
 
       if (!resolved) {
@@ -117,7 +117,7 @@ export function SearchPage() {
           setPractices(fallback)
           setCurrentPage(1)
         } catch (error) {
-          console.error("[v0] Error loading practices:", error)
+          console.error("[SearchPage] Error loading practices:", error)
         }
       }
 
@@ -125,6 +125,18 @@ export function SearchPage() {
     }
 
     loadPractices()
+    
+    // Escuchar cambios en los datos para actualizar la lista
+    const handleDataUpdate = () => {
+      console.log("[SearchPage] Data updated, reloading practices...")
+      loadPractices()
+    }
+    
+    window.addEventListener("talentbridge-data-updated", handleDataUpdate)
+    
+    return () => {
+      window.removeEventListener("talentbridge-data-updated", handleDataUpdate)
+    }
   }, [search, location, modality, duration, selectedSkills])
 
   const totalPages = Math.ceil(practices.length / ITEMS_PER_PAGE)
