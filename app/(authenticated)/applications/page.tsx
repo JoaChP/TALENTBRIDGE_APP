@@ -93,9 +93,9 @@ export default function ApplicationsPage() {
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-4 mb-2">
-          <Button variant="ghost" onClick={() => window.history.back()} aria-label="Volver">
+          <Button variant="ghost" onClick={() => window.location.href = "/"} aria-label="Volver al inicio">
             <ChevronLeft className="h-5 w-5" />
-            <span className="hidden sm:inline">Atrás</span>
+            <span className="hidden sm:inline">Inicio</span>
           </Button>
         </div>
         <h1 className="text-3xl font-bold text-balance">Mis Postulaciones</h1>
