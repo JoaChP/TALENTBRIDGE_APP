@@ -21,6 +21,7 @@ import { PerformanceMonitor } from "./utils/performance"
 
 export default function App() {
   const user = useAuthStore((state) => state.user)
+  const refreshUser = useAuthStore((state) => state.refreshUser)
   const [currentPath, setCurrentPath] = useState("")
 
   useEffect(() => {
@@ -43,6 +44,54 @@ export default function App() {
       window.removeEventListener("popstate", handlePopState)
     }
   }, [])
+  
+  // Escuchar cambios en los datos para actualizar el usuario actual
+  useEffect(() => {
+    const handleDataUpdate = () => {
+      if (user) {
+        console.log("[App] Data updated, refreshing current user...")
+        refreshUser()
+      }
+    }
+    
+    const handleUserDeleted = (event: Event) => {
+      const customEvent = event as CustomEvent
+      const { userId } = customEvent.detail
+      
+      if (user?.id === userId) {
+        console.log("[App] Current user was deleted, logging out...")
+        refreshUser() // Esto detectará que el usuario no existe y cerrará sesión
+      }
+    }
+    
+    const handleRoleChanged = (event: Event) => {
+      const customEvent = event as CustomEvent
+      const { userId, newRole } = customEvent.detail
+      
+      if (user?.id === userId) {
+        console.log(`[App] Current user role changed to ${newRole}, refreshing...`)
+        refreshUser()
+        
+        // Redirigir según el nuevo rol si está en una página restringida
+        setTimeout(() => {
+          const restrictedPaths = ['/dashboard/admin', '/company-applications', '/publish', '/applications']
+          if (restrictedPaths.some(path => currentPath.startsWith(path))) {
+            window.location.href = '/'
+          }
+        }, 500)
+      }
+    }
+    
+    window.addEventListener('talentbridge-data-updated', handleDataUpdate)
+    window.addEventListener('user-deleted', handleUserDeleted)
+    window.addEventListener('user-role-changed', handleRoleChanged)
+    
+    return () => {
+      window.removeEventListener('talentbridge-data-updated', handleDataUpdate)
+      window.removeEventListener('user-deleted', handleUserDeleted)
+      window.removeEventListener('user-role-changed', handleRoleChanged)
+    }
+  }, [user, refreshUser, currentPath])
 
   // Optimize redirects with immediate navigation
   useEffect(() => {

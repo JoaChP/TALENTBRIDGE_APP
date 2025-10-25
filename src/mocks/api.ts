@@ -694,6 +694,8 @@ export const mockApi = {
       throw new Error("Usuario no encontrado")
     }
 
+    const deletedUser = mockData.users[index]
+
     // Eliminar el usuario
     mockData.users.splice(index, 1)
     
@@ -717,7 +719,12 @@ export const mockApi = {
     })
     
     saveData()
-    console.log(`[mockApi] User ${userId} and related data deleted`)
+    console.log(`[mockApi] User ${userId} (${deletedUser.name}) and related data deleted`)
+    
+    // Emitir evento específico para eliminación de usuario
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('user-deleted', { detail: { userId, user: deletedUser } }))
+    }
   },
 
   // Cambiar rol de usuario (solo admin)
@@ -729,10 +736,18 @@ export const mockApi = {
       throw new Error("Usuario no encontrado")
     }
 
+    const oldRole = user.role
     user.role = newRole
     
     saveData()
-    console.log(`[mockApi] User ${userId} role updated to ${newRole}`)
+    console.log(`[mockApi] User ${userId} (${user.name}) role updated from ${oldRole} to ${newRole}`)
+    
+    // Emitir evento específico para cambio de rol
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('user-role-changed', { 
+        detail: { userId, user, oldRole, newRole } 
+      }))
+    }
     
     return user
   },

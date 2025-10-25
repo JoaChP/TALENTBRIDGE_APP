@@ -6,12 +6,14 @@ import { Button } from "../../components/ui/button"
 import { Badge } from "../../components/ui/badge"
 import { LoadingSkeleton } from "../../components/loading-skeleton"
 import { mockApi } from "../../mocks/api"
+import { useAuthStore } from "../../stores/auth-store"
 import type { User, Practice, Application, Role } from "../../types"
 import { Users, Briefcase, FileCheck, MessageSquare, Trash2, Edit, UserCog } from "lucide-react"
 import { toast } from "sonner"
 
 export function AdminDashboard() {
   const [loading, setLoading] = useState(true)
+  const [operationInProgress, setOperationInProgress] = useState(false)
   const [users, setUsers] = useState<User[]>([])
   const [practices, setPractices] = useState<Practice[]>([])
   const [applications, setApplications] = useState<Application[]>([])
@@ -23,6 +25,9 @@ export function AdminDashboard() {
     totalPractices: 0,
     totalApplications: 0,
   })
+  
+  const refreshUser = useAuthStore((s) => s.refreshUser)
+  const currentUser = useAuthStore((s) => s.user)
 
   const handleNavigation = (path: string) => {
     window.history.pushState({}, '', path)
@@ -65,6 +70,7 @@ export function AdminDashboard() {
   const handleDeletePractice = async (practiceId: string) => {
     if (!confirm("¿Estás seguro de eliminar esta oferta?")) return
 
+    setOperationInProgress(true)
     try {
       await mockApi.deletePractice(practiceId)
       toast.success("Oferta eliminada correctamente")
@@ -72,19 +78,32 @@ export function AdminDashboard() {
     } catch (error) {
       console.error("Error deleting practice:", error)
       toast.error("Error al eliminar la oferta")
+    } finally {
+      setOperationInProgress(false)
     }
   }
 
   const handleDeleteUser = async (userId: string, userName: string) => {
     if (!confirm(`¿Estás seguro de eliminar el usuario ${userName}? Esta acción no se puede deshacer.`)) return
 
+    setOperationInProgress(true)
     try {
       await mockApi.deleteUser(userId)
       toast.success("Usuario eliminado correctamente")
+      
+      // Si el usuario eliminado es el usuario actual, refrescar para cerrar sesión
+      if (currentUser?.id === userId) {
+        await refreshUser()
+        // El refreshUser detectará que el usuario fue eliminado y cerrará sesión
+        return
+      }
+      
       loadData() // Reload data
     } catch (error) {
       console.error("Error deleting user:", error)
       toast.error("Error al eliminar el usuario")
+    } finally {
+      setOperationInProgress(false)
     }
   }
 
@@ -103,18 +122,40 @@ export function AdminDashboard() {
       return
     }
 
+    setOperationInProgress(true)
     try {
       await mockApi.updateUserRole(userId, newRole)
       toast.success(`Rol de ${userName} actualizado a ${newRole}`)
+      
+      // Si el rol cambiado es el del usuario actual, refrescar datos
+      if (currentUser?.id === userId) {
+        await refreshUser()
+      }
+      
       loadData() // Reload data
     } catch (error) {
       console.error("Error changing role:", error)
       toast.error("Error al cambiar el rol")
+    } finally {
+      setOperationInProgress(false)
     }
   }
 
   useEffect(() => {
     loadData()
+    
+    // Escuchar eventos de cambios en los datos
+    const handleDataUpdate = () => {
+      console.log("[AdminDashboard] Data updated event received, reloading...")
+      loadData()
+      refreshUser() // También refrescar el usuario actual
+    }
+    
+    window.addEventListener('talentbridge-data-updated', handleDataUpdate)
+    
+    return () => {
+      window.removeEventListener('talentbridge-data-updated', handleDataUpdate)
+    }
   }, [])
 
   if (loading) {
@@ -213,6 +254,7 @@ export function AdminDashboard() {
                     size="sm"
                     onClick={() => handleChangeRole(user.id, user.name, user.role)}
                     title="Cambiar rol"
+                    disabled={operationInProgress}
                   >
                     <UserCog className="h-4 w-4" />
                   </Button>
@@ -222,6 +264,7 @@ export function AdminDashboard() {
                     onClick={() => handleDeleteUser(user.id, user.name)}
                     className="text-red-600 hover:text-red-700"
                     title="Eliminar usuario"
+                    disabled={operationInProgress}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -261,6 +304,7 @@ export function AdminDashboard() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleNavigation(`/oferta/${practice.id}`)}
+                      disabled={operationInProgress}
                     >
                       <Edit className="h-4 w-4 mr-1" />
                       Editar
@@ -270,6 +314,7 @@ export function AdminDashboard() {
                       size="sm"
                       onClick={() => handleDeletePractice(practice.id)}
                       className="text-red-600 hover:text-red-700"
+                      disabled={operationInProgress}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

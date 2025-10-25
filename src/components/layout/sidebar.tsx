@@ -1,13 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Home, Search, PlusCircle, MessageCircle, User, FileCheck, LogOut } from "lucide-react"
+import { Home, Search, PlusCircle, MessageCircle, User, FileCheck, LogOut, Shield } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
 import { Button } from "../ui/button"
 
 const navItems = [
   { to: "/", icon: Home, label: "Inicio" },
+  { to: "/dashboard/admin", icon: Shield, label: "Panel Admin", roleRequired: ["admin"] },
   { to: "/search", icon: Search, label: "Buscar" },
   { to: "/publish", icon: PlusCircle, label: "Publicar", roleRequired: ["empresa", "admin"] },
   { to: "/company-applications", icon: FileCheck, label: "Aplicaciones", roleRequired: ["empresa", "admin"] },

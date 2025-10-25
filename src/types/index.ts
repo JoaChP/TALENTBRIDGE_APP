@@ -83,4 +83,5 @@ export interface AuthState {
   register: (name: string, email: string, password: string, role: Role) => Promise<void>
   logout: () => void
   updateProfile: (updates: Partial<User>) => void
+  refreshUser: () => Promise<void>
 }

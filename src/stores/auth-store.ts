@@ -5,7 +5,7 @@ import { mockApi } from "../mocks/api"
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       login: async (email: string, password: string) => {
@@ -27,6 +27,34 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, ...updates } : null,
         }))
+      },
+      refreshUser: async () => {
+        const currentUser = get().user
+        if (!currentUser) return
+        
+        try {
+          // Verificar si el usuario todavía existe
+          const users = await mockApi.listUsers()
+          const updatedUser = users.find(u => u.id === currentUser.id)
+          
+          if (updatedUser) {
+            // Usuario existe, actualizar con los datos más recientes
+            console.log("[AuthStore] User refreshed:", updatedUser)
+            set({ user: updatedUser })
+          } else {
+            // Usuario fue eliminado, cerrar sesión
+            console.log("[AuthStore] User was deleted, logging out")
+            mockApi.logout()
+            set({ user: null, token: null })
+            
+            // Redirigir al login
+            if (typeof window !== "undefined") {
+              window.location.href = "/login"
+            }
+          }
+        } catch (error) {
+          console.error("[AuthStore] Error refreshing user:", error)
+        }
       },
     }),
     {

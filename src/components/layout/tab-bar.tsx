@@ -16,9 +16,8 @@ const navItems = [
   { to: "/publish", icon: PlusCircle, label: "Publicar", roleRequired: ["empresa"], spa: true },
   { to: "/company-applications", icon: FileCheck, label: "Aplicaciones", roleRequired: ["empresa"], spa: false },
   
-  // Administradores - Ver todas las aplicaciones y acceso a pruebas
-  { to: "/company-applications", icon: Shield, label: "Gestión", roleRequired: ["admin"], spa: false },
-  { to: "/test", icon: Shield, label: "Pruebas", roleRequired: ["admin"], spa: false },
+  // Administradores - Panel de administración
+  { to: "/dashboard/admin", icon: Shield, label: "Panel Admin", roleRequired: ["admin"], spa: true },
   
   // Comunes a todos (SPA para mantener navegación fluida)
   { to: "/messages", icon: MessageCircle, label: "Mensajes", spa: true },
