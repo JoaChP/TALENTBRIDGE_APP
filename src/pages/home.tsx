@@ -16,9 +16,10 @@ export const HomePage = memo(function HomePage() {
   const user = useAuthStore((s) => s.user)
   const { navigate } = useOptimizedNavigation()
   
-  // Si es estudiante, mostrar solo sus solicitudes. Si es empresa/admin, mostrar todas
+  // Pasar el rol del usuario para obtener estadísticas específicas
   const { counts } = useCounts({ 
-    userId: user?.role === "estudiante" ? user.id : undefined 
+    userId: user?.role === "estudiante" ? user.id : (user?.role === "empresa" ? user.id : undefined),
+    userRole: user?.role
   })
 
   // Memoize las prácticas para evitar re-renders innecesarios
@@ -59,20 +60,41 @@ export const HomePage = memo(function HomePage() {
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Conecta estudiantes con prácticas profesionales, postula y gestiona procesos de selección.</p>
 
         <div className="mt-4 flex flex-wrap gap-4">
-          <div className="rounded-lg bg-indigo-50 px-4 py-3">
-            <div className="text-sm text-zinc-600">Prácticas disponibles</div>
-            <div className="text-2xl font-bold text-indigo-700">{counts.practices}</div>
-          </div>
-          <div className="rounded-lg bg-zinc-50 px-4 py-3">
-            <div className="text-sm text-zinc-600">
-              {user?.role === "estudiante" ? "Mis solicitudes" : "Solicitudes"}
-            </div>
-            <div className="text-2xl font-bold">{counts.applications}</div>
-          </div>
-          <div className="rounded-lg bg-zinc-50 px-4 py-3">
-            <div className="text-sm text-zinc-600">Empresas</div>
-            <div className="text-2xl font-bold">{counts.companies}</div>
-          </div>
+          {user?.role === "empresa" ? (
+            // Vista para empresas
+            <>
+              <div className="rounded-lg bg-indigo-50 px-4 py-3">
+                <div className="text-sm text-zinc-600">Mis ofertas publicadas</div>
+                <div className="text-2xl font-bold text-indigo-700">{counts.myPractices}</div>
+              </div>
+              <div className="rounded-lg bg-zinc-50 px-4 py-3">
+                <div className="text-sm text-zinc-600">Postulaciones recibidas</div>
+                <div className="text-2xl font-bold">{counts.applicationsToMe}</div>
+              </div>
+              <div className="rounded-lg bg-zinc-50 px-4 py-3">
+                <div className="text-sm text-zinc-600">Empresas</div>
+                <div className="text-2xl font-bold">{counts.companies}</div>
+              </div>
+            </>
+          ) : (
+            // Vista para estudiantes y admin
+            <>
+              <div className="rounded-lg bg-indigo-50 px-4 py-3">
+                <div className="text-sm text-zinc-600">Prácticas disponibles</div>
+                <div className="text-2xl font-bold text-indigo-700">{counts.practices}</div>
+              </div>
+              <div className="rounded-lg bg-zinc-50 px-4 py-3">
+                <div className="text-sm text-zinc-600">
+                  {user?.role === "estudiante" ? "Mis solicitudes" : "Solicitudes"}
+                </div>
+                <div className="text-2xl font-bold">{counts.applications}</div>
+              </div>
+              <div className="rounded-lg bg-zinc-50 px-4 py-3">
+                <div className="text-sm text-zinc-600">Empresas</div>
+                <div className="text-2xl font-bold">{counts.companies}</div>
+              </div>
+            </>
+          )}
         </div>
         <div className="mt-4 flex gap-3">
           {user?.role === "empresa" && (
