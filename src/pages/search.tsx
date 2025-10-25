@@ -90,35 +90,20 @@ export function SearchPage() {
         return filtered
       }
 
-      let resolved = false
-
+      // SIEMPRE usar mockApi para obtener los datos más recientes
       try {
-        const res = await fetch("/api/practices", { cache: "no-store" })
-
-        if (res.ok) {
-          const data: Practice[] = await res.json()
-          setPractices(applyFilters(data))
-          setCurrentPage(1)
-          resolved = true
-        }
+        const fallback = await mockApi.listPractices({
+          search: search || undefined,
+          location: location || undefined,
+          modality: modality || undefined,
+          duration: duration || undefined,
+          skills: selectedSkills.length > 0 ? selectedSkills : undefined,
+        })
+        console.log("[SearchPage] Loaded practices:", fallback.length)
+        setPractices(fallback)
+        setCurrentPage(1)
       } catch (error) {
-        console.error("[SearchPage] Error calling /api/practices:", error)
-      }
-
-      if (!resolved) {
-        try {
-          const fallback = await mockApi.listPractices({
-            search: search || undefined,
-            location: location || undefined,
-            modality: modality || undefined,
-            duration: duration || undefined,
-            skills: selectedSkills.length > 0 ? selectedSkills : undefined,
-          })
-          setPractices(fallback)
-          setCurrentPage(1)
-        } catch (error) {
-          console.error("[SearchPage] Error loading practices:", error)
-        }
+        console.error("[SearchPage] Error loading practices:", error)
       }
 
       setLoading(false)

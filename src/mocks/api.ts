@@ -823,4 +823,24 @@ export const mockApi = {
     
     return application
   },
+  
+  // Migrar ofertas del ownerUserId antiguo al nuevo
+  async migratePracticesToUser(oldOwnerId: string, newOwnerId: string) {
+    await delay(100)
+    
+    let migratedCount = 0
+    mockData.practices.forEach(practice => {
+      if (practice.company.ownerUserId === oldOwnerId) {
+        practice.company.ownerUserId = newOwnerId
+        migratedCount++
+      }
+    })
+    
+    if (migratedCount > 0) {
+      saveData()
+      console.log(`[mockApi] Migrated ${migratedCount} practices from ${oldOwnerId} to ${newOwnerId}`)
+    }
+    
+    return migratedCount
+  },
 }

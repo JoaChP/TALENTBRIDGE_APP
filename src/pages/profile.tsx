@@ -254,13 +254,40 @@ export function ProfilePage() {
             <CardContent>
               {myPractices.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-zinc-600 dark:text-zinc-400 mb-4">Aún no has publicado ninguna oferta</p>
-                  <Button onClick={() => {
-                    window.history.pushState({}, '', "/publish")
-                    window.dispatchEvent(new PopStateEvent('popstate'))
-                  }}>
-                    Publicar primera oferta
-                  </Button>
+                  <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                    {loadingCompanyData ? "Cargando ofertas..." : "Aún no has publicado ninguna oferta"}
+                  </p>
+                  {!loadingCompanyData && (
+                    <>
+                      <Button onClick={() => {
+                        window.history.pushState({}, '', "/publish")
+                        window.dispatchEvent(new PopStateEvent('popstate'))
+                      }}>
+                        Publicar primera oferta
+                      </Button>
+                      <div className="mt-4">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={async () => {
+                            if (!user) return
+                            const count = await mockApi.migratePracticesToUser("2", user.id)
+                            if (count > 0) {
+                              toast.success(`Se migraron ${count} ofertas a tu cuenta`)
+                              loadCompanyData()
+                            } else {
+                              toast.info("No hay ofertas para migrar")
+                            }
+                          }}
+                        >
+                          🔄 Migrar ofertas antiguas
+                        </Button>
+                        <p className="text-xs text-zinc-500 mt-2">
+                          Si creaste ofertas antes, haz clic para asignarlas a tu cuenta
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
