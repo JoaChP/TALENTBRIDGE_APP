@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { Card } from "../../components/ui/card"
+import { Button } from "../components/ui/button"
 import { LoadingSkeleton } from "../components/loading-skeleton"
 import type { Thread } from "../types"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
+import { Trash2 } from "lucide-react"
 
 export default function MessagesPage() {
   const user = useAuthStore((state) => state.user)
@@ -102,6 +104,23 @@ export default function MessagesPage() {
             Tus conversaciones con empresas y candidatos
           </p>
         </div>
+        {user.role === "admin" && threads.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              if (confirm("¿Estás seguro de eliminar TODOS los mensajes y conversaciones?")) {
+                await mockApi.clearAllThreadsAndMessages()
+                toast.success("Todos los mensajes han sido eliminados")
+                setThreads([])
+              }
+            }}
+            className="text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Limpiar Todos
+          </Button>
+        )}
       </div>
 
       {threads.length === 0 ? (
