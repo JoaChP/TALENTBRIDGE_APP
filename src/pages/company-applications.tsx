@@ -278,6 +278,7 @@ export function CompanyApplicationsPage() {
                           size="sm"
                           onClick={() => handleReject(application.id)}
                           title="Rechazar"
+                          className="bg-red-600 hover:bg-red-700 text-white"
                         >
                           <XCircle className="h-4 w-4" />
                         </Button>
@@ -299,6 +300,7 @@ export function CompanyApplicationsPage() {
                           variant="destructive"
                           size="sm"
                           onClick={() => handleReject(application.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white"
                         >
                           <XCircle className="h-4 w-4 mr-1" />
                           Rechazar
