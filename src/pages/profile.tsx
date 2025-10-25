@@ -273,7 +273,40 @@ export function ProfilePage() {
                       }}>
                         Publicar primera oferta
                       </Button>
-                      <div className="mt-4">
+                      <div className="mt-4 space-y-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            // Diagnóstico completo
+                            const stored = localStorage.getItem('talentbridge-data')
+                            if (stored) {
+                              try {
+                                const data = JSON.parse(stored)
+                                console.log('=== DIAGNÓSTICO DE DATOS ===')
+                                console.log('User ID actual:', user.id)
+                                console.log('Total practices:', data.practices?.length || 0)
+                                console.log('Total applications:', data.applications?.length || 0)
+                                console.log('\n--- Detalles de todas las prácticas ---')
+                                data.practices?.forEach((p: Practice) => {
+                                  console.log(`"${p.title}" - ownerUserId: ${p.company.ownerUserId} (${p.company.ownerUserId === user.id ? '✅ TUYO' : '❌ NO ES TUYO'})`)
+                                })
+                                console.log('\n--- Detalles de todas las aplicaciones ---')
+                                data.applications?.forEach((a: Application) => {
+                                  console.log(`App ${a.id} - practice: ${a.practiceId} - user: ${a.userId} - status: ${a.status}`)
+                                })
+                                toast.success('Revisa la consola para ver el diagnóstico completo')
+                              } catch (e) {
+                                console.error('Error:', e)
+                                toast.error('Error al leer los datos')
+                              }
+                            } else {
+                              toast.error('No hay datos en localStorage')
+                            }
+                          }}
+                        >
+                          🔍 Ver diagnóstico en consola
+                        </Button>
                         <Button 
                           variant="outline" 
                           size="sm"
@@ -291,7 +324,7 @@ export function ProfilePage() {
                           🔄 Migrar ofertas antiguas
                         </Button>
                         <p className="text-xs text-zinc-500 mt-2">
-                          Si creaste ofertas antes, haz clic para asignarlas a tu cuenta
+                          Si creaste ofertas antes, usa el botón de diagnóstico para verificar el problema
                         </p>
                       </div>
                     </>

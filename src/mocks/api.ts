@@ -257,44 +257,69 @@ const getInitialData = (): MockData => {
       try {
         const parsed = JSON.parse(stored) as Partial<MockData>
 
-        // Ensure sections exist and fall back to seeds when missing or empty
-        const users = parsed.users && parsed.users.length > 0 ? parsed.users : defaultData.users
-        const practices = parsed.practices && parsed.practices.length > 0 ? parsed.practices : defaultData.practices
+        // CRITICAL: Preserve existing data, only add defaults if sections are MISSING (not empty)
+        // Empty arrays are VALID states (e.g., no applications yet)
+        const users = parsed.users !== undefined ? parsed.users : defaultData.users
+        const practices = parsed.practices !== undefined ? parsed.practices : defaultData.practices
+        const applications = parsed.applications !== undefined ? parsed.applications : defaultData.applications
+        const threads = parsed.threads !== undefined ? parsed.threads : defaultData.threads
+        const messages = parsed.messages !== undefined ? parsed.messages : defaultData.messages
 
-        // For array sections, treat empty arrays as 'missing' and fall back to defaults
-        const applications = parsed.applications && parsed.applications.length > 0 ? parsed.applications : defaultData.applications
-        const threads = parsed.threads && parsed.threads.length > 0 ? parsed.threads : defaultData.threads
-        const messages = parsed.messages && parsed.messages.length > 0 ? parsed.messages : defaultData.messages
+        // Only add default seed data on FIRST LOAD (when users/practices are truly missing)
+        let finalUsers = users
+        let finalPractices = practices
+        
+        // If users array is empty AND it's the first load, add default users
+        if (users.length === 0 && !localStorage.getItem(STORAGE_KEY + '_initialized')) {
+          finalUsers = defaultData.users
+        }
+        
+        // If practices array is empty AND it's the first load, add default practices
+        if (practices.length === 0 && !localStorage.getItem(STORAGE_KEY + '_initialized')) {
+          finalPractices = defaultData.practices
+        }
 
-        const merged: MockData = { users, practices, applications, threads, messages }
+        const merged: MockData = { 
+          users: finalUsers, 
+          practices: finalPractices, 
+          applications, 
+          threads, 
+          messages 
+        }
 
-        // Persist merged data if any section was filled from defaults (to repair broken storage)
-        const shouldPersist =
-          !parsed.users || !parsed.practices || !parsed.applications || !parsed.threads || !parsed.messages ||
-          (parsed.users && parsed.users.length === 0) ||
-          (parsed.practices && parsed.practices.length === 0) ||
-          (parsed.applications && parsed.applications.length === 0) ||
-          (parsed.threads && parsed.threads.length === 0) ||
-          (parsed.messages && parsed.messages.length === 0)
-
-        if (shouldPersist) {
+        // Mark as initialized so we don't re-add defaults on refresh
+        if (!localStorage.getItem(STORAGE_KEY + '_initialized')) {
           try {
+            localStorage.setItem(STORAGE_KEY + '_initialized', 'true')
             localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+            console.log('[mockApi] First initialization complete')
           } catch {
             // ignore storage errors
           }
         }
 
         return merged
-      } catch {
+      } catch (error) {
+        console.error('[mockApi] Error parsing stored data:', error)
         // If stored is corrupted, fall back to defaults and reset storage
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData))
+          localStorage.setItem(STORAGE_KEY + '_initialized', 'true')
         } catch {
           // ignore
         }
         return defaultData
       }
+    } else {
+      // No data in storage, first time load
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData))
+        localStorage.setItem(STORAGE_KEY + '_initialized', 'true')
+        console.log('[mockApi] First load, initialized with defaults')
+      } catch {
+        // ignore
+      }
+      return defaultData
     }
   }
 
@@ -331,19 +356,27 @@ if (typeof window !== "undefined") {
   // Try JSONBin initialization first, then fallback to localStorage
   initializeWithJSONBin().then((jsonBinSuccess) => {
     if (!jsonBinSuccess) {
-      // Fallback to localStorage
+      // Fallback to localStorage - PRESERVE all existing data
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) {
         try {
           const parsed = JSON.parse(stored) as Partial<MockData>
-          const users = parsed.users && parsed.users.length > 0 ? parsed.users : defaultData.users
-          const practices = parsed.practices && parsed.practices.length > 0 ? parsed.practices : defaultData.practices
-          const applications = parsed.applications || []
-          const threads = parsed.threads || defaultData.threads
-          const messages = parsed.messages || defaultData.messages
+          
+          // CRITICAL: Use existing data as-is, don't replace with defaults
+          const users = parsed.users !== undefined ? parsed.users : defaultData.users
+          const practices = parsed.practices !== undefined ? parsed.practices : defaultData.practices
+          const applications = parsed.applications !== undefined ? parsed.applications : []
+          const threads = parsed.threads !== undefined ? parsed.threads : []
+          const messages = parsed.messages !== undefined ? parsed.messages : []
 
           mockData = { users, practices, applications, threads, messages }
-          console.log('[mockApi] Initial data loaded from localStorage:', mockData)
+          console.log('[mockApi] Data reloaded from localStorage:', {
+            users: mockData.users.length,
+            practices: mockData.practices.length,
+            applications: mockData.applications.length,
+            threads: mockData.threads.length,
+            messages: mockData.messages.length
+          })
         } catch (error) {
           console.error('[mockApi] Error loading initial data:', error)
         }
