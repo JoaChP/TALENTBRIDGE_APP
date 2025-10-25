@@ -13,6 +13,7 @@ import { Label } from "../components/ui/label"
 import { Badge } from "../components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog"
 import { RoleGate } from "../components/role-gate"
+import { useAuthStore } from "../stores/auth-store"
 import { mockApi } from "../mocks/api"
 import { toast } from "sonner"
 import type { Skill, Modality } from "../types"
@@ -70,6 +71,7 @@ export async function getServerSideProps() {
 }
 
 function PublishForm() {
+  const user = useAuthStore((s) => s.user)
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>([])
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -119,14 +121,19 @@ function PublishForm() {
       const data2 = form2.getValues()
       const data3 = form3.getValues()
 
+      if (!user) {
+        toast.error("Debes iniciar sesión para publicar una oferta")
+        return
+      }
+
       await mockApi.createPractice({
         title: data1.title,
         company: {
-          id: "c1",
+          id: `c${user.id}`,
           name: data1.company,
-          logoUrl: "/generic-company-logo.png",
+          logoUrl: user.avatarUrl || "/generic-company-logo.png",
           isEmpresa: true,
-          ownerUserId: "2",
+          ownerUserId: user.id,
         },
         city: data1.city,
         country: data1.country,
@@ -163,14 +170,19 @@ function PublishForm() {
       const data2 = form2.getValues()
       const data3 = form3.getValues()
 
+      if (!user) {
+        toast.error("Debes iniciar sesión para publicar una oferta")
+        return
+      }
+
       await mockApi.createPractice({
         title: data1.title,
         company: {
-          id: "c1",
+          id: `c${user.id}`,
           name: data1.company,
-          logoUrl: "/generic-company-logo.png",
+          logoUrl: user.avatarUrl || "/generic-company-logo.png",
           isEmpresa: true,
-          ownerUserId: "2",
+          ownerUserId: user.id,
         },
         city: data1.city,
         country: data1.country,

@@ -65,6 +65,20 @@ export function ProfilePage() {
     if (user?.role === "empresa") {
       loadCompanyData()
     }
+    
+    // Escuchar cambios en los datos
+    const handleDataUpdate = () => {
+      if (user?.role === "empresa") {
+        console.log("[ProfilePage] Data updated, reloading company data...")
+        loadCompanyData()
+      }
+    }
+    
+    window.addEventListener("talentbridge-data-updated", handleDataUpdate)
+    
+    return () => {
+      window.removeEventListener("talentbridge-data-updated", handleDataUpdate)
+    }
   }, [user])
   
   const loadCompanyData = async () => {
@@ -74,14 +88,22 @@ export function ProfilePage() {
     try {
       // Obtener todas las prácticas
       const allPractices = await mockApi.listPractices()
+      console.log("[ProfilePage] All practices:", allPractices.length)
+      console.log("[ProfilePage] Current user ID:", user.id)
+      
       // Filtrar solo las de esta empresa
-      const companyPractices = allPractices.filter(p => p.company.ownerUserId === user.id)
+      const companyPractices = allPractices.filter(p => {
+        console.log(`[ProfilePage] Practice "${p.title}" ownerUserId: ${p.company.ownerUserId}`)
+        return p.company.ownerUserId === user.id
+      })
+      console.log("[ProfilePage] Company practices filtered:", companyPractices.length)
       setMyPractices(companyPractices)
       
       // Obtener todas las aplicaciones a mis prácticas
       const allApplications = await mockApi.listApplications("all")
       const myPracticeIds = companyPractices.map(p => p.id)
       const applicationsToMe = allApplications.filter(app => myPracticeIds.includes(app.practiceId))
+      console.log("[ProfilePage] Applications to my practices:", applicationsToMe.length)
       setApplicationsToMyPractices(applicationsToMe)
     } catch (error) {
       console.error("Error loading company data:", error)
