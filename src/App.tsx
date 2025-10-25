@@ -13,6 +13,7 @@ import StudentDashboard from "./components/student-dashboard-client"
 import { CompanyDashboard } from "./pages/dashboard/company"
 import { AdminDashboard } from "./pages/dashboard/admin"
 import MessagesPage from "./pages/messages"
+import MessageDetailPage from "./pages/message-detail"
 import ApplicationsPage from "./pages/applications"
 import { useAuthStore } from "./stores/auth-store"
 import { UserProfilePage } from "./pages/user-profile"
@@ -84,9 +85,9 @@ export default function App() {
       return <MessagesPage />
     }
     if (currentPath.startsWith("/messages/") || currentPath.startsWith("/mensajes/")) {
-      // Let App Router handle message details
-      window.location.href = currentPath
-      return null
+      // Handle message detail in SPA
+      PerformanceMonitor.end('page-render')
+      return <MessageDetailPage />
     }
 
     // Applications routes - handle in SPA for seamless navigation  
