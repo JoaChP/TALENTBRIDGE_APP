@@ -1,13 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronLeft } from "lucide-react"
-import { Card } from "../../components/ui/card"
-import { Button } from "../../components/ui/button"
-import { LoadingSkeleton } from "../../src/components/loading-skeleton"
-import type { Thread } from "../../src/types"
-import { mockApi } from "../../src/mocks/api"
-import { useAuthStore } from "../../src/stores/auth-store"
+import { Card } from "../../../components/ui/card"
+import { LoadingSkeleton } from "../../../src/components/loading-skeleton"
+import type { Thread } from "../../../src/types"
+import { mockApi } from "../../../src/mocks/api"
+import { useAuthStore } from "../../../src/stores/auth-store"
 import { toast } from "sonner"
 
 export default function MessagesPage() {

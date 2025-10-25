@@ -76,8 +76,19 @@ export default function App() {
   const currentPage = useMemo(() => {
     PerformanceMonitor.start('page-render')
     
-    // NOTE: /messages routes are handled by App Router
-    // Don't handle /messages or /messages/* routes here
+    // NOTE: These routes are handled by App Router - redirect if accessed via SPA
+    if (currentPath === "/messages" || currentPath.startsWith("/messages/")) {
+      window.location.href = currentPath
+      return null
+    }
+    if (currentPath === "/applications" || currentPath === "/postulaciones") {
+      window.location.href = "/applications"
+      return null
+    }
+    if (currentPath === "/company-applications" || currentPath === "/aplicaciones-empresa") {
+      window.location.href = "/company-applications"
+      return null
+    }
 
     // Profile routes
     if (currentPath === "/profile" || currentPath === "/perfil") {
