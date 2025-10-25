@@ -658,4 +658,82 @@ export const mockApi = {
     
     return application
   },
+
+  // Eliminar práctica (solo admin o dueño)
+  async deletePractice(practiceId: string) {
+    await delay(300)
+    
+    const index = mockData.practices.findIndex(p => p.id === practiceId)
+    if (index === -1) {
+      throw new Error("Práctica no encontrada")
+    }
+
+    // Eliminar la práctica
+    mockData.practices.splice(index, 1)
+    
+    // Eliminar aplicaciones relacionadas
+    mockData.applications = mockData.applications.filter(app => app.practiceId !== practiceId)
+    
+    // Eliminar threads relacionados
+    const threadIds = mockData.threads.filter(t => t.practiceId === practiceId).map(t => t.id)
+    mockData.threads = mockData.threads.filter(t => t.practiceId !== practiceId)
+    
+    // Eliminar mensajes de esos threads
+    mockData.messages = mockData.messages.filter(msg => !threadIds.includes(msg.threadId))
+    
+    saveData()
+    console.log(`[mockApi] Practice ${practiceId} and related data deleted`)
+  },
+
+  // Eliminar usuario (solo admin)
+  async deleteUser(userId: string) {
+    await delay(300)
+    
+    const index = mockData.users.findIndex(u => u.id === userId)
+    if (index === -1) {
+      throw new Error("Usuario no encontrado")
+    }
+
+    // Eliminar el usuario
+    mockData.users.splice(index, 1)
+    
+    // Eliminar aplicaciones del usuario
+    mockData.applications = mockData.applications.filter(app => app.userId !== userId)
+    
+    // Eliminar threads del usuario
+    const threadIds = mockData.threads.filter(t => t.userId === userId).map(t => t.id)
+    mockData.threads = mockData.threads.filter(t => t.userId !== userId)
+    
+    // Eliminar mensajes de esos threads
+    mockData.messages = mockData.messages.filter(msg => !threadIds.includes(msg.threadId))
+    
+    // Eliminar prácticas si es empresa
+    const practiceIds = mockData.practices.filter(p => p.company.ownerUserId === userId).map(p => p.id)
+    mockData.practices = mockData.practices.filter(p => p.company.ownerUserId !== userId)
+    
+    // Eliminar aplicaciones de esas prácticas
+    practiceIds.forEach(practiceId => {
+      mockData.applications = mockData.applications.filter(app => app.practiceId !== practiceId)
+    })
+    
+    saveData()
+    console.log(`[mockApi] User ${userId} and related data deleted`)
+  },
+
+  // Cambiar rol de usuario (solo admin)
+  async updateUserRole(userId: string, newRole: Role) {
+    await delay(300)
+    
+    const user = mockData.users.find(u => u.id === userId)
+    if (!user) {
+      throw new Error("Usuario no encontrado")
+    }
+
+    user.role = newRole
+    
+    saveData()
+    console.log(`[mockApi] User ${userId} role updated to ${newRole}`)
+    
+    return user
+  },
 }
