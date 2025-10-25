@@ -8,7 +8,7 @@ import { LoadingSkeleton } from "../components/loading-skeleton"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import type { Application, Practice, User } from "../types"
-import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft } from "lucide-react"
+import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 export function CompanyApplicationsPage() {
@@ -103,6 +103,25 @@ export function CompanyApplicationsPage() {
     }
   }
 
+  const handleDelete = async (applicationId: string, status: string) => {
+    // No permitir eliminar postulaciones aceptadas
+    if (status === "Aceptada") {
+      toast.error("No se pueden eliminar postulaciones aceptadas")
+      return
+    }
+
+    if (!confirm("¿Estás seguro de eliminar esta postulación? Esta acción no se puede deshacer.")) return
+
+    try {
+      await mockApi.deleteApplication(applicationId)
+      toast.success("Postulación eliminada")
+      loadData()
+    } catch (error: any) {
+      console.error("Error deleting application:", error)
+      toast.error(error.message || "Error al eliminar la postulación")
+    }
+  }
+
   useEffect(() => {
     loadData()
 
@@ -114,12 +133,14 @@ export function CompanyApplicationsPage() {
 
     window.addEventListener("application-status-changed", handleStatusChange)
     window.addEventListener("application-created", handleStatusChange)
+    window.addEventListener("application-deleted", handleStatusChange)
     window.addEventListener("talentbridge-data-updated", handleStatusChange)
     window.addEventListener("practice-deleted", handleStatusChange)
 
     return () => {
       window.removeEventListener("application-status-changed", handleStatusChange)
       window.removeEventListener("application-created", handleStatusChange)
+      window.removeEventListener("application-deleted", handleStatusChange)
       window.removeEventListener("talentbridge-data-updated", handleStatusChange)
       window.removeEventListener("practice-deleted", handleStatusChange)
     }
@@ -295,6 +316,15 @@ export function CompanyApplicationsPage() {
                         >
                           <XCircle className="h-4 w-4" />
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(application.id, application.status)}
+                          title="Eliminar postulación"
+                          className="text-zinc-500 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </>
                     )}
 
@@ -318,11 +348,43 @@ export function CompanyApplicationsPage() {
                           <XCircle className="h-4 w-4 mr-1" />
                           Rechazar
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(application.id, application.status)}
+                          title="Eliminar postulación"
+                          className="text-zinc-500 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </>
                     )}
 
-                    {(application.status === "Aceptada" ||
-                      application.status === "Rechazada") && (
+                    {application.status === "Rechazada" && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            window.history.pushState({}, "", `/user/${application.userId}`)
+                            window.dispatchEvent(new PopStateEvent("popstate"))
+                          }}
+                        >
+                          Ver perfil
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(application.id, application.status)}
+                          title="Eliminar postulación"
+                          className="text-zinc-500 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+
+                    {application.status === "Aceptada" && (
                       <Button
                         variant="outline"
                         size="sm"

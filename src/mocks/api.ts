@@ -919,4 +919,34 @@ export const mockApi = {
     
     return migratedCount
   },
+
+  // Eliminar postulación (solo permitido si NO está aceptada)
+  async deleteApplication(applicationId: string) {
+    await delay(300)
+    
+    const application = mockData.applications.find(a => a.id === applicationId)
+    if (!application) {
+      throw new Error("Postulación no encontrada")
+    }
+    
+    // No permitir eliminar postulaciones aceptadas
+    if (application.status === "Aceptada") {
+      throw new Error("No se pueden eliminar postulaciones aceptadas")
+    }
+    
+    // Eliminar la postulación
+    mockData.applications = mockData.applications.filter(a => a.id !== applicationId)
+    
+    saveData()
+    console.log(`[mockApi] Application ${applicationId} deleted`)
+    
+    // Emitir evento
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('application-deleted', {
+        detail: { applicationId }
+      }))
+    }
+    
+    return true
+  },
 }
