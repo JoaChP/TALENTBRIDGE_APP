@@ -389,12 +389,19 @@ export const mockApi = {
     try {
       if (typeof window !== "undefined") {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData))
+        localStorage.setItem(STORAGE_KEY + '_initialized', 'true')
+        console.log('[mockApi] Storage repaired and reset to defaults')
       }
     } catch {
       // ignore
     }
     // mutate in-memory mockData
     Object.assign(mockData, JSON.parse(JSON.stringify(defaultData)))
+    
+    // Emitir evento para actualizar todas las vistas
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
+    }
   },
   async login(email: string, password: string) {
     await delay()

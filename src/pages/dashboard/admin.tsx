@@ -165,11 +165,26 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-balance">Panel de Administración</h1>
-        <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
-          Gestiona usuarios, ofertas y aplicaciones del sistema
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-balance">Panel de Administración</h1>
+          <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
+            Gestiona usuarios, ofertas y aplicaciones del sistema
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => {
+            if (confirm("¿Estás seguro de resetear todos los datos a valores por defecto? Esto eliminará threads y mensajes viejos.")) {
+              mockApi.repairStorage()
+              toast.success("Datos reseteados correctamente")
+              setTimeout(() => window.location.reload(), 1000)
+            }
+          }}
+          className="text-zinc-600 hover:text-red-600"
+        >
+          🔄 Resetear Datos
+        </Button>
       </div>
 
       {/* Stats Grid */}
