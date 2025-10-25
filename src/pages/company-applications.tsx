@@ -8,7 +8,7 @@ import { LoadingSkeleton } from "../components/loading-skeleton"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import type { Application, Practice, User } from "../types"
-import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase } from "lucide-react"
+import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft } from "lucide-react"
 import { toast } from "sonner"
 
 export function CompanyApplicationsPage() {
@@ -154,13 +154,26 @@ export function CompanyApplicationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-balance">Postulaciones Recibidas</h1>
-        <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
-          {user?.role === "admin"
-            ? "Gestiona todas las postulaciones del sistema"
-            : "Gestiona las postulaciones a tus ofertas de trabajo"}
-        </p>
+      <div className="flex items-center gap-4">
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => {
+            window.history.pushState({}, '', '/')
+            window.dispatchEvent(new PopStateEvent('popstate'))
+          }} 
+          aria-label="Volver"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Button>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold text-balance">Postulaciones Recibidas</h1>
+          <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
+            {user?.role === "admin"
+              ? "Gestiona todas las postulaciones del sistema"
+              : "Gestiona las postulaciones a tus ofertas de trabajo"}
+          </p>
+        </div>
       </div>
 
       {/* Stats Grid */}
