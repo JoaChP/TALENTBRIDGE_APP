@@ -60,6 +60,22 @@ export default function MessagesPage() {
     }
 
     loadThreads()
+    
+    // Escuchar TODOS los eventos de cambios en threads/mensajes
+    const handleDataUpdate = () => {
+      console.log("[MessagesPage] Data updated, reloading threads...")
+      loadThreads()
+    }
+    
+    window.addEventListener("talentbridge-data-updated", handleDataUpdate)
+    window.addEventListener("thread-created", handleDataUpdate)
+    window.addEventListener("message-sent", handleDataUpdate)
+    
+    return () => {
+      window.removeEventListener("talentbridge-data-updated", handleDataUpdate)
+      window.removeEventListener("thread-created", handleDataUpdate)
+      window.removeEventListener("message-sent", handleDataUpdate)
+    }
   }, [user])
 
   if (!user) {

@@ -66,7 +66,7 @@ export function ProfilePage() {
       loadCompanyData()
     }
     
-    // Escuchar cambios en los datos
+    // Escuchar TODOS los eventos de cambios en los datos
     const handleDataUpdate = () => {
       if (user?.role === "empresa") {
         console.log("[ProfilePage] Data updated, reloading company data...")
@@ -75,9 +75,17 @@ export function ProfilePage() {
     }
     
     window.addEventListener("talentbridge-data-updated", handleDataUpdate)
+    window.addEventListener("application-created", handleDataUpdate)
+    window.addEventListener("application-status-changed", handleDataUpdate)
+    window.addEventListener("practice-deleted", handleDataUpdate)
+    window.addEventListener("practices-migrated", handleDataUpdate)
     
     return () => {
       window.removeEventListener("talentbridge-data-updated", handleDataUpdate)
+      window.removeEventListener("application-created", handleDataUpdate)
+      window.removeEventListener("application-status-changed", handleDataUpdate)
+      window.removeEventListener("practice-deleted", handleDataUpdate)
+      window.removeEventListener("practices-migrated", handleDataUpdate)
     }
   }, [user])
   

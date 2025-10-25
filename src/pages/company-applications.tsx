@@ -106,17 +106,22 @@ export function CompanyApplicationsPage() {
   useEffect(() => {
     loadData()
 
-    // Escuchar cambios en el estado de las aplicaciones
+    // Escuchar TODOS los eventos de cambios en aplicaciones
     const handleStatusChange = () => {
+      console.log("[CompanyApplicationsPage] Data changed, reloading...")
       loadData()
     }
 
     window.addEventListener("application-status-changed", handleStatusChange)
+    window.addEventListener("application-created", handleStatusChange)
     window.addEventListener("talentbridge-data-updated", handleStatusChange)
+    window.addEventListener("practice-deleted", handleStatusChange)
 
     return () => {
       window.removeEventListener("application-status-changed", handleStatusChange)
+      window.removeEventListener("application-created", handleStatusChange)
       window.removeEventListener("talentbridge-data-updated", handleStatusChange)
+      window.removeEventListener("practice-deleted", handleStatusChange)
     }
   }, [user])
 

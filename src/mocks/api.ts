@@ -428,6 +428,7 @@ export const mockApi = {
     }
     mockData.users.push(user)
     saveData()
+    console.log('[mockApi] New user registered:', user.name)
     return { user, token: `token_${user.id}` }
   },
 
@@ -494,6 +495,7 @@ export const mockApi = {
     }
     mockData.practices.push(newPractice)
     saveData()
+    console.log('[mockApi] New practice created:', newPractice.title)
     return newPractice
   },
 
@@ -512,6 +514,15 @@ export const mockApi = {
     }
     mockData.applications.push(application)
     saveData()
+    console.log('[mockApi] New application created:', application.id)
+    
+    // Emitir evento para actualizar contadores
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('application-created', {
+        detail: { applicationId: application.id, practiceId, userId, application }
+      }))
+    }
+    
     return application
   },
 
@@ -564,6 +575,15 @@ export const mockApi = {
     }
     
     saveData()
+    console.log('[mockApi] Message sent in thread:', threadId)
+    
+    // Emitir evento para actualizar mensajes
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('message-sent', {
+        detail: { messageId: message.id, threadId, fromUserId, message }
+      }))
+    }
+    
     return message
   },
 
@@ -609,6 +629,15 @@ export const mockApi = {
     thread.lastSnippet = welcomeMessage.text.length > 50 ? welcomeMessage.text.substring(0, 50) + "..." : welcomeMessage.text
     
     saveData()
+    console.log('[mockApi] Thread created for application:', thread.id)
+    
+    // Emitir evento para actualizar threads
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('thread-created', {
+        detail: { threadId: thread.id, practiceId, userId, thread }
+      }))
+    }
+    
     return thread
   },
   // Simple counters for dashboard/home
@@ -683,6 +712,13 @@ export const mockApi = {
     
     saveData()
     console.log(`[mockApi] Practice ${practiceId} and related data deleted`)
+    
+    // Emitir evento para actualizar prácticas
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('practice-deleted', {
+        detail: { practiceId }
+      }))
+    }
   },
 
   // Eliminar usuario (solo admin)
@@ -839,6 +875,13 @@ export const mockApi = {
     if (migratedCount > 0) {
       saveData()
       console.log(`[mockApi] Migrated ${migratedCount} practices from ${oldOwnerId} to ${newOwnerId}`)
+      
+      // Emitir evento para actualizar prácticas
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent('practices-migrated', {
+          detail: { oldOwnerId, newOwnerId, count: migratedCount }
+        }))
+      }
     }
     
     return migratedCount

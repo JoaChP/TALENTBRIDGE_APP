@@ -111,16 +111,24 @@ export function SearchPage() {
 
     loadPractices()
     
-    // Escuchar cambios en los datos para actualizar la lista
+    // Escuchar TODOS los eventos de cambios en los datos
     const handleDataUpdate = () => {
       console.log("[SearchPage] Data updated, reloading practices...")
       loadPractices()
     }
     
     window.addEventListener("talentbridge-data-updated", handleDataUpdate)
+    window.addEventListener("application-created", handleDataUpdate)
+    window.addEventListener("application-status-changed", handleDataUpdate)
+    window.addEventListener("practice-deleted", handleDataUpdate)
+    window.addEventListener("practices-migrated", handleDataUpdate)
     
     return () => {
       window.removeEventListener("talentbridge-data-updated", handleDataUpdate)
+      window.removeEventListener("application-created", handleDataUpdate)
+      window.removeEventListener("application-status-changed", handleDataUpdate)
+      window.removeEventListener("practice-deleted", handleDataUpdate)
+      window.removeEventListener("practices-migrated", handleDataUpdate)
     }
   }, [search, location, modality, duration, selectedSkills])
 
