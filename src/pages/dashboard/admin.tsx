@@ -336,7 +336,7 @@ export function AdminDashboard() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleNavigation(`/oferta/${practice.id}`)}
+                      onClick={() => handleNavigation(`/oferta/${practice.id}/edit`)}
                       disabled={operationInProgress}
                     >
                       <Edit className="h-4 w-4 mr-1" />

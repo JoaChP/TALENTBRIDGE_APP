@@ -171,6 +171,16 @@ export default function App() {
     // NOTE: /applications and /company-applications are handled by App Router
     // Don't redirect these routes, let App Router handle them naturally
 
+    // Practice edit (for empresa/admin)
+    if (currentPath.startsWith("/oferta/") && currentPath.endsWith("/edit")) {
+      if (user.role !== "empresa" && user.role !== "admin") {
+        PerformanceMonitor.end('page-render')
+        return <UnauthorizedPage />
+      }
+      PerformanceMonitor.end('page-render')
+      return <PublishPage />
+    }
+
     // Practice detail
     if (currentPath.startsWith("/oferta/")) {
       PerformanceMonitor.end('page-render')

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -16,7 +16,8 @@ import { RoleGate } from "../components/role-gate"
 import { useAuthStore } from "../stores/auth-store"
 import { mockApi } from "../mocks/api"
 import { toast } from "sonner"
-import type { Skill, Modality } from "../types"
+import type { Skill, Modality, Practice } from "../types"
+import { LoadingSkeleton } from "../components/loading-skeleton"
 
 const SKILLS: Skill[] = [
   "React",
@@ -76,6 +77,15 @@ function PublishForm() {
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>([])
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
+  const [editingPractice, setEditingPractice] = useState<Practice | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  // Extract ID from URL path
+  const pathname = typeof window !== "undefined" ? window.location.pathname : ""
+  const practiceId = pathname.startsWith("/oferta/") && pathname.endsWith("/edit") 
+    ? pathname.split("/")[2] 
+    : undefined
+  const isEditing = !!practiceId
 
   const form1 = useForm<Step1Data>({
     resolver: zodResolver(step1Schema),
@@ -91,6 +101,53 @@ function PublishForm() {
     resolver: zodResolver(step3Schema),
     defaultValues: { description: "", benefits: "" },
   })
+
+  // Load practice data if editing
+  useEffect(() => {
+    const loadPractice = async () => {
+      if (!practiceId) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const practice = await mockApi.getPractice(practiceId)
+        setEditingPractice(practice)
+        
+        // Populate forms with existing data
+        form1.reset({
+          title: practice.title,
+          company: practice.company.name,
+          city: practice.city,
+          country: practice.country,
+        })
+        
+        form2.reset({
+          modality: practice.modality,
+          durationMonths: String(practice.durationMonths) as "3" | "4" | "6",
+          vacancies: String(practice.vacancies || 1),
+        })
+        
+        form3.reset({
+          description: practice.description,
+          benefits: practice.benefits || "",
+        })
+        
+        setSelectedSkills(practice.skills)
+        setLoading(false)
+      } catch (error) {
+        console.error("Error loading practice:", error)
+        toast.error("Error al cargar la práctica")
+        setLoading(false)
+      }
+    }
+
+    loadPractice()
+  }, [practiceId])
+
+  if (loading && isEditing) {
+    return <LoadingSkeleton />
+  }
 
   const toggleSkill = (skill: Skill) => {
     setHasChanges(true)
@@ -126,27 +183,49 @@ function PublishForm() {
         return
       }
 
-      await mockApi.createPractice({
-        title: data1.title,
-        company: {
-          id: `c${user.id}`,
-          name: data1.company,
-          logoUrl: user.avatarUrl || "/generic-company-logo.png",
-          isEmpresa: true,
-          ownerUserId: user.id,
-        },
-        city: data1.city,
-        country: data1.country,
-        modality: data2.modality as Modality,
-        durationMonths: Number(data2.durationMonths) as 3 | 4 | 6,
-        skills: selectedSkills,
-        description: data3.description,
-        status: "Borrador",
-        vacancies: Number(data2.vacancies),
-        benefits: data3.benefits,
-      })
+      if (isEditing && editingPractice) {
+        // Update existing practice
+        await mockApi.updatePractice(editingPractice.id, {
+          title: data1.title,
+          company: {
+            ...editingPractice.company,
+            name: data1.company,
+          },
+          city: data1.city,
+          country: data1.country,
+          modality: data2.modality as Modality,
+          durationMonths: Number(data2.durationMonths) as 3 | 4 | 6,
+          skills: selectedSkills,
+          description: data3.description,
+          status: "Borrador",
+          vacancies: Number(data2.vacancies),
+          benefits: data3.benefits,
+        })
+        toast.success("Cambios guardados como borrador")
+      } else {
+        // Create new practice
+        await mockApi.createPractice({
+          title: data1.title,
+          company: {
+            id: `c${user.id}`,
+            name: data1.company,
+            logoUrl: user.avatarUrl || "/generic-company-logo.png",
+            isEmpresa: true,
+            ownerUserId: user.id,
+          },
+          city: data1.city,
+          country: data1.country,
+          modality: data2.modality as Modality,
+          durationMonths: Number(data2.durationMonths) as 3 | 4 | 6,
+          skills: selectedSkills,
+          description: data3.description,
+          status: "Borrador",
+          vacancies: Number(data2.vacancies),
+          benefits: data3.benefits,
+        })
+        toast.success("Borrador guardado exitosamente")
+      }
 
-      toast.success("Borrador guardado exitosamente")
       setHasChanges(false)
       window.history.pushState({}, '', "/")
       window.dispatchEvent(new PopStateEvent('popstate'))
@@ -175,25 +254,48 @@ function PublishForm() {
         return
       }
 
-      await mockApi.createPractice({
-        title: data1.title,
-        company: {
-          id: `c${user.id}`,
-          name: data1.company,
-          logoUrl: user.avatarUrl || "/generic-company-logo.png",
-          isEmpresa: true,
-          ownerUserId: user.id,
-        },
-        city: data1.city,
-        country: data1.country,
-        modality: data2.modality as Modality,
-        durationMonths: Number(data2.durationMonths) as 3 | 4 | 6,
-        skills: selectedSkills,
-        description: data3.description,
-        status: "Publicada",
-        vacancies: Number(data2.vacancies),
-        benefits: data3.benefits,
-      })
+      if (isEditing && editingPractice) {
+        // Update existing practice
+        await mockApi.updatePractice(editingPractice.id, {
+          title: data1.title,
+          company: {
+            ...editingPractice.company,
+            name: data1.company,
+          },
+          city: data1.city,
+          country: data1.country,
+          modality: data2.modality as Modality,
+          durationMonths: Number(data2.durationMonths) as 3 | 4 | 6,
+          skills: selectedSkills,
+          description: data3.description,
+          status: "Publicada",
+          vacancies: Number(data2.vacancies),
+          benefits: data3.benefits,
+        })
+        toast.success("Cambios publicados exitosamente")
+      } else {
+        // Create new practice
+        await mockApi.createPractice({
+          title: data1.title,
+          company: {
+            id: `c${user.id}`,
+            name: data1.company,
+            logoUrl: user.avatarUrl || "/generic-company-logo.png",
+            isEmpresa: true,
+            ownerUserId: user.id,
+          },
+          city: data1.city,
+          country: data1.country,
+          modality: data2.modality as Modality,
+          durationMonths: Number(data2.durationMonths) as 3 | 4 | 6,
+          skills: selectedSkills,
+          description: data3.description,
+          status: "Publicada",
+          vacancies: Number(data2.vacancies),
+          benefits: data3.benefits,
+        })
+        toast.success("Práctica publicada exitosamente")
+      }
 
       setHasChanges(false)
       window.history.pushState({}, '', "/")
@@ -219,7 +321,9 @@ function PublishForm() {
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-balance">Publicar Práctica</h1>
+          <h1 className="text-3xl font-bold text-balance">
+            {isEditing ? "Editar Práctica" : "Publicar Práctica"}
+          </h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Paso {currentStep} de 3</p>
         </div>
       </div>
@@ -416,12 +520,12 @@ function PublishForm() {
 
         <Button variant="outline" onClick={handleSaveDraft}>
           <Save className="mr-1 h-4 w-4" aria-hidden="true" />
-          Guardar borrador
+          {isEditing ? "Guardar cambios" : "Guardar borrador"}
         </Button>
 
         {currentStep === 3 && (
           <Button onClick={handlePublish} className="flex-1">
-            Publicar práctica
+            {isEditing ? "Actualizar práctica" : "Publicar práctica"}
           </Button>
         )}
       </div>

@@ -497,6 +497,29 @@ export const mockApi = {
     return newPractice
   },
 
+  async updatePractice(practiceId: string, updates: Partial<Omit<Practice, "id" | "postedAgo">>) {
+    await delay()
+    const index = mockData.practices.findIndex((p) => p.id === practiceId)
+    if (index === -1) {
+      throw new Error("Práctica no encontrada")
+    }
+    
+    mockData.practices[index] = {
+      ...mockData.practices[index],
+      ...updates,
+    }
+    
+    saveData()
+    console.log('[mockApi] Practice updated:', practiceId)
+    
+    // Emitir evento para actualizar vistas
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
+    }
+    
+    return mockData.practices[index]
+  },
+
   async applyToPractice(practiceId: string, userId: string) {
     await delay()
     const existing = mockData.applications.find((a) => a.practiceId === practiceId && a.userId === userId)
