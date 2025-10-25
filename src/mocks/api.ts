@@ -751,4 +751,76 @@ export const mockApi = {
     
     return user
   },
+  
+  // Aceptar postulación (empresa o admin)
+  async acceptApplication(applicationId: string) {
+    await delay(300)
+    
+    const application = mockData.applications.find(a => a.id === applicationId)
+    if (!application) {
+      throw new Error("Postulación no encontrada")
+    }
+    
+    application.status = "Aceptada"
+    
+    saveData()
+    console.log(`[mockApi] Application ${applicationId} accepted`)
+    
+    // Emitir evento específico
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('application-status-changed', {
+        detail: { applicationId, newStatus: "Aceptada", application }
+      }))
+    }
+    
+    return application
+  },
+  
+  // Rechazar postulación (empresa o admin)
+  async rejectApplication(applicationId: string) {
+    await delay(300)
+    
+    const application = mockData.applications.find(a => a.id === applicationId)
+    if (!application) {
+      throw new Error("Postulación no encontrada")
+    }
+    
+    application.status = "Rechazada"
+    
+    saveData()
+    console.log(`[mockApi] Application ${applicationId} rejected`)
+    
+    // Emitir evento específico
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('application-status-changed', {
+        detail: { applicationId, newStatus: "Rechazada", application }
+      }))
+    }
+    
+    return application
+  },
+  
+  // Cambiar estado de postulación a "Revisando"
+  async reviewApplication(applicationId: string) {
+    await delay(300)
+    
+    const application = mockData.applications.find(a => a.id === applicationId)
+    if (!application) {
+      throw new Error("Postulación no encontrada")
+    }
+    
+    application.status = "Revisando"
+    
+    saveData()
+    console.log(`[mockApi] Application ${applicationId} marked as reviewing`)
+    
+    // Emitir evento específico
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('application-status-changed', {
+        detail: { applicationId, newStatus: "Revisando", application }
+      }))
+    }
+    
+    return application
+  },
 }

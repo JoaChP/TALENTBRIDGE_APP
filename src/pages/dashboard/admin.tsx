@@ -330,15 +330,15 @@ export function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Ver Todas las Postulaciones</CardTitle>
+            <CardTitle>Gestionar Postulaciones</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-              Gestiona y modera todas las solicitudes de estudiantes
+              Supervisa todas las postulaciones y su estado
             </p>
             <Button onClick={() => handleNavigation("/company-applications")} className="w-full">
               <FileCheck className="h-4 w-4 mr-2" />
-              Ver Postulaciones
+              Ver Todas las Postulaciones
             </Button>
           </CardContent>
         </Card>

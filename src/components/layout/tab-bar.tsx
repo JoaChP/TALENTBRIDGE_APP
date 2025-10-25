@@ -12,9 +12,9 @@ const navItems = [
   // Estudiantes - Ver sus postulaciones (SPA para mantener navegación)
   { to: "/applications", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"], spa: true },
   
-  // Empresas - Publicar y gestionar aplicaciones  
+  // Empresas - Publicar y gestionar postulaciones  
   { to: "/publish", icon: PlusCircle, label: "Publicar", roleRequired: ["empresa"], spa: true },
-  { to: "/company-applications", icon: FileCheck, label: "Aplicaciones", roleRequired: ["empresa"], spa: false },
+  { to: "/company-applications", icon: FileCheck, label: "Postulaciones", roleRequired: ["empresa"], spa: false },
   
   // Administradores - Panel de administración
   { to: "/dashboard/admin", icon: Shield, label: "Panel Admin", roleRequired: ["admin"], spa: true },

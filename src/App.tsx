@@ -15,6 +15,7 @@ import { AdminDashboard } from "./pages/dashboard/admin"
 import MessagesPage from "./pages/messages"
 import MessageDetailPage from "./pages/message-detail"
 import ApplicationsPage from "./pages/applications"
+import CompanyApplicationsPage from "./pages/company-applications"
 import { useAuthStore } from "./stores/auth-store"
 import { UserProfilePage } from "./pages/user-profile"
 import { PerformanceMonitor } from "./utils/performance"
@@ -143,6 +144,16 @@ export default function App() {
     if (currentPath === "/applications" || currentPath === "/postulaciones") {
       PerformanceMonitor.end('page-render')
       return <ApplicationsPage />
+    }
+    
+    // Company Applications - handle in SPA
+    if (currentPath === "/company-applications") {
+      if (user.role !== "empresa" && user.role !== "admin") {
+        PerformanceMonitor.end('page-render')
+        return <UnauthorizedPage />
+      }
+      PerformanceMonitor.end('page-render')
+      return <CompanyApplicationsPage />
     }
 
     // Profile routes

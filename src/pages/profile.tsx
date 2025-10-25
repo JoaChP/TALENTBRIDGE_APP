@@ -1,14 +1,17 @@
 "use client"
 
-import { useState } from "react"
-import { Mail, Phone, Edit, LogOut, Camera } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Mail, Phone, Edit, LogOut, Camera, Briefcase } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { Dialog } from "../components/ui/dialog"
 import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
 import { Textarea } from "../components/ui/textarea"
+import { Badge } from "../components/ui/badge"
 import { useAuthStore } from "../stores/auth-store"
+import { mockApi } from "../mocks/api"
+import type { Practice, Application } from "../types"
 import Image from "next/image"
 import { toast } from "sonner"
 
@@ -23,6 +26,11 @@ export function ProfilePage() {
     phone: user?.phone || "",
     about: user?.about || "",
   })
+  
+  // Estado para empresas
+  const [myPractices, setMyPractices] = useState<Practice[]>([])
+  const [applicationsToMyPractices, setApplicationsToMyPractices] = useState<Application[]>([])
+  const [loadingCompanyData, setLoadingCompanyData] = useState(false)
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -50,6 +58,36 @@ export function ProfilePage() {
       }
     }
     reader.readAsDataURL(file)
+  }
+  
+  // Cargar datos de la empresa
+  useEffect(() => {
+    if (user?.role === "empresa") {
+      loadCompanyData()
+    }
+  }, [user])
+  
+  const loadCompanyData = async () => {
+    if (!user) return
+    
+    setLoadingCompanyData(true)
+    try {
+      // Obtener todas las prácticas
+      const allPractices = await mockApi.listPractices()
+      // Filtrar solo las de esta empresa
+      const companyPractices = allPractices.filter(p => p.company.ownerUserId === user.id)
+      setMyPractices(companyPractices)
+      
+      // Obtener todas las aplicaciones a mis prácticas
+      const allApplications = await mockApi.listApplications("all")
+      const myPracticeIds = companyPractices.map(p => p.id)
+      const applicationsToMe = allApplications.filter(app => myPracticeIds.includes(app.practiceId))
+      setApplicationsToMyPractices(applicationsToMe)
+    } catch (error) {
+      console.error("Error loading company data:", error)
+    } finally {
+      setLoadingCompanyData(false)
+    }
   }
 
   const handleLogout = () => {
@@ -146,12 +184,110 @@ export function ProfilePage() {
       {user?.about && (
         <Card>
           <CardHeader>
-            <CardTitle>Acerca de mí</CardTitle>
+            <CardTitle>Acerca de {user.role === "empresa" ? "la empresa" : "mí"}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed text-pretty">{user.about}</p>
           </CardContent>
         </Card>
+      )}
+      
+      {/* Sección especial para empresas */}
+      {user?.role === "empresa" && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="h-5 w-5" />
+                Estadísticas de mi empresa
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-indigo-600">{myPractices.length}</div>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">Ofertas publicadas</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{applicationsToMyPractices.length}</div>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">Postulaciones recibidas</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {applicationsToMyPractices.filter(a => a.status === "Aceptada").length}
+                  </div>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">Candidatos aceptados</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="h-5 w-5" />
+                Mis Ofertas Publicadas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {myPractices.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-zinc-600 dark:text-zinc-400 mb-4">Aún no has publicado ninguna oferta</p>
+                  <Button onClick={() => {
+                    window.history.pushState({}, '', "/publish")
+                    window.dispatchEvent(new PopStateEvent('popstate'))
+                  }}>
+                    Publicar primera oferta
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {myPractices.map((practice) => {
+                    const practiceApplications = applicationsToMyPractices.filter(a => a.practiceId === practice.id)
+                    return (
+                      <div key={practice.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+                        <div className="flex-1">
+                          <p className="font-medium">{practice.title}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="secondary">{practice.status}</Badge>
+                            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                              {practiceApplications.length} postulaciones
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            window.history.pushState({}, '', `/oferta/${practice.id}`)
+                            window.dispatchEvent(new PopStateEvent('popstate'))
+                          }}
+                        >
+                          Ver detalles
+                        </Button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button className="flex-1" onClick={() => {
+              window.history.pushState({}, '', "/publish")
+              window.dispatchEvent(new PopStateEvent('popstate'))
+            }}>
+              Publicar Nueva Oferta
+            </Button>
+            <Button variant="outline" className="flex-1 bg-transparent" onClick={() => {
+              window.history.pushState({}, '', "/company-applications")
+              window.dispatchEvent(new PopStateEvent('popstate'))
+            }}>
+              Ver Postulaciones Recibidas
+            </Button>
+          </div>
+        </>
       )}
 
       {user?.role === "estudiante" && (

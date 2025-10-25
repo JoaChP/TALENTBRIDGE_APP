@@ -99,17 +99,19 @@ export default function ApplicationsPage() {
 
   useEffect(() => {
     loadApplications()
-
-    // Escuchar el evento de actualización de datos
-    const handleDataUpdate = () => {
-      console.log('[ApplicationsPage] Data updated, reloading applications...')
+    
+    // Escuchar cambios en el estado de las aplicaciones
+    const handleStatusChange = () => {
+      console.log("[ApplicationsPage] Application status changed, reloading...")
       loadApplications()
     }
-
-    window.addEventListener('talentbridge-data-updated', handleDataUpdate)
-
+    
+    window.addEventListener("application-status-changed", handleStatusChange)
+    window.addEventListener("talentbridge-data-updated", handleStatusChange)
+    
     return () => {
-      window.removeEventListener('talentbridge-data-updated', handleDataUpdate)
+      window.removeEventListener("application-status-changed", handleStatusChange)
+      window.removeEventListener("talentbridge-data-updated", handleStatusChange)
     }
   }, [user])
 
