@@ -17,6 +17,7 @@ export function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([])
   const [practices, setPractices] = useState<Practice[]>([])
   const [applications, setApplications] = useState<Application[]>([])
+  const [roleFilter, setRoleFilter] = useState<Role | "all">("all")
   const [stats, setStats] = useState({
     totalUsers: 0,
     estudiantes: 0,
@@ -229,22 +230,39 @@ export function AdminDashboard() {
       {/* Users Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Usuarios Registrados ({users.length})</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Usuarios Registrados ({users.filter(u => roleFilter === "all" || u.role === roleFilter).length})</CardTitle>
+            <div className="flex items-center gap-2">
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value as Role | "all")}
+                className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="all">Todos los roles</option>
+                <option value="estudiante">Estudiantes</option>
+                <option value="empresa">Empresas</option>
+                <option value="admin">Administradores</option>
+              </select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {users.map((user) => (
+            {users.filter(u => roleFilter === "all" || u.role === roleFilter).map((user) => (
               <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
                 <div className="flex-1">
                   <p className="font-medium">{user.name}</p>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={
-                    user.role === "admin" ? "default" :
-                    user.role === "empresa" ? "secondary" :
-                    "outline"
-                  }>
+                  <Badge 
+                    variant="secondary"
+                    className={
+                      user.role === "admin" ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 border-indigo-200" :
+                      user.role === "empresa" ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200" :
+                      "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 border-emerald-200"
+                    }
+                  >
                     {user.role === "estudiante" ? "Estudiante" :
                      user.role === "empresa" ? "Empresa" :
                      "Administrador"}
