@@ -204,50 +204,8 @@ export const defaultData: MockData = {
       createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // Hace 3 horas
     },
   ],
-  threads: [
-    {
-      id: "t1",
-      practiceId: "1",
-      userId: "1", // Ana García (estudiante)
-      partnerName: "Ana García",
-      partnerIsEmpresa: false,
-      lastSnippet: "Gracias por tu interés en la posición...",
-      unread: true,
-    },
-    {
-      id: "t2",
-      practiceId: "2",
-      userId: "1", // Ana García (estudiante)
-      partnerName: "Ana García",
-      partnerIsEmpresa: false,
-      lastSnippet: "Hemos revisado tu perfil y nos gustaría...",
-      unread: false,
-    },
-    {
-      id: "t3",
-      userId: "1", // Ana García (estudiante)
-      partnerName: "Carlos Mendoza",
-      partnerIsEmpresa: false,
-      lastSnippet: "Hola, tengo una pregunta sobre...",
-      unread: false,
-    },
-  ],
-  messages: [
-    {
-      id: "m1",
-      threadId: "t1",
-      fromUserId: "2",
-      text: "Gracias por tu interés en la posición de Desarrollador Frontend React.",
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "m2",
-      threadId: "t1",
-      fromUserId: "1",
-      text: "Muchas gracias por la oportunidad. Estoy muy interesado en la posición.",
-      createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    },
-  ],
+  threads: [],
+  messages: [],
 }
 
 const getInitialData = (): MockData => {
@@ -945,6 +903,24 @@ export const mockApi = {
       window.dispatchEvent(new CustomEvent('application-deleted', {
         detail: { applicationId }
       }))
+    }
+    
+    return true
+  },
+
+  // Limpiar todos los threads y mensajes
+  async clearAllThreadsAndMessages() {
+    await delay(300)
+    
+    mockData.threads = []
+    mockData.messages = []
+    
+    saveData()
+    console.log('[mockApi] All threads and messages cleared')
+    
+    // Emitir evento
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
     }
     
     return true
