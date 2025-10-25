@@ -1,9 +1,7 @@
-# Build ID: v2.1 - Fixed imports for Vercel deployment
+# Build ID: v3.0 - SPA navigation fix
 # Solo ignorar archivos específicos que causan conflictos con App Router
-# Estos archivos ya están implementados en app/ y causarían conflictos
 
 # Archivos que ya existen en App Router - evitar duplicados
-src/pages/applications.tsx
 src/pages/company-applications.tsx  
 src/pages/login.tsx
 
