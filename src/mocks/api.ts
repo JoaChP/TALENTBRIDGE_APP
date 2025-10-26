@@ -356,6 +356,18 @@ const saveData = () => {
   }
 }
 
+// Helper para sincronizar con JSONBin después de cambios
+const syncToJSONBin = async (operationName: string) => {
+  try {
+    console.log(`[mockApi] Syncing ${operationName} to JSONBin...`)
+    await vercelJsonBinService.saveData(mockData)
+    console.log(`[mockApi] ${operationName} synced to JSONBin successfully`)
+  } catch (error) {
+    console.warn(`[mockApi] Failed to sync ${operationName} to JSONBin:`, error)
+    // No lanzar error - continuar incluso si falla JSONBin
+  }
+}
+
 // Simulate API delay
 const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -430,20 +442,8 @@ export const mockApi = {
     mockData.users.push(user)
     saveData()
     
-    // Intentar guardar en JSONBin para compartir entre usuarios
-    try {
-      const enabled = process.env.NEXT_PUBLIC_USE_JSONBIN === 'true'
-      if (enabled) {
-        console.log('[mockApi] Syncing new user to JSONBin:', user.name)
-        await vercelJsonBinService.saveData(mockData)
-        console.log('[mockApi] User synced to JSONBin successfully')
-      } else {
-        console.log('[mockApi] JSONBin sync skipped (not enabled)')
-      }
-    } catch (error) {
-      console.warn('[mockApi] Failed to sync user to JSONBin:', error)
-      // No throw error - continuar incluso si falla JSONBin
-    }
+    // Sincronizar con JSONBin
+    await syncToJSONBin('user registration')
     
     console.log('[mockApi] New user registered:', user.name)
     return { user, token: `token_${user.id}` }
@@ -512,6 +512,7 @@ export const mockApi = {
     }
     mockData.practices.push(newPractice)
     saveData()
+    await syncToJSONBin('practice creation')
     console.log('[mockApi] New practice created:', newPractice.title)
     return newPractice
   },
@@ -529,6 +530,7 @@ export const mockApi = {
     }
     
     saveData()
+    await syncToJSONBin('practice update')
     console.log('[mockApi] Practice updated:', practiceId)
     
     // Emitir evento para actualizar vistas
@@ -554,6 +556,7 @@ export const mockApi = {
     }
     mockData.applications.push(application)
     saveData()
+    await syncToJSONBin('application submission')
     console.log('[mockApi] New application created:', application.id)
     
     // Emitir evento para actualizar contadores
@@ -615,6 +618,7 @@ export const mockApi = {
     }
     
     saveData()
+    await syncToJSONBin('message send')
     console.log('[mockApi] Message sent in thread:', threadId)
     
     // Emitir evento para actualizar mensajes
@@ -669,6 +673,7 @@ export const mockApi = {
     thread.lastSnippet = welcomeMessage.text.length > 50 ? welcomeMessage.text.substring(0, 50) + "..." : welcomeMessage.text
     
     saveData()
+    await syncToJSONBin('thread creation')
     console.log('[mockApi] Thread created for application:', thread.id)
     
     // Emitir evento para actualizar threads
@@ -723,6 +728,7 @@ export const mockApi = {
     application.status = newStatus
     
     saveData()
+    await syncToJSONBin('application status update')
     console.log(`[mockApi] Application ${applicationId} status updated to ${newStatus} by ${reviewer.name}`)
     
     return application
@@ -751,6 +757,7 @@ export const mockApi = {
     mockData.messages = mockData.messages.filter(msg => !threadIds.includes(msg.threadId))
     
     saveData()
+    await syncToJSONBin('practice deletion')
     console.log(`[mockApi] Practice ${practiceId} and related data deleted`)
     
     // Emitir evento para actualizar prácticas
@@ -795,6 +802,7 @@ export const mockApi = {
     })
     
     saveData()
+    await syncToJSONBin('user deletion')
     console.log(`[mockApi] User ${userId} (${deletedUser.name}) and related data deleted`)
     
     // Emitir evento específico para eliminación de usuario
@@ -816,6 +824,7 @@ export const mockApi = {
     user.role = newRole
     
     saveData()
+    await syncToJSONBin('user role update')
     console.log(`[mockApi] User ${userId} (${user.name}) role updated from ${oldRole} to ${newRole}`)
     
     // Emitir evento específico para cambio de rol
@@ -840,6 +849,7 @@ export const mockApi = {
     application.status = "Aceptada"
     
     saveData()
+    await syncToJSONBin('application acceptance')
     console.log(`[mockApi] Application ${applicationId} accepted`)
     
     // Emitir evento específico
@@ -864,6 +874,7 @@ export const mockApi = {
     application.status = "Rechazada"
     
     saveData()
+    await syncToJSONBin('application rejection')
     console.log(`[mockApi] Application ${applicationId} rejected`)
     
     // Emitir evento específico
@@ -888,6 +899,7 @@ export const mockApi = {
     application.status = "Revisando"
     
     saveData()
+    await syncToJSONBin('application review')
     console.log(`[mockApi] Application ${applicationId} marked as reviewing`)
     
     // Emitir evento específico
@@ -914,6 +926,7 @@ export const mockApi = {
     
     if (migratedCount > 0) {
       saveData()
+      await syncToJSONBin('practices migration')
       console.log(`[mockApi] Migrated ${migratedCount} practices from ${oldOwnerId} to ${newOwnerId}`)
       
       // Emitir evento para actualizar prácticas
@@ -945,6 +958,7 @@ export const mockApi = {
     mockData.applications = mockData.applications.filter(a => a.id !== applicationId)
     
     saveData()
+    await syncToJSONBin('application deletion')
     console.log(`[mockApi] Application ${applicationId} deleted`)
     
     // Emitir evento
@@ -965,6 +979,7 @@ export const mockApi = {
     mockData.messages = []
     
     saveData()
+    await syncToJSONBin('threads and messages clear')
     console.log('[mockApi] All threads and messages cleared')
     
     // Emitir evento
@@ -991,6 +1006,7 @@ export const mockApi = {
     mockData.messages = mockData.messages.filter(m => m.threadId !== threadId)
     
     saveData()
+    await syncToJSONBin('thread deletion')
     console.log('[mockApi] Thread deleted:', threadId)
     
     // Emitir evento
