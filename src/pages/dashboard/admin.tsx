@@ -8,7 +8,7 @@ import { LoadingSkeleton } from "../../components/loading-skeleton"
 import { mockApi } from "../../mocks/api"
 import { useAuthStore } from "../../stores/auth-store"
 import type { User, Practice, Application, Role } from "../../types"
-import { Users, Briefcase, FileCheck, MessageSquare, Trash2, Edit, UserCog, ChevronLeft, ChevronRight } from "lucide-react"
+import { Users, Briefcase, FileCheck, MessageSquare, Trash2, Edit, UserCog, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 
 export function AdminDashboard() {
@@ -174,6 +174,9 @@ export function AdminDashboard() {
           <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
             Gestiona usuarios, ofertas y aplicaciones del sistema
           </p>
+          <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+            ℹ️ Datos en localStorage local - Cada navegador tiene su propia base de datos
+          </p>
         </div>
         <Button
           variant="outline"
@@ -249,9 +252,24 @@ export function AdminDashboard() {
       <Card>
         <CardHeader>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <CardTitle className="text-lg sm:text-xl">
-              Usuarios Registrados ({users.filter(u => roleFilter === "all" || u.role === roleFilter).length})
-            </CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-lg sm:text-xl">
+                Usuarios Registrados ({users.filter(u => roleFilter === "all" || u.role === roleFilter).length})
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setLoading(true)
+                  loadData()
+                  toast.success("Lista actualizada")
+                }}
+                disabled={loading}
+                title="Recargar lista de usuarios"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
               <select
                 value={roleFilter}
