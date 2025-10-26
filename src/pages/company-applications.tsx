@@ -8,7 +8,7 @@ import { LoadingSkeleton } from "../components/loading-skeleton"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import type { Application, Practice, User } from "../types"
-import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft, Trash2, ChevronRight, PlusCircle, FileText } from "lucide-react"
+import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft, Trash2, ChevronRight, PlusCircle, FileText, Mail, Phone } from "lucide-react"
 import { toast } from "sonner"
 
 export function CompanyApplicationsPage() {
@@ -161,9 +161,8 @@ export function CompanyApplicationsPage() {
     return <LoadingSkeleton />
   }
 
-  const getStudentName = (userId: string) => {
-    const student = students.find((s) => s.id === userId)
-    return student?.name || "Usuario desconocido"
+  const getStudent = (userId: string) => {
+    return students.find((s) => s.id === userId)
   }
 
   const getPracticeName = (practiceId: string) => {
@@ -325,21 +324,59 @@ export function CompanyApplicationsPage() {
           ) : (
             <>
               <div className="space-y-3">
-                {paginatedApplications.map((application) => (
+                {paginatedApplications.map((application) => {
+                  const student = getStudent(application.userId)
+                  return (
                   <div
                     key={application.id}
-                    className="flex flex-col gap-3 p-3 sm:p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+                    className="flex flex-col gap-3 sm:gap-4 p-3 sm:p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
                   >
-                    <div className="flex-1 space-y-2 min-w-0">
+                    {/* Información del Estudiante */}
+                    <div className="flex-1 space-y-3 min-w-0">
                       <div className="flex items-start gap-2 sm:gap-3">
                         <UserIcon className="h-5 w-5 text-zinc-500 flex-shrink-0 mt-0.5" />
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-sm sm:text-base break-words">{getStudentName(application.userId)}</p>
-                          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 break-words">
-                            Postulado a: {getPracticeName(application.practiceId)}
-                          </p>
+                        <div className="min-w-0 flex-1 space-y-2">
+                          <div>
+                            <p className="font-semibold text-base sm:text-lg break-words">{student?.name || "Usuario desconocido"}</p>
+                            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 break-words">
+                              Postulado a: <span className="font-medium">{getPracticeName(application.practiceId)}</span>
+                            </p>
+                          </div>
+                          
+                          {/* Información de Contacto */}
+                          <div className="space-y-1.5 text-xs sm:text-sm">
+                            <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+                              <Mail className="h-4 w-4 text-zinc-500 flex-shrink-0" />
+                              <a 
+                                href={`mailto:${student?.email}`}
+                                className="hover:text-indigo-600 hover:underline break-all"
+                              >
+                                {student?.email || "Sin email"}
+                              </a>
+                            </div>
+                            {student?.phone && (
+                              <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+                                <Phone className="h-4 w-4 text-zinc-500 flex-shrink-0" />
+                                <a 
+                                  href={`tel:${student.phone}`}
+                                  className="hover:text-indigo-600 hover:underline"
+                                >
+                                  {student.phone}
+                                </a>
+                              </div>
+                            )}
+                            {student?.about && (
+                              <div className="mt-2 pt-2 border-t border-zinc-200 dark:border-zinc-700">
+                                <p className="text-xs text-zinc-600 dark:text-zinc-400 font-medium mb-1">Sobre el candidato:</p>
+                                <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 break-words whitespace-pre-wrap">
+                                  {student.about}
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
+                      
                       <div className="flex items-center gap-2 flex-wrap">
                         {getStatusBadge(application.status)}
                         <span className="text-xs text-zinc-500 whitespace-nowrap">
@@ -467,7 +504,7 @@ export function CompanyApplicationsPage() {
                       )}
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
 
               {/* Pagination Controls */}
