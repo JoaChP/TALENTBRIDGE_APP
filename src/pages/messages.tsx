@@ -14,10 +14,27 @@ export default function MessagesPage() {
   const user = useAuthStore((state) => state.user)
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
+  const [deletingThread, setDeletingThread] = useState<string | null>(null)
 
   const handleNavigation = (path: string) => {
     window.history.pushState({}, '', path)
     window.dispatchEvent(new PopStateEvent('popstate'))
+  }
+
+  const handleDeleteThread = async (threadId: string, threadName: string) => {
+    if (!confirm(`¿Estás seguro de eliminar la conversación con ${threadName}?`)) return
+
+    setDeletingThread(threadId)
+    try {
+      await mockApi.deleteThread(threadId)
+      toast.success("Conversación eliminada")
+      setThreads(prev => prev.filter(t => t.id !== threadId))
+    } catch (error) {
+      console.error("Error deleting thread:", error)
+      toast.error("Error al eliminar la conversación")
+    } finally {
+      setDeletingThread(null)
+    }
   }
 
   useEffect(() => {
@@ -104,14 +121,28 @@ export default function MessagesPage() {
             Tus conversaciones con empresas y candidatos
           </p>
         </div>
-        {user.role === "admin" && threads.length > 0 && (
+        {threads.length > 0 && (
           <Button
             variant="outline"
             size="sm"
             onClick={async () => {
-              if (confirm("¿Estás seguro de eliminar TODOS los mensajes y conversaciones?")) {
-                await mockApi.clearAllThreadsAndMessages()
-                toast.success("Todos los mensajes han sido eliminados")
+              const confirmText = user.role === "admin" 
+                ? "¿Estás seguro de eliminar TODOS los mensajes y conversaciones del sistema?"
+                : "¿Estás seguro de eliminar TODAS tus conversaciones?"
+              
+              if (confirm(confirmText)) {
+                if (user.role === "admin") {
+                  // Admin deletes ALL threads
+                  await mockApi.clearAllThreadsAndMessages()
+                  toast.success("Todos los mensajes han sido eliminados")
+                } else {
+                  // Users delete only their own threads
+                  const userThreadIds = threads.map(t => t.id)
+                  for (const threadId of userThreadIds) {
+                    await mockApi.deleteThread(threadId)
+                  }
+                  toast.success("Todas tus conversaciones han sido eliminadas")
+                }
                 setThreads([])
               }
             }}
@@ -135,13 +166,13 @@ export default function MessagesPage() {
       ) : (
         <div className="space-y-3">
           {threads.map((thread) => (
-            <Card key={thread.id} className="p-4 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
-              <button
-                onClick={() => handleNavigation(`/messages/${thread.id}`)}
-                className="w-full text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
+            <Card key={thread.id} className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleNavigation(`/messages/${thread.id}`)}
+                  className="flex-1 flex items-center gap-3 text-left"
+                >
+                  <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center flex-shrink-0">
                     <span className="text-sm font-medium">
                       {thread.partnerName?.charAt(0) || 'C'}
                     </span>
@@ -159,8 +190,20 @@ export default function MessagesPage() {
                       {thread.lastSnippet || 'Práctica profesional'}
                     </p>
                   </div>
-                </div>
-              </button>
+                </button>
+                
+                {/* Delete button (visible for all users) */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDeleteThread(thread.id, thread.partnerName || 'esta conversación')}
+                  disabled={deletingThread === thread.id}
+                  className="text-red-600 hover:text-red-700 flex-shrink-0"
+                  title="Eliminar conversación"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </Card>
           ))}
         </div>

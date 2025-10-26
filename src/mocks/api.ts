@@ -955,4 +955,30 @@ export const mockApi = {
     
     return true
   },
+
+  // Eliminar un thread específico y sus mensajes
+  async deleteThread(threadId: string) {
+    await delay(300)
+    
+    // Eliminar el thread
+    const threadIndex = mockData.threads.findIndex(t => t.id === threadId)
+    if (threadIndex === -1) {
+      throw new Error("Thread no encontrado")
+    }
+    
+    mockData.threads.splice(threadIndex, 1)
+    
+    // Eliminar todos los mensajes de ese thread
+    mockData.messages = mockData.messages.filter(m => m.threadId !== threadId)
+    
+    saveData()
+    console.log('[mockApi] Thread deleted:', threadId)
+    
+    // Emitir evento
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
+    }
+    
+    return true
+  },
 }
