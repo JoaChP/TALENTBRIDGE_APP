@@ -417,6 +417,7 @@ export const mockApi = {
     if (mockData.users.find((u) => u.email === email)) {
       throw new Error("El correo ya está registrado")
     }
+    
     const user: User = {
       id: `user_${Date.now()}`,
       name,
@@ -425,8 +426,25 @@ export const mockApi = {
       phone,
       avatarUrl: `/placeholder.svg?height=100&width=100&query=${role}`,
     }
+    
     mockData.users.push(user)
     saveData()
+    
+    // Intentar guardar en JSONBin para compartir entre usuarios
+    try {
+      const enabled = typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_USE_JSONBIN === 'true'
+      if (enabled) {
+        console.log('[mockApi] Syncing new user to JSONBin:', user.name)
+        await vercelJsonBinService.saveData(mockData)
+        console.log('[mockApi] User synced to JSONBin successfully')
+      } else {
+        console.log('[mockApi] JSONBin sync skipped (not enabled)')
+      }
+    } catch (error) {
+      console.warn('[mockApi] Failed to sync user to JSONBin:', error)
+      // No throw error - continuar incluso si falla JSONBin
+    }
+    
     console.log('[mockApi] New user registered:', user.name)
     return { user, token: `token_${user.id}` }
   },

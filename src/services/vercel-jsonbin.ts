@@ -98,6 +98,51 @@ class VercelJSONBinService {
     }
   }
 
+  // Guardar datos en JSONBin (para sincronizar usuarios registrados)
+  async saveData(data: JSONBinData): Promise<boolean> {
+    if (!this.enabled) {
+      console.log('[JSONBin] Save disabled - using localStorage only')
+      this.saveToLocalStorage(data)
+      return false
+    }
+
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_JSONBIN_API_KEY || ''
+      if (!apiKey) {
+        console.warn('[JSONBin] No API key configured')
+        this.saveToLocalStorage(data)
+        return false
+      }
+
+      console.log('[JSONBin] Saving data to cloud...')
+      await axios.put(
+        `https://api.jsonbin.io/v3/b/${this.binId}`,
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': apiKey,
+          }
+        }
+      )
+      
+      // Actualizar cache
+      this.cache = data
+      this.lastSync = Date.now()
+      
+      // También guardar en localStorage como backup
+      this.saveToLocalStorage(data)
+      
+      console.log('[JSONBin] Data saved to cloud successfully')
+      return true
+    } catch (error) {
+      console.error('[JSONBin] Error saving data:', error)
+      // Guardar en localStorage como fallback
+      this.saveToLocalStorage(data)
+      return false
+    }
+  }
+
   // Inicializar datos: usa localStorage únicamente (JSONBin deshabilitado)
   async initializeData(): Promise<JSONBinData> {
     console.log('[VercelJSONBin] Initializing data...')
