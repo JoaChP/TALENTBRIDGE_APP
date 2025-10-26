@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { Badge } from "../components/ui/badge"
@@ -8,7 +8,7 @@ import { LoadingSkeleton } from "../components/loading-skeleton"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import type { Application, Practice, User } from "../types"
-import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft, Trash2 } from "lucide-react"
+import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft, Trash2, ChevronRight } from "lucide-react"
 import { toast } from "sonner"
 
 export function CompanyApplicationsPage() {
@@ -17,6 +17,8 @@ export function CompanyApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([])
   const [practices, setPractices] = useState<Practice[]>([])
   const [students, setStudents] = useState<User[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   const [stats, setStats] = useState({
     total: 0,
     enviadas: 0,
@@ -67,6 +69,14 @@ export function CompanyApplicationsPage() {
       setLoading(false)
     }
   }
+
+  // Pagination
+  const totalPages = Math.ceil(applications.length / itemsPerPage)
+  const paginatedApplications = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    return applications.slice(startIndex, endIndex)
+  }, [applications, currentPage, itemsPerPage])
 
   const handleAccept = async (applicationId: string) => {
     try {
@@ -174,8 +184,8 @@ export function CompanyApplicationsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <Button 
           variant="ghost" 
           size="icon"
@@ -184,12 +194,13 @@ export function CompanyApplicationsPage() {
             window.dispatchEvent(new PopStateEvent('popstate'))
           }} 
           aria-label="Volver"
+          className="self-start"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-balance">Postulaciones Recibidas</h1>
-          <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
+          <h1 className="text-2xl sm:text-3xl font-bold text-balance">Postulaciones Recibidas</h1>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400 text-pretty">
             {user?.role === "admin"
               ? "Gestiona todas las postulaciones del sistema"
               : "Gestiona las postulaciones a tus ofertas de trabajo"}
@@ -198,49 +209,49 @@ export function CompanyApplicationsPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+      <div className="grid gap-2 sm:gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
             <CardTitle className="text-xs sm:text-sm font-medium">Total</CardTitle>
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0">
             <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
             <CardTitle className="text-xs sm:text-sm font-medium">Nuevas</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-blue-600">{stats.enviadas}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
             <CardTitle className="text-xs sm:text-sm font-medium">En Revisión</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-yellow-600">{stats.revisando}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
             <CardTitle className="text-xs sm:text-sm font-medium">Aceptadas</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-green-600">{stats.aceptadas}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
             <CardTitle className="text-xs sm:text-sm font-medium">Rechazadas</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0">
             <div className="text-xl sm:text-2xl font-bold text-red-600">{stats.rechazadas}</div>
           </CardContent>
         </Card>
@@ -248,120 +259,167 @@ export function CompanyApplicationsPage() {
 
       {/* Applications List */}
       <Card>
-        <CardHeader>
-          <CardTitle>Lista de Postulaciones ({applications.length})</CardTitle>
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="text-lg sm:text-xl">
+              Lista de Postulaciones ({applications.length})
+            </CardTitle>
+            {applications.length > 0 && (
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value))
+                  setCurrentPage(1)
+                }}
+                className="w-full sm:w-auto px-3 py-2 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
+              >
+                <option value={5}>5 por página</option>
+                <option value={10}>10 por página</option>
+                <option value={20}>20 por página</option>
+                <option value={50}>50 por página</option>
+              </select>
+            )}
+          </div>
         </CardHeader>
-        <CardContent>
-          {applications.length === 0 ? (
+        <CardContent className="p-4 sm:p-6 pt-0">{applications.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-zinc-600 dark:text-zinc-400">
                 No hay postulaciones aún
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {applications.map((application) => (
-                <div
-                  key={application.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors gap-3"
-                >
-                  <div className="flex-1 space-y-2 min-w-0">
-                    <div className="flex items-center gap-3">
-                      <UserIcon className="h-5 w-5 text-zinc-500 flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium truncate">{getStudentName(application.userId)}</p>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">
-                          Postulado a: {getPracticeName(application.practiceId)}
-                        </p>
+            <>
+              <div className="space-y-3">
+                {paginatedApplications.map((application) => (
+                  <div
+                    key={application.id}
+                    className="flex flex-col gap-3 p-3 sm:p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+                  >
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <UserIcon className="h-5 w-5 text-zinc-500 flex-shrink-0 mt-0.5" />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm sm:text-base break-words">{getStudentName(application.userId)}</p>
+                          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 break-words">
+                            Postulado a: {getPracticeName(application.practiceId)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {getStatusBadge(application.status)}
+                        <span className="text-xs text-zinc-500 whitespace-nowrap">
+                          {new Date(application.createdAt).toLocaleDateString("es", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
                       </div>
                     </div>
+
                     <div className="flex items-center gap-2 flex-wrap">
-                      {getStatusBadge(application.status)}
-                      <span className="text-xs text-zinc-500 whitespace-nowrap">
-                        {new Date(application.createdAt).toLocaleDateString("es", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
-                    </div>
-                  </div>
+                      {application.status === "Enviada" && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleReview(application.id)}
+                            title="Marcar en revisión"
+                            className="flex-1 sm:flex-none"
+                          >
+                            <Eye className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Revisar</span>
+                          </Button>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleAccept(application.id)}
+                            className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-none"
+                            title="Aceptar"
+                          >
+                            <CheckCircle className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Aceptar</span>
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleReject(application.id)}
+                            title="Rechazar"
+                            className="bg-red-600 hover:bg-red-700 text-white flex-1 sm:flex-none"
+                          >
+                            <XCircle className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Rechazar</span>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(application.id, application.status)}
+                            title="Eliminar postulación"
+                            className="text-zinc-500 hover:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
 
-                  <div className="flex items-center gap-2">
-                    {application.status === "Enviada" && (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleReview(application.id)}
-                          title="Marcar en revisión"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => handleAccept(application.id)}
-                          className="bg-green-600 hover:bg-green-700"
-                          title="Aceptar"
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleReject(application.id)}
-                          title="Rechazar"
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                        >
-                          <XCircle className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(application.id, application.status)}
-                          title="Eliminar postulación"
-                          className="text-zinc-500 hover:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
+                      {application.status === "Revisando" && (
+                        <>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleAccept(application.id)}
+                            className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-none"
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Aceptar
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleReject(application.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white flex-1 sm:flex-none"
+                          >
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Rechazar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(application.id, application.status)}
+                            title="Eliminar postulación"
+                            className="text-zinc-500 hover:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
 
-                    {application.status === "Revisando" && (
-                      <>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => handleAccept(application.id)}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Aceptar
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleReject(application.id)}
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                        >
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Rechazar
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(application.id, application.status)}
-                          title="Eliminar postulación"
-                          className="text-zinc-500 hover:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
+                      {application.status === "Rechazada" && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              window.history.pushState({}, "", `/user/${application.userId}`)
+                              window.dispatchEvent(new PopStateEvent("popstate"))
+                            }}
+                            className="flex-1 sm:flex-none"
+                          >
+                            Ver perfil
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(application.id, application.status)}
+                            title="Eliminar postulación"
+                            className="text-zinc-500 hover:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
 
-                    {application.status === "Rechazada" && (
-                      <>
+                      {application.status === "Aceptada" && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -369,37 +427,47 @@ export function CompanyApplicationsPage() {
                             window.history.pushState({}, "", `/user/${application.userId}`)
                             window.dispatchEvent(new PopStateEvent("popstate"))
                           }}
+                          className="w-full sm:w-auto"
                         >
                           Ver perfil
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(application.id, application.status)}
-                          title="Eliminar postulación"
-                          className="text-zinc-500 hover:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-                    {application.status === "Aceptada" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          window.history.pushState({}, "", `/user/${application.userId}`)
-                          window.dispatchEvent(new PopStateEvent("popstate"))
-                        }}
-                      >
-                        Ver perfil
-                      </Button>
-                    )}
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-4 mt-4 border-t">
+                  <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 text-center sm:text-left">
+                    Página {currentPage} de {totalPages}
+                  </p>
+                  <div className="flex justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span className="hidden sm:inline ml-1">Anterior</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <span className="hidden sm:inline mr-1">Siguiente</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
