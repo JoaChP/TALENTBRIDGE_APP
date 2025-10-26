@@ -70,7 +70,7 @@ export const TabBar = memo(function TabBar() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:hidden"
+      className="fixed bottom-0 inset-x-0 z-50 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:hidden"
       aria-label="Navegación principal"
     >
       <div className="flex h-16 items-center justify-around">
