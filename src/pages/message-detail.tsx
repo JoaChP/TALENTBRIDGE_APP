@@ -119,7 +119,7 @@ export default function MessageDetailPage() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto py-4 space-y-4 mb-4">
         {messages.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -163,20 +163,28 @@ export default function MessageDetailPage() {
         )}
       </div>
 
-      {/* Input */}
-      <form onSubmit={handleSendMessage} className="flex gap-2 pt-4 border-t">
-        <Input
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Escribe un mensaje..."
-          disabled={sending}
-          className="flex-1"
-        />
-        <Button type="submit" disabled={sending || !newMessage.trim()}>
-          <Send className="h-4 w-4" />
-          <span className="hidden sm:inline ml-2">Enviar</span>
-        </Button>
-      </form>
+      {/* Input Area - Más visible y destacado */}
+      <div className="sticky bottom-0 bg-white dark:bg-zinc-950 pt-4 pb-2 border-t-2 border-indigo-500 shadow-lg">
+        <form onSubmit={handleSendMessage} className="flex gap-2 items-center">
+          <Input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Escribe tu mensaje aquí..."
+            disabled={sending}
+            className="flex-1 h-12 text-base px-4 border-2 border-zinc-300 dark:border-zinc-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+            autoComplete="off"
+          />
+          <Button 
+            type="submit" 
+            disabled={sending || !newMessage.trim()}
+            size="lg"
+            className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium"
+          >
+            <Send className="h-5 w-5" />
+            <span className="hidden sm:inline ml-2">Enviar</span>
+          </Button>
+        </form>
+      </div>
     </div>
   )
 }
