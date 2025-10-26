@@ -13,7 +13,7 @@ const navItems = [
   { to: "/applications", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"], spa: true },
   
   // Empresas - Gestión (combina publicar y ver postulaciones)
-  { to: "/company-applications", icon: FileCheck, label: "Gestión", roleRequired: ["empresa"], spa: false },
+  { to: "/company-applications", icon: FileCheck, label: "Gestión", roleRequired: ["empresa"], spa: true },
   
   // Administradores - Panel de administración
   { to: "/dashboard/admin", icon: Shield, label: "Admin", roleRequired: ["admin"], spa: true },

@@ -317,14 +317,20 @@ function PublishForm() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={handleLeave} aria-label="Volver">
-          <ChevronLeft className="h-5 w-5" />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleLeave}
+          className="flex items-center gap-2"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          <span>Volver</span>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold text-balance">
+        <div className="flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-balance">
             {isEditing ? "Editar Práctica" : "Publicar Práctica"}
           </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Paso {currentStep} de 3</p>
+          <p className="mt-1 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">Paso {currentStep} de 3</p>
         </div>
       </div>
 
