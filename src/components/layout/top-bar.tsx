@@ -29,6 +29,12 @@ export function TopBar() {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
 
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark"
+    console.log("[TopBar] Changing theme from", theme, "to", newTheme)
+    setTheme(newTheme)
+  }
+
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-zinc-800 dark:bg-zinc-950/95">
   <div className="container mx-auto flex h-16 items-center gap-4 px-4 lg:ml-64">
@@ -62,18 +68,13 @@ export function TopBar() {
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          onClick={toggleTheme}
           aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
           className="flex-shrink-0"
         >
-          {mounted && (
-            theme === "dark" ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )
-          )}
           {!mounted && <Moon className="h-5 w-5" />}
+          {mounted && theme === "dark" && <Sun className="h-5 w-5" />}
+          {mounted && theme === "light" && <Moon className="h-5 w-5" />}
         </Button>
       </div>
     </header>

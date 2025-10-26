@@ -9,7 +9,12 @@ if (typeof document !== "undefined") {
   if (root) {
     ReactDOM.createRoot(root).render(
       <React.StrictMode>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider 
+          attribute="class" 
+          defaultTheme="light" 
+          enableSystem={false}
+          storageKey="vite-ui-theme"
+        >
           <App />
         </ThemeProvider>
       </React.StrictMode>,
