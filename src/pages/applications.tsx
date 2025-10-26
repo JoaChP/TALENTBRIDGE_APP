@@ -127,7 +127,21 @@ export default function ApplicationsPage() {
       {/* Header con stats */}
       <div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2">
-          <h1 className="text-xl sm:text-2xl font-semibold">Mis Postulaciones</h1>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                window.history.pushState({}, '', '/')
+                window.dispatchEvent(new PopStateEvent('popstate'))
+              }} 
+              className="flex items-center gap-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span>Volver</span>
+            </Button>
+            <h1 className="text-xl sm:text-2xl font-semibold">Mis Postulaciones</h1>
+          </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
             <select
               value={itemsPerPage}

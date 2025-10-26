@@ -188,15 +188,15 @@ export function CompanyApplicationsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <Button 
           variant="ghost" 
-          size="icon"
+          size="sm"
           onClick={() => {
             window.history.pushState({}, '', '/')
             window.dispatchEvent(new PopStateEvent('popstate'))
           }} 
-          aria-label="Volver"
-          className="self-start"
+          className="self-start flex items-center gap-2"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4" />
+          <span>Volver</span>
         </Button>
         <div className="flex-1">
           <h1 className="text-2xl sm:text-3xl font-bold text-balance">Postulaciones Recibidas</h1>
