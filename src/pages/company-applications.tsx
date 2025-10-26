@@ -399,8 +399,7 @@ export function CompanyApplicationsPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              window.history.pushState({}, "", `/user/${application.userId}`)
-                              window.dispatchEvent(new PopStateEvent("popstate"))
+                              window.location.href = `/user/${application.userId}`
                             }}
                             className="flex-1 sm:flex-none"
                           >
@@ -423,8 +422,7 @@ export function CompanyApplicationsPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            window.history.pushState({}, "", `/user/${application.userId}`)
-                            window.dispatchEvent(new PopStateEvent("popstate"))
+                            window.location.href = `/user/${application.userId}`
                           }}
                           className="w-full sm:w-auto"
                         >
