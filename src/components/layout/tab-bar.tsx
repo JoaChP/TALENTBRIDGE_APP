@@ -29,6 +29,7 @@ export const TabBar = memo(function TabBar() {
   const [currentPath, setCurrentPath] = useState("")
 
   useEffect(() => {
+    console.log('[TabBar] Rendering TabBar component')
     setCurrentPath(window.location.pathname)
     
     const handlePopState = () => {
@@ -41,13 +42,15 @@ export const TabBar = memo(function TabBar() {
 
   // Memoize filtered items to prevent recalculation
   const filteredItems = useMemo(() => {
-    return navItems.filter((item) => {
+    const items = navItems.filter((item) => {
       // Filter items by role if roleRequired is specified
       if (item.roleRequired) {
         return user?.role && item.roleRequired.includes(user.role)
       }
       return true
     }).slice(0, 5) // Límite de 5 items para móvil
+    console.log('[TabBar] Filtered items:', items.length, 'User role:', user?.role)
+    return items
   }, [user?.role])
 
   // Optimized navigation handler
@@ -70,31 +73,36 @@ export const TabBar = memo(function TabBar() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 !block"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t-4 border-indigo-500 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-950 !block"
       aria-label="Navegación principal"
+      style={{ minHeight: '64px' }}
     >
-      <div className="flex h-16 items-center justify-around">
-        {filteredItems.map(({ to, icon: Icon, label, spa = true }) => {
-          const isActive = currentPath === to || (to !== "/" && currentPath.startsWith(to))
-          
-          return (
-            <a
-              key={to}
-              href={to}
-              onClick={handleNavigation(to, spa)}
-              aria-label={label}
-              className={cn(
-                "flex min-w-[44px] flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors",
-                isActive
-                  ? "text-indigo-800 dark:text-indigo-200"
-                  : "text-zinc-800 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100",
-              )}
-            >
-              <Icon className="h-5 w-5" aria-hidden="true" />
-              <span className={cn("font-medium", "font-semibold")}>{label}</span>
-            </a>
-          )
-        })}
+      <div className="flex h-16 items-center justify-around bg-white dark:bg-zinc-950">
+        {filteredItems.length === 0 ? (
+          <div className="text-xs text-zinc-500">No hay items disponibles</div>
+        ) : (
+          filteredItems.map(({ to, icon: Icon, label, spa = true }) => {
+            const isActive = currentPath === to || (to !== "/" && currentPath.startsWith(to))
+            
+            return (
+              <a
+                key={to}
+                href={to}
+                onClick={handleNavigation(to, spa)}
+                aria-label={label}
+                className={cn(
+                  "flex min-w-[44px] flex-col items-center justify-center gap-1 px-3 py-2 text-xs transition-colors",
+                  isActive
+                    ? "text-indigo-800 dark:text-indigo-200"
+                    : "text-zinc-800 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100",
+                )}
+              >
+                <Icon className="h-5 w-5" aria-hidden="true" />
+                <span className={cn("font-medium", "font-semibold")}>{label}</span>
+              </a>
+            )
+          })
+        )}
       </div>
     </nav>
   )
