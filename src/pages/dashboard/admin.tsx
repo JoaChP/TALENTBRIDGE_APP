@@ -20,7 +20,7 @@ export function AdminDashboard() {
   const [roleFilter, setRoleFilter] = useState<Role | "all">("all")
   const [usersPage, setUsersPage] = useState(1)
   const [practicesPage, setPracticesPage] = useState(1)
-  const ITEMS_PER_PAGE = 5
+  const [itemsPerPage, setItemsPerPage] = useState(5)
   const [stats, setStats] = useState({
     totalUsers: 0,
     estudiantes: 0,
@@ -257,12 +257,25 @@ export function AdminDashboard() {
                   setRoleFilter(e.target.value as Role | "all")
                   setUsersPage(1) // Reset to first page when filter changes
                 }}
-                className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
               >
                 <option value="all">Todos los roles</option>
                 <option value="estudiante">Estudiantes</option>
                 <option value="empresa">Empresas</option>
                 <option value="admin">Administradores</option>
+              </select>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value))
+                  setUsersPage(1) // Reset to first page when items per page changes
+                }}
+                className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
+              >
+                <option value={5}>5 por página</option>
+                <option value={10}>10 por página</option>
+                <option value={20}>20 por página</option>
+                <option value={50}>50 por página</option>
               </select>
             </div>
           </div>
@@ -271,9 +284,9 @@ export function AdminDashboard() {
           <div className="space-y-3">
             {(() => {
               const filteredUsers = users.filter(u => roleFilter === "all" || u.role === roleFilter)
-              const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE)
-              const startIndex = (usersPage - 1) * ITEMS_PER_PAGE
-              const endIndex = startIndex + ITEMS_PER_PAGE
+              const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+              const startIndex = (usersPage - 1) * itemsPerPage
+              const endIndex = startIndex + itemsPerPage
               const paginatedUsers = filteredUsers.slice(startIndex, endIndex)
 
               return (
@@ -357,9 +370,24 @@ export function AdminDashboard() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Ofertas de Trabajo Publicadas</CardTitle>
-          <Button onClick={() => handleNavigation("/publish")}>
-            Crear Nueva Oferta
-          </Button>
+          <div className="flex items-center gap-2">
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value))
+                setPracticesPage(1) // Reset to first page when items per page changes
+              }}
+              className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
+            >
+              <option value={5}>5 por página</option>
+              <option value={10}>10 por página</option>
+              <option value={20}>20 por página</option>
+              <option value={50}>50 por página</option>
+            </select>
+            <Button onClick={() => handleNavigation("/publish")}>
+              Crear Nueva Oferta
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -369,9 +397,9 @@ export function AdminDashboard() {
               </p>
             ) : (
               (() => {
-                const totalPages = Math.ceil(practices.length / ITEMS_PER_PAGE)
-                const startIndex = (practicesPage - 1) * ITEMS_PER_PAGE
-                const endIndex = startIndex + ITEMS_PER_PAGE
+                const totalPages = Math.ceil(practices.length / itemsPerPage)
+                const startIndex = (practicesPage - 1) * itemsPerPage
+                const endIndex = startIndex + itemsPerPage
                 const paginatedPractices = practices.slice(startIndex, endIndex)
 
                 return (

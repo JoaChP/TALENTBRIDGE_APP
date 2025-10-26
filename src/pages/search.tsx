@@ -14,8 +14,6 @@ import { Badge } from "../components/ui/badge"
 import type { Practice, Modality, Skill } from "../types"
 import { mockApi } from "../mocks/api"
 
-const ITEMS_PER_PAGE = 3
-
 const SKILLS: Skill[] = [
   "React",
   "JavaScript",
@@ -35,6 +33,7 @@ export function SearchPage() {
   const [practices, setPractices] = useState<Practice[]>([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(3)
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   // Filters
@@ -132,8 +131,8 @@ export function SearchPage() {
     }
   }, [search, location, modality, duration, selectedSkills])
 
-  const totalPages = Math.ceil(practices.length / ITEMS_PER_PAGE)
-  const paginatedPractices = practices.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(practices.length / itemsPerPage)
+  const paginatedPractices = practices.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   const clearFilters = () => {
     setSearch("")
@@ -248,6 +247,24 @@ export function SearchPage() {
         />
       ) : (
         <>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              {practices.length} {practices.length === 1 ? "resultado encontrado" : "resultados encontrados"}
+            </p>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value))
+                setCurrentPage(1)
+              }}
+              className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
+            >
+              <option value={3}>3 por página</option>
+              <option value={6}>6 por página</option>
+              <option value={9}>9 por página</option>
+              <option value={20}>20 por página</option>
+            </select>
+          </div>
           <div className="space-y-4">
             {paginatedPractices.map((practice) => (
               <PracticeCard key={practice.id} practice={practice} />

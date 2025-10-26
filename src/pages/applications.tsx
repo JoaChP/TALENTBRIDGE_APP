@@ -26,8 +26,6 @@ const STATUS_ICONS = {
   Rechazada: XCircle,
 }
 
-const ITEMS_PER_PAGE = 5
-
 interface ApplicationWithPractice extends Application {
   practice?: Practice
 }
@@ -37,6 +35,7 @@ export default function ApplicationsPage() {
   const [applications, setApplications] = useState<ApplicationWithPractice[]>([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -49,12 +48,12 @@ export default function ApplicationsPage() {
   }, [applications])
 
   // Pagination
-  const totalPages = Math.ceil(applications.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(applications.length / itemsPerPage)
   const paginatedApplications = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    const endIndex = startIndex + ITEMS_PER_PAGE
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
     return applications.slice(startIndex, endIndex)
-  }, [applications, currentPage])
+  }, [applications, currentPage, itemsPerPage])
 
   const handleNavigation = (path: string) => {
     window.history.pushState({}, '', path)
@@ -129,10 +128,25 @@ export default function ApplicationsPage() {
       <div>
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-semibold">Mis Postulaciones</h1>
-          <Badge variant="outline" className="text-lg px-3 py-1">
-            <FileCheck className="h-4 w-4 mr-2" />
-            {stats.total} {stats.total === 1 ? "postulación" : "postulaciones"}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value))
+                setCurrentPage(1)
+              }}
+              className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
+            >
+              <option value={5}>5 por página</option>
+              <option value={10}>10 por página</option>
+              <option value={20}>20 por página</option>
+              <option value={50}>50 por página</option>
+            </select>
+            <Badge variant="outline" className="text-lg px-3 py-1">
+              <FileCheck className="h-4 w-4 mr-2" />
+              {stats.total} {stats.total === 1 ? "postulación" : "postulaciones"}
+            </Badge>
+          </div>
         </div>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Gestiona el estado de tus solicitudes
@@ -254,7 +268,7 @@ export default function ApplicationsPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-4">
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Mostrando {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, stats.total)} de {stats.total}
+                Mostrando {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total}
               </p>
               
               <div className="flex items-center gap-2">
