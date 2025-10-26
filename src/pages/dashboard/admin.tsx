@@ -8,7 +8,7 @@ import { LoadingSkeleton } from "../../components/loading-skeleton"
 import { mockApi } from "../../mocks/api"
 import { useAuthStore } from "../../stores/auth-store"
 import type { User, Practice, Application, Role } from "../../types"
-import { Users, Briefcase, FileCheck, MessageSquare, Trash2, Edit, UserCog } from "lucide-react"
+import { Users, Briefcase, FileCheck, MessageSquare, Trash2, Edit, UserCog, ChevronLeft, ChevronRight } from "lucide-react"
 import { toast } from "sonner"
 
 export function AdminDashboard() {
@@ -18,6 +18,9 @@ export function AdminDashboard() {
   const [practices, setPractices] = useState<Practice[]>([])
   const [applications, setApplications] = useState<Application[]>([])
   const [roleFilter, setRoleFilter] = useState<Role | "all">("all")
+  const [usersPage, setUsersPage] = useState(1)
+  const [practicesPage, setPracticesPage] = useState(1)
+  const ITEMS_PER_PAGE = 5
   const [stats, setStats] = useState({
     totalUsers: 0,
     estudiantes: 0,
@@ -250,7 +253,10 @@ export function AdminDashboard() {
             <div className="flex items-center gap-2">
               <select
                 value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value as Role | "all")}
+                onChange={(e) => {
+                  setRoleFilter(e.target.value as Role | "all")
+                  setUsersPage(1) // Reset to first page when filter changes
+                }}
                 className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="all">Todos los roles</option>
@@ -263,47 +269,86 @@ export function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {users.filter(u => roleFilter === "all" || u.role === roleFilter).map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
-                <div className="flex-1">
-                  <p className="font-medium">{user.name}</p>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge 
-                    variant="secondary"
-                    className={
-                      user.role === "admin" ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 border-indigo-200" :
-                      user.role === "empresa" ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200" :
-                      "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 border-emerald-200"
-                    }
-                  >
-                    {user.role === "estudiante" ? "Estudiante" :
-                     user.role === "empresa" ? "Empresa" :
-                     "Administrador"}
-                  </Badge>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleChangeRole(user.id, user.name, user.role)}
-                    title="Cambiar rol"
-                    disabled={operationInProgress}
-                  >
-                    <UserCog className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteUser(user.id, user.name)}
-                    className="text-red-600 hover:text-red-700"
-                    title="Eliminar usuario"
-                    disabled={operationInProgress}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+            {(() => {
+              const filteredUsers = users.filter(u => roleFilter === "all" || u.role === roleFilter)
+              const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE)
+              const startIndex = (usersPage - 1) * ITEMS_PER_PAGE
+              const endIndex = startIndex + ITEMS_PER_PAGE
+              const paginatedUsers = filteredUsers.slice(startIndex, endIndex)
+
+              return (
+                <>
+                  {paginatedUsers.map((user) => (
+                    <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+                      <div className="flex-1">
+                        <p className="font-medium">{user.name}</p>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant="secondary"
+                          className={
+                            user.role === "admin" ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 border-indigo-200" :
+                            user.role === "empresa" ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200" :
+                            "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 border-emerald-200"
+                          }
+                        >
+                          {user.role === "estudiante" ? "Estudiante" :
+                           user.role === "empresa" ? "Empresa" :
+                           "Administrador"}
+                        </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleChangeRole(user.id, user.name, user.role)}
+                          title="Cambiar rol"
+                          disabled={operationInProgress}
+                        >
+                          <UserCog className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteUser(user.id, user.name)}
+                          className="text-red-600 hover:text-red-700"
+                          title="Eliminar usuario"
+                          disabled={operationInProgress}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                        Página {usersPage} de {totalPages}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setUsersPage(p => Math.max(1, p - 1))}
+                          disabled={usersPage === 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setUsersPage(p => Math.min(totalPages, p + 1))}
+                          disabled={usersPage === totalPages}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )
+            })()}
           </div>
         </CardContent>
       </Card>
@@ -323,37 +368,75 @@ export function AdminDashboard() {
                 No hay ofertas publicadas
               </p>
             ) : (
-              practices.map((practice) => (
-                <div key={practice.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium">{practice.title}</p>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {practice.company.name} • {practice.city}, {practice.country}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge>{practice.status}</Badge>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleNavigation(`/oferta/${practice.id}/edit`)}
-                      disabled={operationInProgress}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Editar
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeletePractice(practice.id)}
-                      className="text-red-600 hover:text-red-700"
-                      disabled={operationInProgress}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))
+              (() => {
+                const totalPages = Math.ceil(practices.length / ITEMS_PER_PAGE)
+                const startIndex = (practicesPage - 1) * ITEMS_PER_PAGE
+                const endIndex = startIndex + ITEMS_PER_PAGE
+                const paginatedPractices = practices.slice(startIndex, endIndex)
+
+                return (
+                  <>
+                    {paginatedPractices.map((practice) => (
+                      <div key={practice.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium">{practice.title}</p>
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                            {practice.company.name} • {practice.city}, {practice.country}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge>{practice.status}</Badge>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleNavigation(`/oferta/${practice.id}/edit`)}
+                            disabled={operationInProgress}
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            Editar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeletePractice(practice.id)}
+                            className="text-red-600 hover:text-red-700"
+                            disabled={operationInProgress}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-between pt-4 border-t">
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                          Página {practicesPage} de {totalPages}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPracticesPage(p => Math.max(1, p - 1))}
+                            disabled={practicesPage === 1}
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPracticesPage(p => Math.min(totalPages, p + 1))}
+                            disabled={practicesPage === totalPages}
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )
+              })()
             )}
           </div>
         </CardContent>
