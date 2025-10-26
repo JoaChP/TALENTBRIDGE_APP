@@ -126,8 +126,8 @@ export default function ApplicationsPage() {
     <div className="space-y-4 sm:space-y-6">
       {/* Header con stats */}
       <div>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-3 mb-4">
+          <div>
             <Button 
               variant="ghost" 
               size="sm"
@@ -139,26 +139,28 @@ export default function ApplicationsPage() {
               <ChevronLeft className="h-4 w-4" />
               <span>Volver</span>
             </Button>
-            <h1 className="text-xl sm:text-2xl font-semibold">Mis Postulaciones</h1>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
-            <select
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value))
-                setCurrentPage(1)
-              }}
-              className="w-full sm:w-auto px-3 py-2 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
-            >
-              <option value={5}>5 por página</option>
-              <option value={10}>10 por página</option>
-              <option value={20}>20 por página</option>
-              <option value={50}>50 por página</option>
-            </select>
-            <Badge variant="outline" className="text-base sm:text-lg px-3 py-1.5 sm:py-1 justify-center">
-              <FileCheck className="h-4 w-4 mr-2" />
-              {stats.total} {stats.total === 1 ? "postulación" : "postulaciones"}
-            </Badge>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-xl sm:text-2xl font-semibold">Mis Postulaciones</h1>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value))
+                  setCurrentPage(1)
+                }}
+                className="w-full sm:w-auto px-3 py-2 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
+              >
+                <option value={5}>5 por página</option>
+                <option value={10}>10 por página</option>
+                <option value={20}>20 por página</option>
+                <option value={50}>50 por página</option>
+              </select>
+              <Badge variant="outline" className="text-base sm:text-lg px-3 py-1.5 sm:py-1 justify-center">
+                <FileCheck className="h-4 w-4 mr-2" />
+                {stats.total} {stats.total === 1 ? "postulación" : "postulaciones"}
+              </Badge>
+            </div>
           </div>
         </div>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">

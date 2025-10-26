@@ -1,12 +1,14 @@
 "use client"
 
-import { Search, Bell } from "lucide-react"
+import { Search, Sun, Moon } from "lucide-react"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { useEffect, useRef } from "react"
+import { useTheme } from "next-themes"
 
 export function TopBar() {
   const searchRef = useRef<HTMLInputElement>(null)
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -50,8 +52,18 @@ export function TopBar() {
           />
         </div>
 
-        <Button variant="ghost" size="icon" aria-label="Notificaciones">
-          <Bell className="h-5 w-5" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          className="flex-shrink-0"
+        >
+          {theme === "dark" ? (
+            <Sun className="h-5 w-5" />
+          ) : (
+            <Moon className="h-5 w-5" />
+          )}
         </Button>
       </div>
     </header>

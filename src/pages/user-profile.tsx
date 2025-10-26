@@ -91,11 +91,12 @@ export function UserProfilePage() {
         <div>
           <Button
             variant="ghost"
+            size="sm"
             onClick={() => window.history.back()}
-            aria-label="Volver"
+            className="flex items-center gap-2"
           >
-            <ChevronLeft className="h-5 w-5" />
-            <span className="hidden sm:inline">Atrás</span>
+            <ChevronLeft className="h-4 w-4" />
+            <span>Volver</span>
           </Button>
         </div>
         <div className="text-center">
@@ -113,11 +114,12 @@ export function UserProfilePage() {
       <div>
         <Button
           variant="ghost"
+          size="sm"
           onClick={() => window.history.back()}
-          aria-label="Volver"
+          className="flex items-center gap-2"
         >
-          <ChevronLeft className="h-5 w-5" />
-          <span className="hidden sm:inline">Atrás</span>
+          <ChevronLeft className="h-4 w-4" />
+          <span>Volver</span>
         </Button>
       </div>
 

@@ -186,7 +186,7 @@ export function CompanyApplicationsPage() {
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2">
+        <div>
           <Button 
             variant="ghost" 
             size="sm"
@@ -198,8 +198,9 @@ export function CompanyApplicationsPage() {
             <ChevronLeft className="h-4 w-4" />
             <span>Volver</span>
           </Button>
-          <h1 className="text-2xl sm:text-3xl font-bold">Gestión Empresarial</h1>
         </div>
+        
+        <h1 className="text-2xl sm:text-3xl font-bold">Gestión Empresarial</h1>
         
         {/* Tabs */}
         <div className="flex gap-2 border-b">

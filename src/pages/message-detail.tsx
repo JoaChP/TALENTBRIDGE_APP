@@ -100,18 +100,18 @@ export default function MessageDetailPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] max-h-[800px]">
       {/* Header */}
-      <div className="flex items-center gap-3 pb-4 border-b">
+      <div className="flex flex-col gap-3 pb-4 border-b sm:flex-row sm:items-center">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => handleNavigation("/messages")}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 self-start"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Volver</span>
+          <span>Volver</span>
         </Button>
         <div className="flex-1">
-          <h2 className="font-semibold">{thread.partnerName}</h2>
+          <h2 className="text-lg font-semibold">{thread.partnerName}</h2>
           <p className="text-xs text-zinc-500">
             {thread.partnerIsEmpresa ? "Empresa" : "Candidato"}
           </p>
