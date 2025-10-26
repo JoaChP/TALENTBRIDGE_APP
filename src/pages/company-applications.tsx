@@ -190,8 +190,7 @@ export function CompanyApplicationsPage() {
           variant="ghost" 
           size="sm"
           onClick={() => {
-            window.history.pushState({}, '', '/')
-            window.dispatchEvent(new PopStateEvent('popstate'))
+            window.location.href = '/'
           }} 
           className="self-start flex items-center gap-2"
         >

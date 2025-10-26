@@ -132,8 +132,7 @@ export default function ApplicationsPage() {
               variant="ghost" 
               size="sm"
               onClick={() => {
-                window.history.pushState({}, '', '/')
-                window.dispatchEvent(new PopStateEvent('popstate'))
+                window.location.href = '/'
               }} 
               className="flex items-center gap-2"
             >
