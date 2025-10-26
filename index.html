@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TalentBridge - Conectando Talento con Oportunidades</title>
     <meta name="description" content="Plataforma para conectar estudiantes con prácticas profesionales" />
+    <script>
+      // Prevent flash of unstyled content (FOUC) for dark mode
+      try {
+        const theme = localStorage.getItem('vite-ui-theme') || 'system';
+        const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

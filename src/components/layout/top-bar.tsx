@@ -5,10 +5,17 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { useEffect, useRef } from "react"
 import { useTheme } from "next-themes"
+import * as React from "react"
 
 export function TopBar() {
   const searchRef = useRef<HTMLInputElement>(null)
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  // Avoid hydration mismatch
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -59,11 +66,14 @@ export function TopBar() {
           aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
           className="flex-shrink-0"
         >
-          {theme === "dark" ? (
-            <Sun className="h-5 w-5" />
-          ) : (
-            <Moon className="h-5 w-5" />
+          {mounted && (
+            theme === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )
           )}
+          {!mounted && <Moon className="h-5 w-5" />}
         </Button>
       </div>
     </header>
