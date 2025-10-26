@@ -198,50 +198,50 @@ export function CompanyApplicationsPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Total</CardTitle>
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Nuevas</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Nuevas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.enviadas}</div>
+            <div className="text-xl sm:text-2xl font-bold text-blue-600">{stats.enviadas}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">En Revisión</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">En Revisión</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.revisando}</div>
+            <div className="text-xl sm:text-2xl font-bold text-yellow-600">{stats.revisando}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aceptadas</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Aceptadas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.aceptadas}</div>
+            <div className="text-xl sm:text-2xl font-bold text-green-600">{stats.aceptadas}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rechazadas</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Rechazadas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.rechazadas}</div>
+            <div className="text-xl sm:text-2xl font-bold text-red-600">{stats.rechazadas}</div>
           </CardContent>
         </Card>
       </div>
@@ -263,21 +263,21 @@ export function CompanyApplicationsPage() {
               {applications.map((application) => (
                 <div
                   key={application.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors gap-3"
                 >
-                  <div className="flex-1 space-y-2">
+                  <div className="flex-1 space-y-2 min-w-0">
                     <div className="flex items-center gap-3">
-                      <UserIcon className="h-5 w-5 text-zinc-500" />
-                      <div>
-                        <p className="font-medium">{getStudentName(application.userId)}</p>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      <UserIcon className="h-5 w-5 text-zinc-500 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate">{getStudentName(application.userId)}</p>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">
                           Postulado a: {getPracticeName(application.practiceId)}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {getStatusBadge(application.status)}
-                      <span className="text-xs text-zinc-500">
+                      <span className="text-xs text-zinc-500 whitespace-nowrap">
                         {new Date(application.createdAt).toLocaleDateString("es", {
                           day: "numeric",
                           month: "short",

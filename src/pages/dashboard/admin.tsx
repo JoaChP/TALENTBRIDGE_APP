@@ -248,16 +248,18 @@ export function AdminDashboard() {
       {/* Users Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Usuarios Registrados ({users.filter(u => roleFilter === "all" || u.role === roleFilter).length})</CardTitle>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="text-lg sm:text-xl">
+              Usuarios Registrados ({users.filter(u => roleFilter === "all" || u.role === roleFilter).length})
+            </CardTitle>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
               <select
                 value={roleFilter}
                 onChange={(e) => {
                   setRoleFilter(e.target.value as Role | "all")
                   setUsersPage(1) // Reset to first page when filter changes
                 }}
-                className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
+                className="w-full sm:w-auto px-3 py-2 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
               >
                 <option value="all">Todos los roles</option>
                 <option value="estudiante">Estudiantes</option>
@@ -270,7 +272,7 @@ export function AdminDashboard() {
                   setItemsPerPage(Number(e.target.value))
                   setUsersPage(1) // Reset to first page when items per page changes
                 }}
-                className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
+                className="w-full sm:w-auto px-3 py-2 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
               >
                 <option value={5}>5 por página</option>
                 <option value={10}>10 por página</option>
@@ -292,19 +294,19 @@ export function AdminDashboard() {
               return (
                 <>
                   {paginatedUsers.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
-                      <div className="flex-1">
-                        <p className="font-medium">{user.name}</p>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</p>
+                    <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{user.name}</p>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">{user.email}</p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                         <Badge 
                           variant="secondary"
-                          className={
+                          className={`${
                             user.role === "admin" ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 border-indigo-200" :
                             user.role === "empresa" ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200" :
                             "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 border-emerald-200"
-                          }
+                          } whitespace-nowrap`}
                         >
                           {user.role === "estudiante" ? "Estudiante" :
                            user.role === "empresa" ? "Empresa" :
@@ -368,23 +370,23 @@ export function AdminDashboard() {
 
       {/* Practices Section */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Ofertas de Trabajo Publicadas</CardTitle>
-          <div className="flex items-center gap-2">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between space-y-0 pb-4">
+          <CardTitle className="text-lg sm:text-xl">Ofertas de Trabajo Publicadas</CardTitle>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <select
               value={itemsPerPage}
               onChange={(e) => {
                 setItemsPerPage(Number(e.target.value))
                 setPracticesPage(1) // Reset to first page when items per page changes
               }}
-              className="px-3 py-1.5 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
+              className="w-full sm:w-auto px-3 py-2 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
             >
               <option value={5}>5 por página</option>
               <option value={10}>10 por página</option>
               <option value={20}>20 por página</option>
               <option value={50}>50 por página</option>
             </select>
-            <Button onClick={() => handleNavigation("/publish")}>
+            <Button onClick={() => handleNavigation("/publish")} className="w-full sm:w-auto">
               Crear Nueva Oferta
             </Button>
           </div>
@@ -405,23 +407,24 @@ export function AdminDashboard() {
                 return (
                   <>
                     {paginatedPractices.map((practice) => (
-                      <div key={practice.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex-1">
-                          <p className="font-medium">{practice.title}</p>
-                          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      <div key={practice.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{practice.title}</p>
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">
                             {practice.company.name} • {practice.city}, {practice.country}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge>{practice.status}</Badge>
+                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                          <Badge className="whitespace-nowrap">{practice.status}</Badge>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleNavigation(`/oferta/${practice.id}/edit`)}
                             disabled={operationInProgress}
+                            className="flex-1 sm:flex-none"
                           >
-                            <Edit className="h-4 w-4 mr-1" />
-                            Editar
+                            <Edit className="h-4 w-4 sm:mr-1" />
+                            <span className="sm:inline">Editar</span>
                           </Button>
                           <Button
                             variant="outline"
