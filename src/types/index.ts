@@ -80,7 +80,7 @@ export interface AuthState {
   user: User | null
   token: string | null
   login: (email: string, password: string) => Promise<void>
-  register: (name: string, email: string, password: string, role: Role) => Promise<void>
+  register: (name: string, email: string, password: string, role: Role, phone?: string) => Promise<void>
   logout: () => void
   updateProfile: (updates: Partial<User>) => void
   refreshUser: () => Promise<void>

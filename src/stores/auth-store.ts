@@ -14,8 +14,8 @@ export const useAuthStore = create<AuthState>()(
         console.log("[AuthStore] Login successful, setting user:", user)
         set({ user, token })
       },
-      register: async (name: string, email: string, password: string, role) => {
-        const { user, token } = await mockApi.register(name, email, password, role)
+      register: async (name: string, email: string, password: string, role, phone?: string) => {
+        const { user, token } = await mockApi.register(name, email, password, role, phone)
         set({ user, token })
       },
       logout: () => {

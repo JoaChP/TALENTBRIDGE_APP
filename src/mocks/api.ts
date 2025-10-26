@@ -412,7 +412,7 @@ export const mockApi = {
     return { user, token: `token_${user.id}` }
   },
 
-  async register(name: string, email: string, _password: string, role: Role) {
+  async register(name: string, email: string, _password: string, role: Role, phone?: string) {
     await delay()
     if (mockData.users.find((u) => u.email === email)) {
       throw new Error("El correo ya está registrado")
@@ -422,6 +422,7 @@ export const mockApi = {
       name,
       email,
       role,
+      phone,
       avatarUrl: `/placeholder.svg?height=100&width=100&query=${role}`,
     }
     mockData.users.push(user)

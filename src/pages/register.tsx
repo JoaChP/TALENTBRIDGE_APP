@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
@@ -12,11 +12,18 @@ import { Select } from "../components/ui/select"
 import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
 import type { Role } from "../types"
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input"
+import "react-phone-number-input/style.css"
+import "../styles/phone-input.css"
 
 const registerSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
   email: z.string().email("Correo electrónico inválido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  phone: z.string().min(1, "El número de teléfono es requerido").refine(
+    (value) => isValidPhoneNumber(value),
+    "Número de teléfono inválido"
+  ),
   role: z.enum(["estudiante", "empresa", "admin"]),
 })
 
@@ -29,16 +36,17 @@ export function RegisterPage() {
   const {
     register: registerField,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<RegisterData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { role: "estudiante" },
+    defaultValues: { role: "estudiante", phone: "" },
   })
 
   const onSubmit = async (data: RegisterData) => {
     setLoading(true)
     try {
-      await register(data.name, data.email, data.password, data.role as Role)
+      await register(data.name, data.email, data.password, data.role as Role, data.phone)
       toast.success("¡Cuenta creada exitosamente!")
       console.log("Usuario registrado con rol:", data.role)
       // Usar location.href para forzar recarga y que App.tsx detecte el usuario
@@ -85,6 +93,30 @@ export function RegisterPage() {
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600" role="alert">
                   {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="phone">Número de teléfono</Label>
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field }) => (
+                  <PhoneInput
+                    {...field}
+                    id="phone"
+                    defaultCountry="CL"
+                    international
+                    countryCallingCodeEditable={false}
+                    className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300"
+                    placeholder="Ingresa tu número de teléfono"
+                  />
+                )}
+              />
+              {errors.phone && (
+                <p className="mt-1 text-sm text-red-600" role="alert">
+                  {errors.phone.message}
                 </p>
               )}
             </div>
