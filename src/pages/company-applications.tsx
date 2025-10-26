@@ -8,7 +8,7 @@ import { LoadingSkeleton } from "../components/loading-skeleton"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import type { Application, Practice, User } from "../types"
-import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft, Trash2, ChevronRight } from "lucide-react"
+import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft, Trash2, ChevronRight, PlusCircle, FileText } from "lucide-react"
 import { toast } from "sonner"
 
 export function CompanyApplicationsPage() {
@@ -19,6 +19,7 @@ export function CompanyApplicationsPage() {
   const [students, setStudents] = useState<User[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [activeTab, setActiveTab] = useState<"postulaciones" | "publicar">("postulaciones")
   const [stats, setStats] = useState({
     total: 0,
     enviadas: 0,
@@ -185,30 +186,65 @@ export function CompanyApplicationsPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={() => {
-            window.location.href = '/'
-          }} 
-          className="self-start flex items-center gap-2"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          <span>Volver</span>
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-balance">Postulaciones Recibidas</h1>
-          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-zinc-600 dark:text-zinc-400 text-pretty">
-            {user?.role === "admin"
-              ? "Gestiona todas las postulaciones del sistema"
-              : "Gestiona las postulaciones a tus ofertas de trabajo"}
-          </p>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => {
+              window.location.href = '/'
+            }} 
+            className="flex items-center gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            <span>Volver</span>
+          </Button>
+          <h1 className="text-2xl sm:text-3xl font-bold">Gestión Empresarial</h1>
+        </div>
+        
+        {/* Tabs */}
+        <div className="flex gap-2 border-b">
+          <button
+            onClick={() => setActiveTab("postulaciones")}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "postulaciones"
+                ? "border-indigo-600 text-indigo-600"
+                : "border-transparent text-zinc-600 hover:text-zinc-900"
+            }`}
+          >
+            <FileText className="h-4 w-4" />
+            Ver Postulaciones
+          </button>
+          <button
+            onClick={() => setActiveTab("publicar")}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "publicar"
+                ? "border-indigo-600 text-indigo-600"
+                : "border-transparent text-zinc-600 hover:text-zinc-900"
+            }`}
+          >
+            <PlusCircle className="h-4 w-4" />
+            Publicar Oferta
+          </button>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-2 sm:gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+      {activeTab === "publicar" ? (
+        // Redirigir a la página de publicar
+        <div className="flex items-center justify-center py-12">
+          <Button
+            size="lg"
+            onClick={() => window.location.href = '/publish'}
+            className="bg-indigo-600 hover:bg-indigo-700"
+          >
+            <PlusCircle className="h-5 w-5 mr-2" />
+            Ir a Publicar Oferta
+          </Button>
+        </div>
+      ) : (
+        <>
+          {/* Stats Grid */}
+          <div className="grid gap-2 sm:gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
             <CardTitle className="text-xs sm:text-sm font-medium">Total</CardTitle>
@@ -468,6 +504,8 @@ export function CompanyApplicationsPage() {
           )}
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
   )
 }

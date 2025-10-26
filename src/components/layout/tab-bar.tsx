@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, memo, useMemo, useCallback } from "react"
-import { Home, Search, MessageCircle, User, FileCheck, PlusCircle, Shield } from "lucide-react"
+import { Home, Search, MessageCircle, User, FileCheck, Shield } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
 
@@ -9,17 +9,16 @@ const navItems = [
   { to: "/", icon: Home, label: "Inicio", spa: true },
   { to: "/search", icon: Search, label: "Buscar", spa: true },
   
-  // Estudiantes - Ver sus postulaciones (SPA para mantener navegación)
+  // Estudiantes - Ver sus postulaciones
   { to: "/applications", icon: FileCheck, label: "Solicitudes", roleRequired: ["estudiante"], spa: true },
   
-  // Empresas - Publicar y gestionar postulaciones  
-  { to: "/publish", icon: PlusCircle, label: "Publicar", roleRequired: ["empresa"], spa: true },
-  { to: "/company-applications", icon: FileCheck, label: "Postulaciones", roleRequired: ["empresa"], spa: false },
+  // Empresas - Gestión (combina publicar y ver postulaciones)
+  { to: "/company-applications", icon: FileCheck, label: "Gestión", roleRequired: ["empresa"], spa: false },
   
   // Administradores - Panel de administración
-  { to: "/dashboard/admin", icon: Shield, label: "Panel Admin", roleRequired: ["admin"], spa: true },
+  { to: "/dashboard/admin", icon: Shield, label: "Admin", roleRequired: ["admin"], spa: true },
   
-  // Comunes a todos (SPA para mantener navegación fluida)
+  // Comunes a todos
   { to: "/messages", icon: MessageCircle, label: "Mensajes", spa: true },
   { to: "/profile", icon: User, label: "Perfil", spa: true },
 ]
