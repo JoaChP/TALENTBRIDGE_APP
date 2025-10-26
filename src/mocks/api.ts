@@ -432,7 +432,7 @@ export const mockApi = {
     
     // Intentar guardar en JSONBin para compartir entre usuarios
     try {
-      const enabled = typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_USE_JSONBIN === 'true'
+      const enabled = process.env.NEXT_PUBLIC_USE_JSONBIN === 'true'
       if (enabled) {
         console.log('[mockApi] Syncing new user to JSONBin:', user.name)
         await vercelJsonBinService.saveData(mockData)

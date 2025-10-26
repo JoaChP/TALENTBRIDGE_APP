@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { User, Practice, Application, Thread, Message } from "../types"
 import { OptimizedStorage } from "../utils/performance"
+import { getJSONBinConfig } from "../config/jsonbin.config"
 
 // Types
 interface JSONBinData {
@@ -16,16 +17,30 @@ class VercelJSONBinService {
   private cache: JSONBinData | null = null
   private lastSync: number = 0
   private readonly CACHE_DURATION = 300000 // 5 minutes for readonly
-  private binId: string
-  private enabled: boolean
+  private config = getJSONBinConfig()
+
+  private getBinId(): string {
+    return this.config.binId
+  }
+
+  private isEnabled(): boolean {
+    return this.config.enabled
+  }
+
+  private getApiKey(): string {
+    return this.config.apiKey
+  }
 
   constructor() {
-    this.binId = process.env.NEXT_PUBLIC_JSONBIN_BIN_ID || ''
-    this.enabled = process.env.NEXT_PUBLIC_USE_JSONBIN === 'true' && !!this.binId
+    if (this.isEnabled()) {
+      console.log('[VercelJSONBin] ✅ Initialized with Bin ID:', this.config.binId.substring(0, 10) + '...')
+    } else {
+      console.log('[VercelJSONBin] ⚠️ Disabled - using localStorage only')
+    }
   }
 
   private get apiUrl() {
-    return `https://api.jsonbin.io/v3/b/${this.binId}/latest`
+    return `https://api.jsonbin.io/v3/b/${this.getBinId()}/latest`
   }
 
   private isCacheValid(): boolean {
@@ -33,22 +48,38 @@ class VercelJSONBinService {
   }
 
   async fetchInitialData(): Promise<JSONBinData | null> {
-    if (!this.enabled) {
-      console.log('[JSONBin] Disabled - using optimized localStorage only')
+    if (!this.isEnabled()) {
+      console.log('[VercelJSONBin] ⚠️ Disabled - using localStorage only')
       return null
     }
 
+    console.log('[VercelJSONBin] 🌐 Fetching data from cloud...')
+    
     if (this.isCacheValid()) {
+      console.log('[VercelJSONBin] ⚡ Using cached data')
       return this.cache
     }
 
-    // JSONBin disabled temporarily to avoid 401 errors
-    console.log('[JSONBin] Temporarily disabled - using optimized localStorage fallback')
-    return null
+    try {
+      const apiKey = this.getApiKey()
+      const response = await axios.get(this.apiUrl, {
+        headers: {
+          'X-Master-Key': apiKey,
+        }
+      })
+      
+      this.cache = response.data.record
+      this.lastSync = Date.now()
+      console.log('[VercelJSONBin] ✅ Data fetched successfully from cloud')
+      return this.cache
+    } catch (error) {
+      console.error('[VercelJSONBin] ❌ Failed to fetch from cloud:', error)
+      return null
+    }
   }
 
   async getStatus() {
-    if (!this.enabled) {
+    if (!this.isEnabled()) {
       return {
         enabled: false,
         connected: false,
@@ -100,23 +131,23 @@ class VercelJSONBinService {
 
   // Guardar datos en JSONBin (para sincronizar usuarios registrados)
   async saveData(data: JSONBinData): Promise<boolean> {
-    if (!this.enabled) {
-      console.log('[JSONBin] Save disabled - using localStorage only')
+    if (!this.isEnabled()) {
+      console.log('[VercelJSONBin] ⚠️ Save disabled - using localStorage only')
       this.saveToLocalStorage(data)
       return false
     }
 
     try {
-      const apiKey = process.env.NEXT_PUBLIC_JSONBIN_API_KEY || ''
+      const apiKey = this.getApiKey()
       if (!apiKey) {
-        console.warn('[JSONBin] No API key configured')
+        console.warn('[VercelJSONBin] ❌ No API key configured')
         this.saveToLocalStorage(data)
         return false
       }
 
-      console.log('[JSONBin] Saving data to cloud...')
+      console.log('[VercelJSONBin] 💾 Saving data to cloud...')
       await axios.put(
-        `https://api.jsonbin.io/v3/b/${this.binId}`,
+        `https://api.jsonbin.io/v3/b/${this.getBinId()}`,
         data,
         {
           headers: {
@@ -143,22 +174,30 @@ class VercelJSONBinService {
     }
   }
 
-  // Inicializar datos: usa localStorage únicamente (JSONBin deshabilitado)
+  // Inicializar datos: intenta JSONBin primero, luego localStorage
   async initializeData(): Promise<JSONBinData> {
-    console.log('[VercelJSONBin] Initializing data...')
+    console.log('[VercelJSONBin] 🚀 Initializing data...')
 
-    // JSONBin temporalmente deshabilitado para evitar errores 401
-    console.log('[VercelJSONBin] JSONBin disabled - using localStorage only')
+    // Intentar cargar desde JSONBin si está habilitado
+    if (this.isEnabled()) {
+      console.log('[VercelJSONBin] 🌐 Attempting to fetch from cloud...')
+      const cloudData = await this.fetchInitialData()
+      if (cloudData) {
+        console.log('[VercelJSONBin] ✅ Using cloud data')
+        return cloudData
+      }
+      console.log('[VercelJSONBin] ⚠️ Cloud fetch failed, falling back to localStorage')
+    }
 
     // Intentar localStorage
     const localData = this.getLocalStorageData()
     if (localData && localData.users && localData.users.length > 0) {
-      console.log('[VercelJSONBin] Using localStorage data')
+      console.log('[VercelJSONBin] 📦 Using localStorage data')
       return localData
     }
 
     // Usar datos por defecto si no hay localStorage
-    console.log('[VercelJSONBin] Using default data')
+    console.log('[VercelJSONBin] 🆕 Using default data (first time setup)')
     const defaultData = this.getDefaultData()
     this.saveToLocalStorage(defaultData)
     return defaultData
