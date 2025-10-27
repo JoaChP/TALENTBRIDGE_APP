@@ -9,10 +9,12 @@ import { mockApi } from "../../mocks/api"
 import { useAuthStore } from "../../stores/auth-store"
 import type { User, Practice, Application, Role } from "../../types"
 import { Users, Briefcase, FileCheck, MessageSquare, Trash2, Edit, UserCog, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
+import { RefreshBar } from "../../components/refresh-bar"
 import { toast } from "sonner"
 
 export function AdminDashboard() {
   const [loading, setLoading] = useState(true)
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
   const [operationInProgress, setOperationInProgress] = useState(false)
   const [users, setUsers] = useState<User[]>([])
   const [practices, setPractices] = useState<Practice[]>([])
@@ -39,6 +41,7 @@ export function AdminDashboard() {
   }
 
   const loadData = async () => {
+    setLoading(true)
     try {
       const [usersData, practicesData, applicationsData] = await Promise.all([
         mockApi.listUsers(),
@@ -68,6 +71,7 @@ export function AdminDashboard() {
       toast.error("Error al cargar los datos")
     } finally {
       setLoading(false)
+      setLastUpdate(new Date())
     }
   }
 
@@ -174,33 +178,23 @@ export function AdminDashboard() {
           <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
             Gestiona usuarios, ofertas y aplicaciones del sistema
           </p>
-          <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-            ℹ️ Datos en localStorage local - Cada navegador tiene su propia base de datos
-          </p>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => {
-            if (confirm("¿Estás seguro de resetear todos los datos a valores por defecto? Esto eliminará threads y mensajes viejos.")) {
-              mockApi.repairStorage()
-              toast.success("Datos reseteados correctamente")
-              setTimeout(() => window.location.reload(), 1000)
-            }
-          }}
-          className="text-zinc-600 hover:text-red-600"
-        >
-          🔄 Resetear Datos
-        </Button>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Usuarios</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-balance">Panel de Administración</h1>
+                <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
+                  Gestiona usuarios, ofertas y aplicaciones del sistema
+                </p>
+              </div>
+              <RefreshBar
+                onRefresh={loadData}
+                lastUpdate={lastUpdate}
+                loading={loading}
+                label="Actualizar"
+              />
+            </div>
             <div className="text-2xl font-bold">{stats.totalUsers}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {stats.estudiantes} estudiantes, {stats.empresas} empresas

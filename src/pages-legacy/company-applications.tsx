@@ -9,6 +9,7 @@ import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import type { Application, Practice, User } from "../types"
 import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft, Trash2, ChevronRight, PlusCircle, FileText, Mail, Phone, RefreshCw } from "lucide-react"
+import { MobileRefreshBar } from "../components/mobile-refresh-bar"
 import { toast } from "sonner"
 import { useAutoRefresh } from "../hooks/use-auto-refresh"
 
@@ -130,12 +131,25 @@ export function CompanyApplicationsPage() {
     // No permitir eliminar postulaciones aceptadas
     if (status === "Aceptada") {
       toast.error("No se pueden eliminar postulaciones aceptadas")
-      return
-    }
-
-    if (!confirm("¿Estás seguro de eliminar esta postulación? Esta acción no se puede deshacer.")) return
-
-    try {
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Postulaciones Recibidas</h1>
+              <span className="text-sm text-zinc-500">Total: {stats.total}</span>
+            </div>
+            <MobileRefreshBar
+              onRefresh={async () => {
+                setLoading(true)
+                await loadData()
+                setLastUpdate(new Date())
+                setLoading(false)
+              }}
+              lastUpdate={lastUpdate}
+              loading={loading}
+              label="Actualizar"
+            />
+          </div>
       await mockApi.deleteApplication(applicationId)
       toast.success("Postulación eliminada")
       loadData()

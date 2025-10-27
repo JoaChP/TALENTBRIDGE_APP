@@ -10,6 +10,7 @@ import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
 import { Trash2, ChevronLeft, ChevronRight, Filter, RefreshCw } from "lucide-react"
+import { MobileRefreshBar } from "../components/mobile-refresh-bar"
 import { useAutoRefresh } from "../hooks/use-auto-refresh"
 
 export default function MessagesPage() {
@@ -186,35 +187,27 @@ export default function MessagesPage() {
               Tus conversaciones con empresas y candidatos
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                setLoading(true)
-                const data = await mockApi.listThreads()
-                let userThreads: Thread[] = []
-                if (user.role === "admin") userThreads = data
-                else if (user.role === "empresa") {
-                  const practices = await mockApi.listPractices()
-                  const myPracticeIds = practices.filter(p => p.company.ownerUserId === user.id).map(p => p.id)
-                  userThreads = data.filter(thread => thread.practiceId && myPracticeIds.includes(thread.practiceId))
-                } else {
-                  userThreads = data.filter(thread => thread.userId === user.id)
-                }
-                setThreads(userThreads)
-                setLastUpdate(new Date())
-                setLoading(false)
-              }}
-              disabled={loading}
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline ml-2">Actualizar</span>
-            </Button>
-            <div className="text-xs text-muted-foreground hidden md:block">
-              {lastUpdate.toLocaleTimeString()}
-            </div>
-          </div>
+          <MobileRefreshBar
+            onRefresh={async () => {
+              setLoading(true)
+              const data = await mockApi.listThreads()
+              let userThreads: Thread[] = []
+              if (user.role === "admin") userThreads = data
+              else if (user.role === "empresa") {
+                const practices = await mockApi.listPractices()
+                const myPracticeIds = practices.filter(p => p.company.ownerUserId === user.id).map(p => p.id)
+                userThreads = data.filter(thread => (thread.practiceId && myPracticeIds.includes(thread.practiceId)) || thread.userId === user.id || thread.partnerId === user.id)
+              } else {
+                userThreads = data.filter(thread => thread.userId === user.id || thread.partnerId === user.id)
+              }
+              setThreads(userThreads)
+              setLastUpdate(new Date())
+              setLoading(false)
+            }}
+            lastUpdate={lastUpdate}
+            loading={loading}
+            label="Actualizar"
+          />
         </div>
 
         {/* Filtros para Admin */}
