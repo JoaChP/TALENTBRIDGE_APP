@@ -1,9 +1,6 @@
 import type { User, Practice, Application, Thread, Message, Role, Skill, Modality, ApplicationStatus } from "../types"
 import { vercelJsonBinService } from "../services/vercel-jsonbin"
 
-// Mock data storage
-const STORAGE_KEY = "talentbridge_data"
-
 interface MockData {
   users: User[]
   practices: Practice[]
@@ -12,7 +9,7 @@ interface MockData {
   messages: Message[]
 }
 
-// Default seed data used when no localStorage or when storage is missing sections
+// Default seed data used when JSONBin is empty or unavailable
 export const defaultData: MockData = {
   users: [
     {
@@ -208,163 +205,60 @@ export const defaultData: MockData = {
   messages: [],
 }
 
-const getInitialData = (): MockData => {
-  if (typeof window !== "undefined") {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as Partial<MockData>
+// In-memory data - will be loaded from JSONBin on initialization
+let mockData: MockData = { ...defaultData }
+let isInitialized = false
 
-        // CRITICAL: Preserve existing data, only add defaults if sections are MISSING (not empty)
-        // Empty arrays are VALID states (e.g., no applications yet)
-        const users = parsed.users !== undefined ? parsed.users : defaultData.users
-        const practices = parsed.practices !== undefined ? parsed.practices : defaultData.practices
-        const applications = parsed.applications !== undefined ? parsed.applications : defaultData.applications
-        const threads = parsed.threads !== undefined ? parsed.threads : defaultData.threads
-        const messages = parsed.messages !== undefined ? parsed.messages : defaultData.messages
-
-        // Only add default seed data on FIRST LOAD (when users/practices are truly missing)
-        let finalUsers = users
-        let finalPractices = practices
-        
-        // If users array is empty AND it's the first load, add default users
-        if (users.length === 0 && !localStorage.getItem(STORAGE_KEY + '_initialized')) {
-          finalUsers = defaultData.users
-        }
-        
-        // If practices array is empty AND it's the first load, add default practices
-        if (practices.length === 0 && !localStorage.getItem(STORAGE_KEY + '_initialized')) {
-          finalPractices = defaultData.practices
-        }
-
-        const merged: MockData = { 
-          users: finalUsers, 
-          practices: finalPractices, 
-          applications, 
-          threads, 
-          messages 
-        }
-
-        // Mark as initialized so we don't re-add defaults on refresh
-        if (!localStorage.getItem(STORAGE_KEY + '_initialized')) {
-          try {
-            localStorage.setItem(STORAGE_KEY + '_initialized', 'true')
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
-            console.log('[mockApi] First initialization complete')
-          } catch {
-            // ignore storage errors
-          }
-        }
-
-        return merged
-      } catch (error) {
-        console.error('[mockApi] Error parsing stored data:', error)
-        // If stored is corrupted, fall back to defaults and reset storage
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData))
-          localStorage.setItem(STORAGE_KEY + '_initialized', 'true')
-        } catch {
-          // ignore
-        }
-        return defaultData
-      }
-    } else {
-      // No data in storage, first time load
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData))
-        localStorage.setItem(STORAGE_KEY + '_initialized', 'true')
-        console.log('[mockApi] First load, initialized with defaults')
-      } catch {
-        // ignore
-      }
-      return defaultData
-    }
-  }
-
-  return defaultData
-}
-
-let mockData = getInitialData()
-
-// Enhanced initialization with Vercel JSONBin support
+// Initialize data from JSONBin
 const initializeWithJSONBin = async () => {
-  if (typeof window !== "undefined") {
-    try {
-      // Try to initialize data with JSONBin, fallback to localStorage/defaults
-      const initializedData = await vercelJsonBinService.initializeData()
-      if (initializedData) {
-        Object.assign(mockData, initializedData)
-        console.log('[TalentBridge] Data loaded from JSONBin successfully')
-        
-        // Dispatch event to notify components
-        window.dispatchEvent(new CustomEvent('talentbridge-data-initialized'))
-        return true
-      }
-    } catch (error) {
-      console.log('[TalentBridge] JSONBin unavailable, using localStorage mode')
-    }
-  }
-  console.log('[TalentBridge] Running in localStorage-only mode')
-  return false
-}
+  if (typeof window === "undefined" || isInitialized) return
 
-// Re-initialize mockData from localStorage when running on client
-// This is necessary because SSR initializes with defaultData, but we need to reload from storage on hydration
-if (typeof window !== "undefined") {
-  // Try JSONBin initialization first, then fallback to localStorage
-  initializeWithJSONBin().then((jsonBinSuccess) => {
-    if (!jsonBinSuccess) {
-      // Fallback to localStorage - PRESERVE all existing data
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored) as Partial<MockData>
-          
-          // CRITICAL: Use existing data as-is, don't replace with defaults
-          const users = parsed.users !== undefined ? parsed.users : defaultData.users
-          const practices = parsed.practices !== undefined ? parsed.practices : defaultData.practices
-          const applications = parsed.applications !== undefined ? parsed.applications : []
-          const threads = parsed.threads !== undefined ? parsed.threads : []
-          const messages = parsed.messages !== undefined ? parsed.messages : []
-
-          mockData = { users, practices, applications, threads, messages }
-          console.log('[mockApi] Data reloaded from localStorage:', {
-            users: mockData.users.length,
-            practices: mockData.practices.length,
-            applications: mockData.applications.length,
-            threads: mockData.threads.length,
-            messages: mockData.messages.length
-          })
-        } catch (error) {
-          console.error('[mockApi] Error loading initial data:', error)
-        }
-      }
-    }
-  })
-}
-
-const saveData = () => {
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(mockData))
-      console.log('[mockApi] Data saved to localStorage')
-      // Disparar evento personalizado para notificar cambios
-      window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
-    } catch (error) {
-      console.error("Error saving to localStorage:", error)
-    }
-  }
-}
-
-// Helper para sincronizar con JSONBin después de cambios
-const syncToJSONBin = async (operationName: string) => {
   try {
-    console.log(`[mockApi] Syncing ${operationName} to JSONBin...`)
-    await vercelJsonBinService.saveData(mockData)
-    console.log(`[mockApi] ${operationName} synced to JSONBin successfully`)
+    console.log('[TalentBridge] Initializing data from JSONBin...')
+    const initializedData = await vercelJsonBinService.initializeData()
+    
+    if (initializedData) {
+      mockData = initializedData
+      isInitialized = true
+      console.log('[TalentBridge] ✅ Data loaded from JSONBin successfully')
+      
+      // Dispatch event to notify components
+      window.dispatchEvent(new CustomEvent('talentbridge-data-initialized'))
+    } else {
+      // Use default data if JSONBin is empty
+      mockData = { ...defaultData }
+      isInitialized = true
+      console.log('[TalentBridge] ⚠️ Using default data (JSONBin empty or unavailable)')
+    }
   } catch (error) {
-    console.warn(`[mockApi] Failed to sync ${operationName} to JSONBin:`, error)
-    // No lanzar error - continuar incluso si falla JSONBin
+    console.error('[TalentBridge] ❌ Error initializing from JSONBin:', error)
+    mockData = { ...defaultData }
+    isInitialized = true
+  }
+}
+
+// Auto-initialize on client side
+if (typeof window !== "undefined") {
+  initializeWithJSONBin()
+}
+
+// Save data to JSONBin
+const saveData = async () => {
+  if (typeof window === "undefined") return
+
+  try {
+    console.log('[mockApi] Saving data to JSONBin...')
+    const success = await vercelJsonBinService.saveData(mockData)
+    
+    if (success) {
+      console.log('[mockApi] ✅ Data saved to JSONBin')
+      // Dispatch event to notify components
+      window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
+    } else {
+      console.warn('[mockApi] ⚠️ Failed to save to JSONBin')
+    }
+  } catch (error) {
+    console.error('[mockApi] ❌ Error saving to JSONBin:', error)
   }
 }
 
@@ -372,47 +266,34 @@ const syncToJSONBin = async (operationName: string) => {
 const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export const mockApi = {
-  // Force reload data from localStorage (useful after SSR hydration)
-  reloadFromStorage() {
+  // Reload data from JSONBin
+  async reloadFromStorage() {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored) as Partial<MockData>
-          const users = parsed.users && parsed.users.length > 0 ? parsed.users : defaultData.users
-          const practices = parsed.practices && parsed.practices.length > 0 ? parsed.practices : defaultData.practices
-          const applications = parsed.applications || []
-          const threads = parsed.threads || defaultData.threads
-          const messages = parsed.messages || defaultData.messages
-
-          Object.assign(mockData, { users, practices, applications, threads, messages })
-          console.log('[mockApi] reloadFromStorage completed:', mockData)
-          return true
-        } catch (error) {
-          console.error('[mockApi] reloadFromStorage error:', error)
-          return false
-        }
+      try {
+        await initializeWithJSONBin()
+        console.log('[mockApi] Data reloaded from JSONBin')
+        return true
+      } catch (error) {
+        console.error('[mockApi] Error reloading from JSONBin:', error)
+        return false
       }
     }
     return false
   },
-  // Repair storage by resetting to default seed data (useful when localStorage was corrupted)
-  repairStorage() {
+  
+  // Reset to default data and save to JSONBin
+  async repairStorage() {
     try {
+      mockData = { ...defaultData }
+      await saveData()
+      console.log('[mockApi] Storage repaired and reset to defaults')
+      
+      // Emitir evento para actualizar todas las vistas
       if (typeof window !== "undefined") {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData))
-        localStorage.setItem(STORAGE_KEY + '_initialized', 'true')
-        console.log('[mockApi] Storage repaired and reset to defaults')
+        window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
       }
-    } catch {
-      // ignore
-    }
-    // mutate in-memory mockData
-    Object.assign(mockData, JSON.parse(JSON.stringify(defaultData)))
-    
-    // Emitir evento para actualizar todas las vistas
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent('talentbridge-data-updated'))
+    } catch (error) {
+      console.error('[mockApi] Error repairing storage:', error)
     }
   },
   async login(email: string, password: string) {
@@ -440,10 +321,7 @@ export const mockApi = {
     }
     
     mockData.users.push(user)
-    saveData()
-    
-    // Sincronizar con JSONBin
-    await syncToJSONBin('user registration')
+    await saveData()
     
     console.log('[mockApi] New user registered:', user.name)
     return { user, token: `token_${user.id}` }
@@ -511,8 +389,7 @@ export const mockApi = {
       postedAgo: "Hace unos momentos",
     }
     mockData.practices.push(newPractice)
-    saveData()
-    await syncToJSONBin('practice creation')
+    await saveData()
     console.log('[mockApi] New practice created:', newPractice.title)
     return newPractice
   },
@@ -529,8 +406,7 @@ export const mockApi = {
       ...updates,
     }
     
-    saveData()
-    await syncToJSONBin('practice update')
+    await saveData()
     console.log('[mockApi] Practice updated:', practiceId)
     
     // Emitir evento para actualizar vistas
@@ -555,8 +431,7 @@ export const mockApi = {
       createdAt: new Date().toISOString(),
     }
     mockData.applications.push(application)
-    saveData()
-    await syncToJSONBin('application submission')
+    await saveData()
     console.log('[mockApi] New application created:', application.id)
     
     // Emitir evento para actualizar contadores
@@ -617,8 +492,7 @@ export const mockApi = {
       thread.unread = false
     }
     
-    saveData()
-    await syncToJSONBin('message send')
+    await saveData()
     console.log('[mockApi] Message sent in thread:', threadId)
     
     // Emitir evento para actualizar mensajes
@@ -672,8 +546,7 @@ export const mockApi = {
     mockData.messages.push(welcomeMessage)
     thread.lastSnippet = welcomeMessage.text.length > 50 ? welcomeMessage.text.substring(0, 50) + "..." : welcomeMessage.text
     
-    saveData()
-    await syncToJSONBin('thread creation')
+    await saveData()
     console.log('[mockApi] Thread created for application:', thread.id)
     
     // Emitir evento para actualizar threads
@@ -727,8 +600,7 @@ export const mockApi = {
     // Actualizar el estado
     application.status = newStatus
     
-    saveData()
-    await syncToJSONBin('application status update')
+    await saveData()
     console.log(`[mockApi] Application ${applicationId} status updated to ${newStatus} by ${reviewer.name}`)
     
     return application
@@ -756,8 +628,7 @@ export const mockApi = {
     // Eliminar mensajes de esos threads
     mockData.messages = mockData.messages.filter(msg => !threadIds.includes(msg.threadId))
     
-    saveData()
-    await syncToJSONBin('practice deletion')
+    await saveData()
     console.log(`[mockApi] Practice ${practiceId} and related data deleted`)
     
     // Emitir evento para actualizar prácticas
@@ -801,8 +672,7 @@ export const mockApi = {
       mockData.applications = mockData.applications.filter(app => app.practiceId !== practiceId)
     })
     
-    saveData()
-    await syncToJSONBin('user deletion')
+    await saveData()
     console.log(`[mockApi] User ${userId} (${deletedUser.name}) and related data deleted`)
     
     // Emitir evento específico para eliminación de usuario
@@ -823,8 +693,7 @@ export const mockApi = {
     const oldRole = user.role
     user.role = newRole
     
-    saveData()
-    await syncToJSONBin('user role update')
+    await saveData()
     console.log(`[mockApi] User ${userId} (${user.name}) role updated from ${oldRole} to ${newRole}`)
     
     // Emitir evento específico para cambio de rol
@@ -848,8 +717,7 @@ export const mockApi = {
     
     application.status = "Aceptada"
     
-    saveData()
-    await syncToJSONBin('application acceptance')
+    await saveData()
     console.log(`[mockApi] Application ${applicationId} accepted`)
     
     // Emitir evento específico
@@ -873,8 +741,7 @@ export const mockApi = {
     
     application.status = "Rechazada"
     
-    saveData()
-    await syncToJSONBin('application rejection')
+    await saveData()
     console.log(`[mockApi] Application ${applicationId} rejected`)
     
     // Emitir evento específico
@@ -898,8 +765,7 @@ export const mockApi = {
     
     application.status = "Revisando"
     
-    saveData()
-    await syncToJSONBin('application review')
+    await saveData()
     console.log(`[mockApi] Application ${applicationId} marked as reviewing`)
     
     // Emitir evento específico
@@ -925,8 +791,7 @@ export const mockApi = {
     })
     
     if (migratedCount > 0) {
-      saveData()
-      await syncToJSONBin('practices migration')
+      await saveData()
       console.log(`[mockApi] Migrated ${migratedCount} practices from ${oldOwnerId} to ${newOwnerId}`)
       
       // Emitir evento para actualizar prácticas
@@ -957,8 +822,7 @@ export const mockApi = {
     // Eliminar la postulación
     mockData.applications = mockData.applications.filter(a => a.id !== applicationId)
     
-    saveData()
-    await syncToJSONBin('application deletion')
+    await saveData()
     console.log(`[mockApi] Application ${applicationId} deleted`)
     
     // Emitir evento
@@ -978,8 +842,7 @@ export const mockApi = {
     mockData.threads = []
     mockData.messages = []
     
-    saveData()
-    await syncToJSONBin('threads and messages clear')
+    await saveData()
     console.log('[mockApi] All threads and messages cleared')
     
     // Emitir evento
@@ -1005,8 +868,7 @@ export const mockApi = {
     // Eliminar todos los mensajes de ese thread
     mockData.messages = mockData.messages.filter(m => m.threadId !== threadId)
     
-    saveData()
-    await syncToJSONBin('thread deletion')
+    await saveData()
     console.log('[mockApi] Thread deleted:', threadId)
     
     // Emitir evento

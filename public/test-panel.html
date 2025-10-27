@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pruebas JSONBin - TalentBridge</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .test-section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        .success {
+            background: #064e3b;
+            border-color: #10b981;
+        }
+        .error {
+            background: #7f1d1d;
+            border-color: #ef4444;
+        }
+        .warning {
+            background: #78350f;
+            border-color: #f59e0b;
+        }
+        .info {
+            background: #1e3a8a;
+            border-color: #3b82f6;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+        h1, h2 {
+            color: #f1f5f9;
+        }
+        code {
+            background: #334155;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #334155;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #10b981;
+        }
+        .stat-label {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Panel de Pruebas - JSONBin Only Mode</h1>
+    <p>Esta página ejecuta pruebas automáticas para verificar que TalentBridge funciona exclusivamente con JSONBin</p>
+
+    <div class="test-section">
+        <h2>🎮 Controles</h2>
+        <button onclick="runAllTests()">▶️ Ejecutar Todas las Pruebas</button>
+        <button onclick="clearResults()">🗑️ Limpiar Resultados</button>
+        <button onclick="checkStorage()">💾 Verificar Storage</button>
+        <button onclick="testJSONBinConnection()">🌐 Test Conexión JSONBin</button>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Estadísticas</h2>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-passed">0</div>
+                <div class="stat-label">Pruebas Pasadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-failed" style="color: #ef4444;">0</div>
+                <div class="stat-label">Pruebas Fallidas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-warnings" style="color: #f59e0b;">0</div>
+                <div class="stat-label">Advertencias</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-total">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Resultados de Pruebas</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let passed = 0;
+        let failed = 0;
+        let warnings = 0;
+
+        function updateStats() {
+            document.getElementById('stat-passed').textContent = passed;
+            document.getElementById('stat-failed').textContent = failed;
+            document.getElementById('stat-warnings').textContent = warnings;
+            document.getElementById('stat-total').textContent = passed + failed + warnings;
+        }
+
+        function addResult(title, type, message, details = '') {
+            const results = document.getElementById('results');
+            const result = document.createElement('div');
+            result.className = `test-result ${type}`;
+            
+            const icon = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            }[type] || '•';
+
+            result.innerHTML = `
+                <strong>${icon} ${title}</strong><br>
+                ${message}
+                ${details ? `<br><code>${details}</code>` : ''}
+            `;
+            
+            results.appendChild(result);
+            results.scrollTop = results.scrollHeight;
+
+            if (type === 'success') passed++;
+            if (type === 'error') failed++;
+            if (type === 'warning') warnings++;
+            updateStats();
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            passed = 0;
+            failed = 0;
+            warnings = 0;
+            updateStats();
+        }
+
+        function checkStorage() {
+            clearResults();
+            addResult('Test 1: localStorage', 'info', 'Verificando localStorage...');
+            
+            try {
+                const localKeys = Object.keys(localStorage);
+                const talentBridgeKeys = localKeys.filter(k => 
+                    k.includes('talentbridge') || k === 'auth-storage'
+                );
+                
+                if (talentBridgeKeys.length === 0) {
+                    addResult('Test 1.1: localStorage limpio', 'success', 
+                        'No hay datos de TalentBridge en localStorage ✓');
+                } else {
+                    addResult('Test 1.1: localStorage contiene datos', 'warning',
+                        `Encontradas ${talentBridgeKeys.length} llaves: ${talentBridgeKeys.join(', ')}`);
+                }
+            } catch (error) {
+                addResult('Test 1: localStorage', 'error', 
+                    'Error al verificar localStorage', error.message);
+            }
+
+            // Verificar sessionStorage
+            addResult('Test 2: sessionStorage', 'info', 'Verificando sessionStorage...');
+            try {
+                const sessionKeys = Object.keys(sessionStorage);
+                const authKey = sessionKeys.find(k => k === 'auth-storage');
+                
+                if (authKey) {
+                    addResult('Test 2.1: sessionStorage correcto', 'success',
+                        'Sesión almacenada correctamente en sessionStorage ✓');
+                } else {
+                    addResult('Test 2.1: sessionStorage vacío', 'warning',
+                        'No hay sesión activa (usuario no logueado)');
+                }
+            } catch (error) {
+                addResult('Test 2: sessionStorage', 'error',
+                    'Error al verificar sessionStorage', error.message);
+            }
+        }
+
+        async function testJSONBinConnection() {
+            clearResults();
+            addResult('Test 3: Conexión JSONBin', 'info', 'Probando conexión con JSONBin...');
+            
+            try {
+                const response = await fetch('https://api.jsonbin.io/v3/b/68fdc914d0ea881f40bcac75/latest', {
+                    headers: {
+                        'X-Master-Key': '$2a$10$UarOMdF.8I8gzndns6lU/OZKukELebwucjJfAi0rz66NDhLKnzuNC'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('Test 3.1: Conexión exitosa', 'success',
+                        'JSONBin responde correctamente ✓',
+                        `Usuarios: ${data.record.users?.length || 0}, Prácticas: ${data.record.practices?.length || 0}`);
+                } else {
+                    addResult('Test 3.1: Error de conexión', 'error',
+                        `JSONBin respondió con status ${response.status}`);
+                }
+            } catch (error) {
+                addResult('Test 3: Conexión JSONBin', 'error',
+                    'No se pudo conectar con JSONBin', error.message);
+            }
+        }
+
+        async function testDataPersistence() {
+            addResult('Test 4: Persistencia', 'info', 'Verificando persistencia de datos...');
+            
+            try {
+                // Intentar cargar datos
+                const response = await fetch('http://localhost:3000/api/data');
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('Test 4.1: Datos cargados', 'success',
+                        'Datos persistentes cargados correctamente ✓');
+                } else {
+                    addResult('Test 4.1: Error al cargar', 'warning',
+                        'No se pudieron cargar datos desde la API');
+                }
+            } catch (error) {
+                addResult('Test 4: Persistencia', 'warning',
+                    'Endpoint de API no disponible (esperado en desarrollo)', error.message);
+            }
+        }
+
+        async function runAllTests() {
+            clearResults();
+            addResult('🚀 Inicio de Pruebas', 'info', 'Ejecutando suite completa de pruebas...');
+            
+            // Test 1: Storage
+            checkStorage();
+            
+            // Esperar un poco entre pruebas
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Test 2: JSONBin
+            await testJSONBinConnection();
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Test 3: Persistencia
+            await testDataPersistence();
+            
+            // Resumen final
+            addResult('🏁 Pruebas Completadas', 'info',
+                `Finalizadas ${passed + failed + warnings} pruebas: ${passed} exitosas, ${failed} fallidas, ${warnings} advertencias`);
+        }
+
+        // Ejecutar pruebas automáticamente al cargar
+        window.addEventListener('load', () => {
+            addResult('👋 Bienvenido', 'info', 
+                'Panel de pruebas cargado. Haz clic en "Ejecutar Todas las Pruebas" para comenzar.');
+        });
+    </script>
+</body>
+</html>

@@ -1,9 +1,8 @@
 // Configuración centralizada de JSONBin
-// Este archivo contiene las credenciales hardcodeadas para desarrollo
-// TODO: En producción, usar variables de entorno del hosting
+// Credenciales configuradas para usar JSONBin como único sistema de almacenamiento
 
 export const JSONBIN_CONFIG = {
-  enabled: true,
+  enabled: true, // Always enabled - JSONBin is the single source of truth
   binId: '68fdc914d0ea881f40bcac75',
   apiKey: '$2a$10$UarOMdF.8I8gzndns6lU/OZKukELebwucjJfAi0rz66NDhLKnzuNC',
 } as const
@@ -15,14 +14,10 @@ export function isJSONBinConfigured(): boolean {
 
 export function getJSONBinConfig() {
   if (!isJSONBinConfigured()) {
-    console.warn('[JSONBin Config] JSONBin not properly configured')
-    return {
-      enabled: false,
-      binId: '',
-      apiKey: '',
-    }
+    console.error('[JSONBin Config] ❌ JSONBin not properly configured')
+    throw new Error('JSONBin configuration is required')
   }
   
-  console.log('[JSONBin Config] Using hardcoded configuration for development')
+  console.log('[JSONBin Config] ✅ Using JSONBin as single source of truth')
   return JSONBIN_CONFIG
 }

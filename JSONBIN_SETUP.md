@@ -2,97 +2,50 @@
 
 ## ¿Qué es JSONBin?
 
-JSONBin es un servicio en la nube que permite almacenar datos JSON de forma simple y gratuita. Hemos integrado JSONBin en TalentBridge para proporcionar persistencia de datos real en lugar de depender únicamente del localStorage del navegador.
+JSONBin es un servicio en la nube que permite almacenar datos JSON de forma simple y gratuita. **TalentBridge usa JSONBin como único sistema de almacenamiento**, proporcionando persistencia de datos real en la nube.
 
-## 🚀 Configuración Rápida
+## ✅ Estado Actual
 
-### 1. Crear cuenta en JSONBin
-1. Ve a [jsonbin.io](https://jsonbin.io)
-2. Crea una cuenta gratuita
-3. Ve a tu dashboard
+La aplicación está configurada para usar **exclusivamente JSONBin** como sistema de almacenamiento:
+- ✅ No usa localStorage
+- ✅ Todos los datos se guardan y cargan desde JSONBin
+- ✅ Configuración hardcodeada en el código
+- ✅ Sin variables de entorno necesarias
 
-### 2. Crear un Bin
-1. En el dashboard, haz clic en "Create Bin"
-2. Nombra tu bin (ej: "TalentBridge Data")
-3. Pega el siguiente JSON inicial:
+## 🚀 Configuración Actual
 
-```json
-{
-  "users": [
-    {
-      "id": "1",
-      "name": "Ana García",
-      "email": "estudiante@demo.com",
-      "role": "estudiante",
-      "phone": "+52 55 1234 5678",
-      "about": "Estudiante de Ingeniería en Sistemas apasionada por el desarrollo web.",
-      "avatarUrl": "/estudiante-mujer-profesional.jpg"
-    },
-    {
-      "id": "2",
-      "name": "TechCorp SA",
-      "email": "empresa@demo.com",
-      "role": "empresa",
-      "avatarUrl": "/technology-company-logo.jpg"
-    },
-    {
-      "id": "3",
-      "name": "Admin Sistema",
-      "email": "admin@demo.com",
-      "role": "admin",
-      "avatarUrl": "/admin-icon.jpg"
-    }
-  ],
-  "practices": [],
-  "applications": [],
-  "threads": [],
-  "messages": []
+### Credenciales Configuradas
+
+La aplicación ya está configurada con las siguientes credenciales (hardcodeadas en `src/config/jsonbin.config.ts`):
+
+```typescript
+export const JSONBIN_CONFIG = {
+  enabled: true,
+  binId: '68fdc914d0ea881f40bcac75',
+  apiKey: '$2a$10$UarOMdF.8I8gzndns6lU/OZKukELebwucjJfAi0rz66NDhLKnzuNC',
 }
 ```
 
-4. Guarda el bin y copia el **Bin ID**
+### No se Requiere Configuración Adicional
 
-### 3. Obtener tu Secret Key
-1. Ve a "Account Settings" en JSONBin
-2. Encuentra tu **Secret Key** en la sección "API Keys"
-3. Cópiala (mantén esto seguro)
+La aplicación funciona inmediatamente sin necesidad de:
+- ❌ Variables de entorno
+- ❌ Archivos `.env`
+- ❌ Configuración manual
 
-### 4. Configurar Variables de Entorno
-Edita el archivo `.env.local` en la raíz del proyecto:
+## 🔧 Características del Sistema
 
-```bash
-# JSONBin Configuration
-NEXT_PUBLIC_JSONBIN_BIN_ID=tu_bin_id_aqui
-JSONBIN_SECRET_KEY=tu_secret_key_aqui
+### Almacenamiento en la Nube
+- **JSONBin como única fuente de verdad**: Todos los datos se almacenan en JSONBin
+- **Sin fallback a localStorage**: La aplicación depende completamente de JSONBin
+- **Datos persistentes**: Los datos se mantienen entre sesiones y dispositivos
+- **Sincronización automática**: Cada cambio se guarda automáticamente en la nube
 
-# Set to 'true' to use JSONBin, 'false' to use localStorage only
-NEXT_PUBLIC_USE_JSONBIN=true
-```
-
-### 5. Reiniciar el Servidor
-```bash
-npm run dev
-```
-
-## 🔧 Características del Sistema Híbrido
-
-### Modo localStorage (Por defecto)
-- **NEXT_PUBLIC_USE_JSONBIN=false**
-- Los datos se almacenan solo en el navegador
-- Perfecto para desarrollo y pruebas
-- No requiere configuración externa
-
-### Modo JSONBin 
-- **NEXT_PUBLIC_USE_JSONBIN=true**
-- Los datos se sincronizan con JSONBin
-- localStorage actúa como cache local
-- Datos persistentes entre dispositivos y sesiones
-
-### Funcionamiento Híbrido
-1. **Lectura**: Primero busca en cache local, luego en JSONBin
-2. **Escritura**: Guarda inmediatamente en localStorage, luego sincroniza con JSONBin
-3. **Cache**: 30 segundos de validez para reducir llamadas a la API
-4. **Fallback**: Si JSONBin falla, continúa funcionando con localStorage
+### Funcionamiento
+1. **Inicialización**: Al cargar la app, se obtienen los datos desde JSONBin
+2. **Lectura**: Todos los datos se leen directamente desde JSONBin (con cache de 30 segundos)
+3. **Escritura**: Cada cambio se guarda inmediatamente en JSONBin
+4. **Cache**: 30 segundos de cache local para reducir llamadas a la API
 
 ## 🎛️ Panel de Administración
 

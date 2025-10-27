@@ -1,4 +1,4 @@
-// Performance optimization utilities for TalentBridge
+﻿// Performance optimization utilities for TalentBridge
 
 // Debounce function to prevent excessive function calls
 export function debounce<T extends (...args: any[]) => any>(
@@ -27,67 +27,6 @@ export function throttle<T extends (...args: any[]) => any>(
   }
 }
 
-// Optimize localStorage operations with caching
-export class OptimizedStorage {
-  private static cache = new Map<string, any>()
-  private static cacheTimeout = 5000 // 5 seconds cache
-  private static cacheTimestamps = new Map<string, number>()
-  
-  static get(key: string) {
-    const now = Date.now()
-    const timestamp = this.cacheTimestamps.get(key) || 0
-    
-    // Return cached value if still fresh
-    if (this.cache.has(key) && (now - timestamp) < this.cacheTimeout) {
-      return this.cache.get(key)
-    }
-    
-    if (typeof window !== 'undefined') {
-      try {
-        const value = localStorage.getItem(key)
-        const parsed = value ? JSON.parse(value) : null
-        this.cache.set(key, parsed)
-        this.cacheTimestamps.set(key, now)
-        return parsed
-      } catch {
-        return null
-      }
-    }
-    return null
-  }
-  
-  static set(key: string, value: any) {
-    const now = Date.now()
-    this.cache.set(key, value)
-    this.cacheTimestamps.set(key, now)
-    
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(key, JSON.stringify(value))
-      } catch (error) {
-        console.warn('Failed to save to localStorage:', error)
-      }
-    }
-  }
-  
-  static clear() {
-    this.cache.clear()
-    this.cacheTimestamps.clear()
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.clear()
-      } catch (error) {
-        console.warn('Failed to clear localStorage:', error)
-      }
-    }
-  }
-  
-  static clearCache() {
-    this.cache.clear()
-    this.cacheTimestamps.clear()
-  }
-}
-
 // Performance monitoring
 export class PerformanceMonitor {
   private static marks = new Map<string, number>()
@@ -112,7 +51,7 @@ export class PerformanceMonitor {
     const start = this.marks.get(label)
     if (start) {
       const duration = performance.now() - start
-      if (duration > 100) { // Only log slow operations
+      if (duration > 100) {
         console.log(`[Performance] ${label}: ${duration.toFixed(2)}ms`)
       }
       this.marks.delete(label)
@@ -144,10 +83,9 @@ export class BatchProcessor {
     this.processing = true
     
     while (this.queue.length > 0) {
-      const batch = this.queue.splice(0, 10) // Process 10 at a time
+      const batch = this.queue.splice(0, 10)
       batch.forEach(task => task())
       
-      // Yield to browser between batches
       await new Promise(resolve => setTimeout(resolve, 0))
     }
     
@@ -158,7 +96,6 @@ export class BatchProcessor {
 export default {
   debounce,
   throttle,
-  OptimizedStorage,
   PerformanceMonitor,
   BatchProcessor
 }

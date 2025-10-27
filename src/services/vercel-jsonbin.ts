@@ -1,6 +1,5 @@
 import axios from 'axios'
 import type { User, Practice, Application, Thread, Message } from "../types"
-import { OptimizedStorage } from "../utils/performance"
 import { getJSONBinConfig } from "../config/jsonbin.config"
 
 // Types
@@ -12,11 +11,11 @@ interface JSONBinData {
   messages: Message[]
 }
 
-// Vercel-compatible JSONBin service (readonly mode with performance optimization)
+// JSONBin service - single source of truth for data storage
 class VercelJSONBinService {
   private cache: JSONBinData | null = null
   private lastSync: number = 0
-  private readonly CACHE_DURATION = 300000 // 5 minutes for readonly
+  private readonly CACHE_DURATION = 30000 // 30 seconds cache
   private config = getJSONBinConfig()
 
   private getBinId(): string {
@@ -33,9 +32,9 @@ class VercelJSONBinService {
 
   constructor() {
     if (this.isEnabled()) {
-      console.log('[VercelJSONBin] ✅ Initialized with Bin ID:', this.config.binId.substring(0, 10) + '...')
+      console.log('[JSONBin] ✅ Initialized with Bin ID:', this.config.binId.substring(0, 10) + '...')
     } else {
-      console.log('[VercelJSONBin] ⚠️ Disabled - using localStorage only')
+      console.warn('[JSONBin] ⚠️ Not configured properly - check credentials')
     }
   }
 
@@ -49,14 +48,14 @@ class VercelJSONBinService {
 
   async fetchInitialData(): Promise<JSONBinData | null> {
     if (!this.isEnabled()) {
-      console.log('[VercelJSONBin] ⚠️ Disabled - using localStorage only')
+      console.error('[JSONBin] ❌ Not configured - cannot fetch data')
       return null
     }
 
-    console.log('[VercelJSONBin] 🌐 Fetching data from cloud...')
+    console.log('[JSONBin] 🌐 Fetching data from cloud...')
     
     if (this.isCacheValid()) {
-      console.log('[VercelJSONBin] ⚡ Using cached data')
+      console.log('[JSONBin] ⚡ Using cached data')
       return this.cache
     }
 
@@ -70,10 +69,10 @@ class VercelJSONBinService {
       
       this.cache = response.data.record
       this.lastSync = Date.now()
-      console.log('[VercelJSONBin] ✅ Data fetched successfully from cloud')
+      console.log('[JSONBin] ✅ Data fetched successfully from cloud')
       return this.cache
     } catch (error) {
-      console.error('[VercelJSONBin] ❌ Failed to fetch from cloud:', error)
+      console.error('[JSONBin] ❌ Failed to fetch from cloud:', error)
       return null
     }
   }
@@ -83,7 +82,7 @@ class VercelJSONBinService {
       return {
         enabled: false,
         connected: false,
-        mode: 'localStorage-only',
+        mode: 'not-configured',
         lastSync: null
       }
     }
@@ -99,53 +98,26 @@ class VercelJSONBinService {
     return {
       enabled: true,
       connected,
-      mode: 'readonly',
+      mode: 'jsonbin-only',
       lastSync: this.lastSync > 0 ? new Date(this.lastSync) : null
     }
   }
 
-  // Para uso con localStorage como fallback optimizado
-  getLocalStorageData(): JSONBinData | null {
-    if (typeof window === 'undefined') return null
-
-    try {
-      // Use optimized storage with caching
-      const stored = OptimizedStorage.get('talentbridge_data')
-      return stored
-    } catch {
-      return null
-    }
-  }
-
-  saveToLocalStorage(data: JSONBinData): void {
-    if (typeof window !== 'undefined') {
-      try {
-        // Use optimized storage
-        OptimizedStorage.set('talentbridge_data', data)
-        console.log('[VercelJSONBin] Data saved to optimized localStorage')
-      } catch (error) {
-        console.warn('[VercelJSONBin] Error saving to localStorage:', error)
-      }
-    }
-  }
-
-  // Guardar datos en JSONBin (para sincronizar usuarios registrados)
+  // Save data to JSONBin
   async saveData(data: JSONBinData): Promise<boolean> {
     if (!this.isEnabled()) {
-      console.log('[VercelJSONBin] ⚠️ Save disabled - using localStorage only')
-      this.saveToLocalStorage(data)
+      console.error('[JSONBin] ❌ Not configured - cannot save data')
       return false
     }
 
     try {
       const apiKey = this.getApiKey()
       if (!apiKey) {
-        console.warn('[VercelJSONBin] ❌ No API key configured')
-        this.saveToLocalStorage(data)
+        console.error('[JSONBin] ❌ No API key configured')
         return false
       }
 
-      console.log('[VercelJSONBin] 💾 Saving data to cloud...')
+      console.log('[JSONBin] 💾 Saving data to cloud...')
       await axios.put(
         `https://api.jsonbin.io/v3/b/${this.getBinId()}`,
         data,
@@ -157,49 +129,41 @@ class VercelJSONBinService {
         }
       )
       
-      // Actualizar cache
+      // Update cache
       this.cache = data
       this.lastSync = Date.now()
       
-      // También guardar en localStorage como backup
-      this.saveToLocalStorage(data)
-      
-      console.log('[JSONBin] Data saved to cloud successfully')
+      console.log('[JSONBin] ✅ Data saved to cloud successfully')
       return true
     } catch (error) {
-      console.error('[JSONBin] Error saving data:', error)
-      // Guardar en localStorage como fallback
-      this.saveToLocalStorage(data)
+      console.error('[JSONBin] ❌ Error saving data:', error)
       return false
     }
   }
 
-  // Inicializar datos: intenta JSONBin primero, luego localStorage
+  // Initialize data from JSONBin
   async initializeData(): Promise<JSONBinData> {
-    console.log('[VercelJSONBin] 🚀 Initializing data...')
+    console.log('[JSONBin] 🚀 Initializing data...')
 
-    // Intentar cargar desde JSONBin si está habilitado
     if (this.isEnabled()) {
-      console.log('[VercelJSONBin] 🌐 Attempting to fetch from cloud...')
+      console.log('[JSONBin] 🌐 Fetching from cloud...')
       const cloudData = await this.fetchInitialData()
       if (cloudData) {
-        console.log('[VercelJSONBin] ✅ Using cloud data')
+        console.log('[JSONBin] ✅ Using cloud data')
         return cloudData
       }
-      console.log('[VercelJSONBin] ⚠️ Cloud fetch failed, falling back to localStorage')
+      console.log('[JSONBin] ⚠️ Cloud fetch failed')
     }
 
-    // Intentar localStorage
-    const localData = this.getLocalStorageData()
-    if (localData && localData.users && localData.users.length > 0) {
-      console.log('[VercelJSONBin] 📦 Using localStorage data')
-      return localData
-    }
-
-    // Usar datos por defecto si no hay localStorage
-    console.log('[VercelJSONBin] 🆕 Using default data (first time setup)')
+    // Use default data if JSONBin is not available
+    console.log('[JSONBin] 🆕 Using default data')
     const defaultData = this.getDefaultData()
-    this.saveToLocalStorage(defaultData)
+    
+    // Try to save default data to JSONBin
+    if (this.isEnabled()) {
+      await this.saveData(defaultData)
+    }
+    
     return defaultData
   }
 
@@ -260,5 +224,5 @@ class VercelJSONBinService {
   }
 }
 
-// Export singleton instance for Vercel
+// Export singleton instance
 export const vercelJsonBinService = new VercelJSONBinService()
