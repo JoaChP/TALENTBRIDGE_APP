@@ -57,20 +57,22 @@ export default function MessagesPage() {
           userThreads = data
           console.log("Admin viewing all threads:", data.length)
         } else if (user.role === "empresa") {
-          // Companies: filter by threads related to their practices only
+          // Companies: threads related to their practices OR where they are a participant
           const practices = await mockApi.listPractices()
           const myPracticeIds = practices
             .filter(p => p.company.ownerUserId === user.id)
             .map(p => p.id)
           
           userThreads = data.filter(thread => 
-            thread.practiceId && myPracticeIds.includes(thread.practiceId)
+            (thread.practiceId && myPracticeIds.includes(thread.practiceId)) ||
+            thread.userId === user.id ||
+            thread.partnerId === user.id
           )
           console.log("Company viewing their threads:", userThreads.length)
         } else {
-          // Students: filter by their own threads
+          // Students: threads where they are userId OR partnerId
           userThreads = data.filter(thread => 
-            thread.userId === user.id
+            thread.userId === user.id || thread.partnerId === user.id
           )
           console.log("Student viewing their threads:", userThreads.length)
         }
