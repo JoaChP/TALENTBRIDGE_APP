@@ -62,8 +62,10 @@ export interface Thread {
   id: string
   practiceId?: string
   userId?: string
+  partnerId?: string  // ID del otro usuario en conversación directa
   partnerName: string
   partnerIsEmpresa: boolean
+  threadType?: 'admin-empresa' | 'admin-estudiante' | 'empresa-estudiante'  // Tipo de conversación
   lastSnippet: string
   unread?: boolean
 }

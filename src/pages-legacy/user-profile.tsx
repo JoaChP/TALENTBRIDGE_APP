@@ -60,20 +60,10 @@ export function UserProfilePage() {
     if (!user || !currentUser) return
 
     try {
-      // Find an application to get the practice
-      const applications = await mockApi.listApplications("all")
-      const userApplication = applications.find((app) => app.userId === user.id)
+      // Crear thread directo entre los dos usuarios
+      const thread = await mockApi.createDirectThread(currentUser.id, user.id)
       
-      if (!userApplication) {
-        toast.error("No se encontró una aplicación para iniciar el chat")
-        return
-      }
-
-      const thread = await mockApi.createThreadForApplication(
-        userApplication.practiceId,
-        user.id
-      )
-      
+      toast.success("Conversación iniciada")
       window.location.href = `/messages/${thread.id}`
     } catch (error) {
       console.error("Error starting chat:", error)

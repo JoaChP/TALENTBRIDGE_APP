@@ -558,6 +558,59 @@ export const mockApi = {
     
     return thread
   },
+
+  // Nueva función: Crear thread directo entre dos usuarios (sin necesidad de aplicación)
+  async createDirectThread(fromUserId: string, toUserId: string) {
+    await delay()
+    
+    // Check if thread already exists between these users
+    const existingThread = mockData.threads.find(
+      (t) => 
+        (t.userId === fromUserId && t.partnerId === toUserId) ||
+        (t.userId === toUserId && t.partnerId === fromUserId)
+    )
+    if (existingThread) {
+      return existingThread
+    }
+    
+    // Get user info
+    const fromUser = mockData.users.find((u) => u.id === fromUserId)
+    const toUser = mockData.users.find((u) => u.id === toUserId)
+    
+    if (!fromUser || !toUser) throw new Error("Usuario no encontrado")
+    
+    // Determine thread type based on roles
+    let threadType: 'admin-empresa' | 'admin-estudiante' | 'empresa-estudiante' = 'empresa-estudiante'
+    if (fromUser.role === 'admin' && toUser.role === 'empresa') threadType = 'admin-empresa'
+    else if (fromUser.role === 'empresa' && toUser.role === 'admin') threadType = 'admin-empresa'
+    else if (fromUser.role === 'admin' && toUser.role === 'estudiante') threadType = 'admin-estudiante'
+    else if (fromUser.role === 'estudiante' && toUser.role === 'admin') threadType = 'admin-estudiante'
+    
+    // Create new direct thread
+    const thread: Thread = {
+      id: `t_${Date.now()}`,
+      userId: fromUserId,
+      partnerId: toUserId,
+      partnerName: toUser.name,
+      partnerIsEmpresa: toUser.role === 'empresa',
+      threadType,
+      lastSnippet: "Inicia una conversación...",
+      unread: false,
+    }
+    
+    mockData.threads.push(thread)
+    await saveData()
+    console.log('[mockApi] Direct thread created:', thread.id, 'Type:', threadType)
+    
+    // Emitir evento
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('thread-created', {
+        detail: { threadId: thread.id, thread }
+      }))
+    }
+    
+    return thread
+  },
   // Simple counters for dashboard/home
   async countPractices() {
     await delay(150)

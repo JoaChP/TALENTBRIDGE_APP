@@ -3,12 +3,14 @@
 import { useState, useEffect, useMemo } from "react"
 import { Card } from "../../components/ui/card"
 import { Button } from "../components/ui/button"
+import { Badge } from "../components/ui/badge"
 import { LoadingSkeleton } from "../components/loading-skeleton"
 import type { Thread } from "../types"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
-import { Trash2, ChevronLeft, ChevronRight } from "lucide-react"
+import { Trash2, ChevronLeft, ChevronRight, Filter, RefreshCw } from "lucide-react"
+import { useAutoRefresh } from "../hooks/use-auto-refresh"
 
 export default function MessagesPage() {
   const user = useAuthStore((state) => state.user)
@@ -17,6 +19,8 @@ export default function MessagesPage() {
   const [deletingThread, setDeletingThread] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [filterType, setFilterType] = useState<'all' | 'admin-empresa' | 'admin-estudiante' | 'empresa-estudiante'>('all')
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
 
   const handleNavigation = (path: string) => {
     window.history.pushState({}, '', path)
@@ -77,6 +81,7 @@ export default function MessagesPage() {
         toast.error("Error al cargar los mensajes")
       } finally {
         setLoading(false)
+        setLastUpdate(new Date())
       }
     }
 
@@ -99,13 +104,60 @@ export default function MessagesPage() {
     }
   }, [user])
 
+  // Auto-refresh cada 30 segundos
+  useAutoRefresh(async () => {
+    if (!user) return
+    try {
+      const data = await mockApi.listThreads()
+      let userThreads: Thread[] = []
+      
+      if (user.role === "admin") {
+        userThreads = data
+      } else if (user.role === "empresa") {
+        const practices = await mockApi.listPractices()
+        const myPracticeIds = practices
+          .filter(p => p.company.ownerUserId === user.id)
+          .map(p => p.id)
+        userThreads = data.filter(thread => 
+          thread.practiceId && myPracticeIds.includes(thread.practiceId)
+        )
+      } else {
+        userThreads = data.filter(thread => thread.userId === user.id)
+      }
+      
+      setThreads(userThreads)
+      setLastUpdate(new Date())
+    } catch (error) {
+      console.error("Error auto-refreshing threads:", error)
+    }
+  }, 30000, true)
+
+  // Filtrar threads por tipo (solo para admin)
+  const filteredThreads = useMemo(() => {
+    if (user?.role !== 'admin' || filterType === 'all') {
+      return threads
+    }
+    return threads.filter(t => t.threadType === filterType)
+  }, [threads, filterType, user])
+
   // Pagination
-  const totalPages = Math.ceil(threads.length / itemsPerPage)
+  const totalPages = Math.ceil(filteredThreads.length / itemsPerPage)
   const paginatedThreads = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
-    return threads.slice(startIndex, endIndex)
-  }, [threads, currentPage, itemsPerPage])
+    return filteredThreads.slice(startIndex, endIndex)
+  }, [filteredThreads, currentPage, itemsPerPage])
+
+  // Contar threads por tipo (solo para admin)
+  const threadCounts = useMemo(() => {
+    if (user?.role !== 'admin') return null
+    return {
+      all: threads.length,
+      'admin-empresa': threads.filter(t => t.threadType === 'admin-empresa').length,
+      'admin-estudiante': threads.filter(t => t.threadType === 'admin-estudiante').length,
+      'empresa-estudiante': threads.filter(t => t.threadType === 'empresa-estudiante').length,
+    }
+  }, [threads, user])
 
   if (!user) {
     return (
@@ -124,15 +176,92 @@ export default function MessagesPage() {
   // Show threads list
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-semibold">Mensajes</h1>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Tus conversaciones con empresas y candidatos
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                setLoading(true)
+                const data = await mockApi.listThreads()
+                let userThreads: Thread[] = []
+                if (user.role === "admin") userThreads = data
+                else if (user.role === "empresa") {
+                  const practices = await mockApi.listPractices()
+                  const myPracticeIds = practices.filter(p => p.company.ownerUserId === user.id).map(p => p.id)
+                  userThreads = data.filter(thread => thread.practiceId && myPracticeIds.includes(thread.practiceId))
+                } else {
+                  userThreads = data.filter(thread => thread.userId === user.id)
+                }
+                setThreads(userThreads)
+                setLastUpdate(new Date())
+                setLoading(false)
+              }}
+              disabled={loading}
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline ml-2">Actualizar</span>
+            </Button>
+            <div className="text-xs text-muted-foreground hidden md:block">
+              {lastUpdate.toLocaleTimeString()}
+            </div>
+          </div>
+        </div>
+
+        {/* Filtros para Admin */}
+        {user.role === 'admin' && threadCounts && (
+          <div className="flex flex-wrap gap-2 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Filtrar conversaciones:</span>
+            </div>
+            <Button
+              variant={filterType === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilterType('all')}
+            >
+              Todas ({threadCounts.all})
+            </Button>
+            <Button
+              variant={filterType === 'admin-empresa' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilterType('admin-empresa')}
+            >
+              Admin-Empresa ({threadCounts['admin-empresa']})
+            </Button>
+            <Button
+              variant={filterType === 'admin-estudiante' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilterType('admin-estudiante')}
+            >
+              Admin-Estudiante ({threadCounts['admin-estudiante']})
+            </Button>
+            <Button
+              variant={filterType === 'empresa-estudiante' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilterType('empresa-estudiante')}
+            >
+              Empresa-Estudiante ({threadCounts['empresa-estudiante']})
+            </Button>
+          </div>
+        )}
+
+        {/* Controles de paginación */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
           <h1 className="text-xl sm:text-2xl font-semibold">Mensajes</h1>
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
             Tus conversaciones con empresas y candidatos
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
-          {threads.length > 0 && (
+          {filteredThreads.length > 0 && (
             <>
               <select
                 value={itemsPerPage}
