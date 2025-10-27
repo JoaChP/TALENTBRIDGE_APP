@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, memo, useMemo, useCallback } from "react"
+import { useIsMobile } from "../../../components/ui/use-mobile"
 import { Home, Search, MessageCircle, User, FileCheck, Shield } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../stores/auth-store"
@@ -24,6 +25,7 @@ const navItems = [
 ]
 
 export const TabBar = memo(function TabBar() {
+  const isMobile = useIsMobile();
   const user = useAuthStore((s) => s.user)
   const [currentPath, setCurrentPath] = useState("")
 
@@ -70,6 +72,7 @@ export const TabBar = memo(function TabBar() {
     }
   }, [currentPath])
 
+  if (!isMobile) return null;
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 border-t-4 border-indigo-500 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-950 !block"
