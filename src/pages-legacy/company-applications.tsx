@@ -8,8 +8,9 @@ import { LoadingSkeleton } from "../components/loading-skeleton"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
 import type { Application, Practice, User } from "../types"
-import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft, Trash2, ChevronRight, PlusCircle, FileText, Mail, Phone } from "lucide-react"
+import { CheckCircle, XCircle, Eye, User as UserIcon, Briefcase, ChevronLeft, Trash2, ChevronRight, PlusCircle, FileText, Mail, Phone, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
+import { useAutoRefresh } from "../hooks/use-auto-refresh"
 
 export function CompanyApplicationsPage() {
   const user = useAuthStore((s) => s.user)
@@ -20,6 +21,8 @@ export function CompanyApplicationsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [activeTab, setActiveTab] = useState<"postulaciones" | "publicar">("postulaciones")
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true)
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
   const [stats, setStats] = useState({
     total: 0,
     enviadas: 0,
@@ -68,8 +71,12 @@ export function CompanyApplicationsPage() {
       toast.error("Error al cargar las postulaciones")
     } finally {
       setLoading(false)
+      setLastUpdate(new Date())
     }
   }
+
+  // Auto-refresh cada 30 segundos
+  useAutoRefresh(loadData, 30000, autoRefreshEnabled)
 
   // Pagination
   const totalPages = Math.ceil(applications.length / itemsPerPage)
@@ -101,6 +108,11 @@ export function CompanyApplicationsPage() {
       console.error("Error rejecting application:", error)
       toast.error("Error al rechazar la postulación")
     }
+  }
+
+  const handleNavigation = (path: string) => {
+    window.history.pushState({}, '', path)
+    window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
   const handleReview = async (applicationId: string) => {
@@ -186,7 +198,7 @@ export function CompanyApplicationsPage() {
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-3">
-        <div>
+        <div className="flex items-center justify-between">
           <Button 
             variant="ghost" 
             size="sm"
@@ -198,6 +210,22 @@ export function CompanyApplicationsPage() {
             <ChevronLeft className="h-4 w-4" />
             <span>Volver</span>
           </Button>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => loadData()}
+              disabled={loading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Actualizar</span>
+            </Button>
+            <div className="text-xs text-muted-foreground hidden sm:block">
+              Última actualización: {lastUpdate.toLocaleTimeString()}
+            </div>
+          </div>
         </div>
         
         <h1 className="text-2xl sm:text-3xl font-bold">Gestión Empresarial</h1>
@@ -473,7 +501,7 @@ export function CompanyApplicationsPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              window.location.href = `/user/${application.userId}`
+                              handleNavigation(`/user/${application.userId}`)
                             }}
                             className="flex-1 sm:flex-none"
                           >
@@ -496,7 +524,7 @@ export function CompanyApplicationsPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            window.location.href = `/user/${application.userId}`
+                            handleNavigation(`/user/${application.userId}`)
                           }}
                           className="w-full sm:w-auto"
                         >
