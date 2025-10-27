@@ -2,25 +2,30 @@ import { create } from "zustand"
 import type { AuthState, User } from "../types"
 import { mockApi } from "../mocks/api"
 
-export const useAuthStore = create<AuthState>((set, get) => {
-  // Restore session on init
-  if (typeof window !== "undefined") {
-    const stored = sessionStorage.getItem("auth-storage")
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored)
-        if (parsed.state?.user && parsed.state?.token) {
-          set({ user: parsed.state.user, token: parsed.state.token })
-        }
-      } catch (error) {
-        console.error("[AuthStore] Error restoring session:", error)
+// Initialize user and token from sessionStorage BEFORE creating the store
+let initialUser = null
+let initialToken = null
+
+if (typeof window !== "undefined") {
+  const stored = sessionStorage.getItem("auth-storage")
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored)
+      if (parsed.state?.user && parsed.state?.token) {
+        initialUser = parsed.state.user
+        initialToken = parsed.state.token
+        console.log("[AuthStore] ✅ Session restored:", initialUser.email)
       }
+    } catch (error) {
+      console.error("[AuthStore] Error restoring session:", error)
     }
   }
+}
 
+export const useAuthStore = create<AuthState>((set, get) => {
   return {
-    user: null,
-    token: null,
+    user: initialUser,
+    token: initialToken,
     login: async (email: string, password: string) => {
       console.log("[AuthStore] Login attempt for:", email)
       const { user, token } = await mockApi.login(email, password)
