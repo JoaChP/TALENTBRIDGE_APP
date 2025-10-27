@@ -179,25 +179,6 @@ export function AdminDashboard() {
             Gestiona usuarios, ofertas y aplicaciones del sistema
           </p>
         </div>
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-balance">Panel de Administración</h1>
-                <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
-                  Gestiona usuarios, ofertas y aplicaciones del sistema
-                </p>
-              </div>
-              <RefreshBar
-                onRefresh={loadData}
-                lastUpdate={lastUpdate}
-                loading={loading}
-                label="Actualizar"
-              />
-            </div>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {stats.estudiantes} estudiantes, {stats.empresas} empresas
             </p>
           </CardContent>
         </Card>
