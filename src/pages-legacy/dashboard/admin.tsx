@@ -2,23 +2,23 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
-import { Button } from "../../components/ui/button"
+export { AdminDashboard }
+export default AdminDashboard
 import { Badge } from "../../components/ui/badge"
 import { LoadingSkeleton } from "../../components/loading-skeleton"
 import { mockApi } from "../../mocks/api"
 import { useAuthStore } from "../../stores/auth-store"
-import type { User, Practice, Application, Role } from "../../types"
-import { Users, Briefcase, FileCheck, MessageSquare, Trash2, Edit, UserCog, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
+import type { User, Practice, Role } from "../../types"
+import { FileCheck, MessageSquare, Trash2, Edit, UserCog, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
 import { RefreshBar } from "../../components/refresh-bar"
 import { toast } from "sonner"
 
-export function AdminDashboard() {
+function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
   const [operationInProgress, setOperationInProgress] = useState(false)
   const [users, setUsers] = useState<User[]>([])
   const [practices, setPractices] = useState<Practice[]>([])
-  const [applications, setApplications] = useState<Application[]>([])
   const [roleFilter, setRoleFilter] = useState<Role | "all">("all")
   const [usersPage, setUsersPage] = useState(1)
   const [practicesPage, setPracticesPage] = useState(1)
@@ -31,7 +31,7 @@ export function AdminDashboard() {
     totalPractices: 0,
     totalApplications: 0,
   })
-  
+
   const refreshUser = useAuthStore((s) => s.refreshUser)
   const currentUser = useAuthStore((s) => s.user)
 
@@ -51,7 +51,6 @@ export function AdminDashboard() {
 
       setUsers(usersData)
       setPractices(practicesData)
-      setApplications(applicationsData)
 
       // Calculate stats
       const estudiantes = usersData.filter(u => u.role === "estudiante").length
@@ -98,14 +97,13 @@ export function AdminDashboard() {
     try {
       await mockApi.deleteUser(userId)
       toast.success("Usuario eliminado correctamente")
-      
+
       // Si el usuario eliminado es el usuario actual, refrescar para cerrar sesión
       if (currentUser?.id === userId) {
         await refreshUser()
-        // El refreshUser detectará que el usuario fue eliminado y cerrará sesión
         return
       }
-      
+
       loadData() // Reload data
     } catch (error) {
       console.error("Error deleting user:", error)
@@ -124,7 +122,7 @@ export function AdminDashboard() {
     if (!newRoleInput) return
 
     const newRole = newRoleInput.toLowerCase().trim() as Role
-    
+
     if (!["estudiante", "empresa", "admin"].includes(newRole)) {
       toast.error("Rol inválido. Usa: estudiante, empresa o admin")
       return
@@ -134,13 +132,12 @@ export function AdminDashboard() {
     try {
       await mockApi.updateUserRole(userId, newRole)
       toast.success(`Rol de ${userName} actualizado a ${newRole}`)
-      
-      // Si el rol cambiado es el del usuario actual, refrescar datos
+
       if (currentUser?.id === userId) {
         await refreshUser()
       }
-      
-      loadData() // Reload data
+
+      loadData()
     } catch (error) {
       console.error("Error changing role:", error)
       toast.error("Error al cambiar el rol")
@@ -151,74 +148,78 @@ export function AdminDashboard() {
 
   useEffect(() => {
     loadData()
-    
-    // Escuchar eventos de cambios en los datos
+
     const handleDataUpdate = () => {
       console.log("[AdminDashboard] Data updated event received, reloading...")
       loadData()
-      refreshUser() // También refrescar el usuario actual
+      refreshUser()
     }
-    
+
     window.addEventListener('talentbridge-data-updated', handleDataUpdate)
-    
-    return () => {
-      window.removeEventListener('talentbridge-data-updated', handleDataUpdate)
-    }
+    return () => window.removeEventListener('talentbridge-data-updated', handleDataUpdate)
   }, [])
 
-  if (loading) {
-    return <LoadingSkeleton />
-  }
+  if (loading) return <LoadingSkeleton />
+
+  // Pagination helpers for users
+  const filteredUsers = users.filter(u => roleFilter === "all" || u.role === roleFilter)
+  const usersTotalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+  const usersStart = (usersPage - 1) * itemsPerPage
+  const paginatedUsers = filteredUsers.slice(usersStart, usersStart + itemsPerPage)
+
+  // Pagination helpers for practices
+  const practicesTotalPages = Math.ceil(practices.length / itemsPerPage)
+  const practicesStart = (practicesPage - 1) * itemsPerPage
+  const paginatedPractices = practices.slice(practicesStart, practicesStart + itemsPerPage)
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-balance">Panel de Administración</h1>
-          <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
-            Gestiona usuarios, ofertas y aplicaciones del sistema
-          </p>
+          <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">Gestiona usuarios, ofertas y aplicaciones del sistema</p>
         </div>
-            </p>
+        <RefreshBar onRefresh={loadData} lastUpdate={lastUpdate} loading={loading} label="Actualizar" />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Usuarios</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalUsers}</div>
+            <p className="text-xs text-muted-foreground mt-1">{stats.estudiantes} estudiantes, {stats.empresas} empresas</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ofertas</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle className="text-sm">Ofertas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalPractices}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Ofertas publicadas en el sistema
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Ofertas publicadas</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Postulaciones</CardTitle>
-            <FileCheck className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle className="text-sm">Postulaciones</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalApplications}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Solicitudes de estudiantes
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Solicitudes de estudiantes</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Admins</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+          <CardHeader>
+            <CardTitle className="text-sm">Admins</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.admins}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Administradores del sistema
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Administradores del sistema</p>
           </CardContent>
         </Card>
       </div>
@@ -226,241 +227,88 @@ export function AdminDashboard() {
       {/* Users Section */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-2">
-              <CardTitle className="text-lg sm:text-xl">
-                Usuarios Registrados ({users.filter(u => roleFilter === "all" || u.role === roleFilter).length})
-              </CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setLoading(true)
-                  loadData()
-                  toast.success("Lista actualizada")
-                }}
-                disabled={loading}
-                title="Recargar lista de usuarios"
-              >
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              </Button>
+              <CardTitle className="text-lg">Usuarios Registrados ({filteredUsers.length})</CardTitle>
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
-              <select
-                value={roleFilter}
-                onChange={(e) => {
-                  setRoleFilter(e.target.value as Role | "all")
-                  setUsersPage(1) // Reset to first page when filter changes
-                }}
-                className="w-full sm:w-auto px-3 py-2 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
-              >
+            <div className="flex items-center gap-2">
+              <select value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value as Role | "all"); setUsersPage(1); }} className="px-2 py-1 border rounded">
                 <option value="all">Todos los roles</option>
                 <option value="estudiante">Estudiantes</option>
                 <option value="empresa">Empresas</option>
                 <option value="admin">Administradores</option>
               </select>
-              <select
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value))
-                  setUsersPage(1) // Reset to first page when items per page changes
-                }}
-                className="w-full sm:w-auto px-3 py-2 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
-              >
-                <option value={5}>5 por página</option>
-                <option value={10}>10 por página</option>
-                <option value={20}>20 por página</option>
-                <option value={50}>50 por página</option>
-              </select>
+              <Button variant="ghost" size="sm" onClick={() => { setLoading(true); loadData(); toast.success('Lista actualizada'); }} disabled={loading}>
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {(() => {
-              const filteredUsers = users.filter(u => roleFilter === "all" || u.role === roleFilter)
-              const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
-              const startIndex = (usersPage - 1) * itemsPerPage
-              const endIndex = startIndex + itemsPerPage
-              const paginatedUsers = filteredUsers.slice(startIndex, endIndex)
+            {paginatedUsers.map(u => (
+              <div key={u.id} className="flex items-center justify-between p-3 border rounded">
+                <div>
+                  <div className="font-medium">{u.name}</div>
+                  <div className="text-xs text-zinc-600">{u.email}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{u.role}</Badge>
+                  <Button variant="outline" size="sm" onClick={() => handleChangeRole(u.id, u.name, u.role)} disabled={operationInProgress}><UserCog className="h-4 w-4" /></Button>
+                  <Button variant="outline" size="sm" onClick={() => handleDeleteUser(u.id, u.name)} className="text-red-600" disabled={operationInProgress}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+              </div>
+            ))}
 
-              return (
-                <>
-                  {paginatedUsers.map((user) => (
-                    <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{user.name}</p>
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">{user.email}</p>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                        <Badge 
-                          variant="secondary"
-                          className={`${
-                            user.role === "admin" ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 border-indigo-200" :
-                            user.role === "empresa" ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 border-orange-200" :
-                            "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 border-emerald-200"
-                          } whitespace-nowrap`}
-                        >
-                          {user.role === "estudiante" ? "Estudiante" :
-                           user.role === "empresa" ? "Empresa" :
-                           "Administrador"}
-                        </Badge>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleChangeRole(user.id, user.name, user.role)}
-                          title="Cambiar rol"
-                          disabled={operationInProgress}
-                        >
-                          <UserCog className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteUser(user.id, user.name)}
-                          className="text-red-600 hover:text-red-700"
-                          title="Eliminar usuario"
-                          disabled={operationInProgress}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Pagination Controls */}
-                  {totalPages > 1 && (
-                    <div className="flex items-center justify-between pt-4 border-t">
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                        Página {usersPage} de {totalPages}
-                      </p>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setUsersPage(p => Math.max(1, p - 1))}
-                          disabled={usersPage === 1}
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setUsersPage(p => Math.min(totalPages, p + 1))}
-                          disabled={usersPage === totalPages}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )
-            })()}
+            {usersTotalPages > 1 && (
+              <div className="flex items-center justify-between pt-4">
+                <p className="text-sm">Página {usersPage} de {usersTotalPages}</p>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setUsersPage(p => Math.max(1, p - 1))} disabled={usersPage === 1}><ChevronLeft className="h-4 w-4" /></Button>
+                  <Button variant="outline" size="sm" onClick={() => setUsersPage(p => Math.min(usersTotalPages, p + 1))} disabled={usersPage === usersTotalPages}><ChevronRight className="h-4 w-4" /></Button>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
       {/* Practices Section */}
       <Card>
-        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between space-y-0 pb-4">
-          <CardTitle className="text-lg sm:text-xl">Ofertas de Trabajo Publicadas</CardTitle>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <select
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value))
-                setPracticesPage(1) // Reset to first page when items per page changes
-              }}
-              className="w-full sm:w-auto px-3 py-2 text-sm border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-zinc-900 dark:border-zinc-700"
-            >
+        <CardHeader className="flex items-center justify-between">
+          <CardTitle className="text-lg">Ofertas de Trabajo Publicadas</CardTitle>
+          <div className="flex items-center gap-2">
+            <select value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setPracticesPage(1); }} className="px-2 py-1 border rounded">
               <option value={5}>5 por página</option>
               <option value={10}>10 por página</option>
               <option value={20}>20 por página</option>
-              <option value={50}>50 por página</option>
             </select>
-            <Button onClick={() => handleNavigation("/publish")} className="w-full sm:w-auto">
-              Crear Nueva Oferta
-            </Button>
+            <Button onClick={() => handleNavigation('/publish')}>Crear Nueva Oferta</Button>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {practices.length === 0 ? (
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center py-8">
-                No hay ofertas publicadas
-              </p>
-            ) : (
-              (() => {
-                const totalPages = Math.ceil(practices.length / itemsPerPage)
-                const startIndex = (practicesPage - 1) * itemsPerPage
-                const endIndex = startIndex + itemsPerPage
-                const paginatedPractices = practices.slice(startIndex, endIndex)
+            {paginatedPractices.map(p => (
+              <div key={p.id} className="flex items-center justify-between p-3 border rounded">
+                <div>
+                  <div className="font-medium">{p.title}</div>
+                  <div className="text-xs text-zinc-600">{p.company.name} • {p.city}, {p.country}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleNavigation(`/oferta/${p.id}/edit`)} disabled={operationInProgress}><Edit className="h-4 w-4" /></Button>
+                  <Button variant="outline" size="sm" onClick={() => handleDeletePractice(p.id)} className="text-red-600" disabled={operationInProgress}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+              </div>
+            ))}
 
-                return (
-                  <>
-                    {paginatedPractices.map((practice) => (
-                      <div key={practice.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{practice.title}</p>
-                          <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">
-                            {practice.company.name} • {practice.city}, {practice.country}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                          <Badge className="whitespace-nowrap">{practice.status}</Badge>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleNavigation(`/oferta/${practice.id}/edit`)}
-                            disabled={operationInProgress}
-                            className="flex-1 sm:flex-none"
-                          >
-                            <Edit className="h-4 w-4 sm:mr-1" />
-                            <span className="sm:inline">Editar</span>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeletePractice(practice.id)}
-                            className="text-red-600 hover:text-red-700"
-                            disabled={operationInProgress}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* Pagination Controls */}
-                    {totalPages > 1 && (
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                          Página {practicesPage} de {totalPages}
-                        </p>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setPracticesPage(p => Math.max(1, p - 1))}
-                            disabled={practicesPage === 1}
-                          >
-                            <ChevronLeft className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setPracticesPage(p => Math.min(totalPages, p + 1))}
-                            disabled={practicesPage === totalPages}
-                          >
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )
-              })()
+            {practicesTotalPages > 1 && (
+              <div className="flex items-center justify-between pt-4">
+                <p className="text-sm">Página {practicesPage} de {practicesTotalPages}</p>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setPracticesPage(p => Math.max(1, p - 1))} disabled={practicesPage === 1}><ChevronLeft className="h-4 w-4" /></Button>
+                  <Button variant="outline" size="sm" onClick={() => setPracticesPage(p => Math.min(practicesTotalPages, p + 1))} disabled={practicesPage === practicesTotalPages}><ChevronRight className="h-4 w-4" /></Button>
+                </div>
+              </div>
             )}
           </div>
         </CardContent>
@@ -473,13 +321,8 @@ export function AdminDashboard() {
             <CardTitle>Gestionar Postulaciones</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-              Supervisa todas las postulaciones y su estado
-            </p>
-            <Button onClick={() => handleNavigation("/company-applications")} className="w-full">
-              <FileCheck className="h-4 w-4 mr-2" />
-              Ver Todas las Postulaciones
-            </Button>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">Supervisa todas las postulaciones y su estado</p>
+            <Button onClick={() => handleNavigation('/company-applications')} className="w-full"><FileCheck className="h-4 w-4 mr-2" />Ver Todas las Postulaciones</Button>
           </CardContent>
         </Card>
 
@@ -488,13 +331,8 @@ export function AdminDashboard() {
             <CardTitle>Ver Todas las Conversaciones</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-              Accede a todos los mensajes del sistema
-            </p>
-            <Button onClick={() => handleNavigation("/messages")} className="w-full">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Ver Mensajes
-            </Button>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">Accede a todos los mensajes del sistema</p>
+            <Button onClick={() => handleNavigation('/messages')} className="w-full"><MessageSquare className="h-4 w-4 mr-2" />Ver Mensajes</Button>
           </CardContent>
         </Card>
       </div>
@@ -502,4 +340,6 @@ export function AdminDashboard() {
   )
 }
 
-export default AdminDashboard
+
+
+// The component is exported as default above (export default function AdminDashboard)
