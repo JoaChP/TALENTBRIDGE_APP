@@ -1,5 +1,5 @@
 import React from "react"
-import { useIsMobile } from "./ui/use-mobile"
+import { useIsMobile } from "../../components/ui/use-mobile"
 import { RefreshBar } from "./refresh-bar"
 
 interface MobileRefreshBarProps {

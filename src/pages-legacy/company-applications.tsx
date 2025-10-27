@@ -131,33 +131,8 @@ export function CompanyApplicationsPage() {
     // No permitir eliminar postulaciones aceptadas
     if (status === "Aceptada") {
       toast.error("No se pueden eliminar postulaciones aceptadas")
-      return (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Postulaciones Recibidas</h1>
-              <span className="text-sm text-zinc-500">Total: {stats.total}</span>
-            </div>
-            <MobileRefreshBar
-              onRefresh={async () => {
-                setLoading(true)
-                await loadData()
-                setLastUpdate(new Date())
-                setLoading(false)
-              }}
-              lastUpdate={lastUpdate}
-              loading={loading}
-              label="Actualizar"
-            />
-          </div>
-      await mockApi.deleteApplication(applicationId)
-      toast.success("Postulación eliminada")
-      loadData()
-    } catch (error: any) {
-      console.error("Error deleting application:", error)
-      toast.error(error.message || "Error al eliminar la postulación")
+      return;
     }
-  }
 
   useEffect(() => {
     loadData()
