@@ -52,42 +52,7 @@ export function SearchPage() {
         mockApi.reloadFromStorage()
       }
 
-      const applyFilters = (list: Practice[]): Practice[] => {
-        let filtered = [...list]
-
-        if (search) {
-          const term = search.toLowerCase()
-          filtered = filtered.filter(
-            (practice) =>
-              practice.title.toLowerCase().includes(term) ||
-              practice.company.name.toLowerCase().includes(term) ||
-              practice.description.toLowerCase().includes(term) ||
-              practice.skills.some((skill) => skill.toLowerCase().includes(term)),
-          )
-        }
-
-        if (location) {
-          const place = location.toLowerCase()
-          filtered = filtered.filter(
-            (practice) =>
-              practice.city.toLowerCase().includes(place) || practice.country.toLowerCase().includes(place),
-          )
-        }
-
-        if (modality) {
-          filtered = filtered.filter((practice) => practice.modality === modality)
-        }
-
-        if (duration) {
-          filtered = filtered.filter((practice) => practice.durationMonths === duration)
-        }
-
-        if (selectedSkills.length > 0) {
-          filtered = filtered.filter((practice) => selectedSkills.some((skill) => practice.skills.includes(skill)))
-        }
-
-        return filtered
-      }
+      // Filters are applied via mockApi.listPractices with the filter params above
 
       // SIEMPRE usar mockApi para obtener los datos más recientes
       try {

@@ -33,7 +33,6 @@
   },
   "include": [
     "src",
-    ".next/types/**/*.ts",
     "app"
   ],
   "references": [

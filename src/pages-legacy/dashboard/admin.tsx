@@ -13,7 +13,7 @@ import { toast } from "sonner"
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
+  
   const [operationInProgress, setOperationInProgress] = useState(false)
   const [users, setUsers] = useState<User[]>([])
   const [practices, setPractices] = useState<Practice[]>([])
@@ -35,10 +35,9 @@ export default function AdminDashboard() {
         mockApi.listApplications("all"),
       ])
 
-      setUsers(usersData)
-      setPractices(practicesData)
-      setApplications(applicationsData)
-      setLastUpdate(new Date())
+  setUsers(usersData)
+  setPractices(practicesData)
+  setApplications(applicationsData)
     } catch (err) {
       console.error(err)
       toast.error("Error al cargar datos")
@@ -96,7 +95,6 @@ export default function AdminDashboard() {
   const usersTotalPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage))
   const pagedUsers = paginated(filteredUsers, usersPage)
 
-  const practicesTotalPages = Math.max(1, Math.ceil(practices.length / itemsPerPage))
   const pagedPractices = paginated(practices, practicesPage)
 
   return (

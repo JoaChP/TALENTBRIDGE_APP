@@ -6,7 +6,6 @@ import { Badge } from "../../components/ui/badge"
 import { Button } from "../../components/ui/button"
 import { LoadingSkeleton } from "../components/loading-skeleton"
 import { EmptyState } from "../components/empty-state"
-import { MobileRefreshBar } from "../components/mobile-refresh-bar"
 import type { Application, Practice } from "../types"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
@@ -37,7 +36,6 @@ export default function ApplicationsPage() {
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(5)
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
 
   // Calculate stats
   const stats = useMemo(() => {
