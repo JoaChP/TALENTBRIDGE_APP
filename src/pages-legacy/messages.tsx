@@ -249,12 +249,6 @@ export default function MessagesPage() {
 
         {/* Controles de paginación */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
-          <h1 className="text-xl sm:text-2xl font-semibold">Mensajes</h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Tus conversaciones con empresas y candidatos
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
           {filteredThreads.length > 0 && (
             <>
               <select
