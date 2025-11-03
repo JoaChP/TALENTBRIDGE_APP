@@ -19,6 +19,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
+import IconButton from "../components/ui/icon-button"
 import { LoadingSkeleton } from "../components/loading-skeleton"
 import { EmptyState } from "../components/empty-state"
 import type { Application, Practice, User, ApplicationStatus } from "../types"
@@ -232,17 +233,13 @@ export function CompanyApplicationsPage() {
                       </div>
 
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleStartChat(application)} aria-label="Enviar mensaje">
-                          <MessageSquare className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => { window.history.pushState({}, "", `/user/${application.userId}`); window.dispatchEvent(new Event("popstate")) }} aria-label="Ver perfil">
-                          <UserIcon className="h-4 w-4" />
-                        </Button>
+                        <IconButton color="indigo" variant="default" label="Mensaje" onClick={() => handleStartChat(application)} aria-label="Enviar mensaje" icon={<MessageSquare className="h-4 w-4" />} />
+                        <IconButton color="slate" variant="outline" label="Perfil" onClick={() => { window.history.pushState({}, "", `/user/${application.userId}`); window.dispatchEvent(new Event("popstate")) }} aria-label="Ver perfil" icon={<UserIcon className="h-4 w-4" />} />
 
                         {(application.status === "Enviada" || application.status === "Revisando") ? (
                           <div className="flex gap-2">
-                            <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleUpdateStatus(application.id, "Aceptada")} aria-label="Aceptar"><Check className="h-4 w-4" /></Button>
-                            <Button variant="destructive" size="sm" onClick={() => handleUpdateStatus(application.id, "Rechazada")} aria-label="Rechazar"><X className="h-4 w-4" /></Button>
+                            <IconButton color="green" variant="default" label="Aceptar" onClick={() => handleUpdateStatus(application.id, "Aceptada")} aria-label="Aceptar" icon={<Check className="h-4 w-4" />} />
+                            <IconButton color="red" variant="default" label="Rechazar" onClick={() => handleUpdateStatus(application.id, "Rechazada")} aria-label="Rechazar" icon={<X className="h-4 w-4" />} />
                           </div>
                         ) : null}
                       </div>
