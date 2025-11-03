@@ -1,7 +1,19 @@
 "use client"
 
-// Página: Publish (backup)
-// Formulario para que empresas publiquen una nueva práctica.
+/*
+  Archivo: src/pages-backup/publish.tsx
+  Propósito:
+    - Formulario multi-step para que empresas creen o publiquen prácticas.
+    - Incluye validación por pasos, guardado de borrador y publicación final.
+
+  Características:
+    - Tres pasos: datos básicos, configuración y descripción/habilidades.
+    - Validación con zod + react-hook-form y selección de habilidades.
+    - Usa `mockApi.createPractice` para simular guardado/publicación.
+
+  Nota:
+    - Protegido por `RoleGate` (solo `empresa` y `admin`); al migrar a JSONBin, asegurarse que `mockApi` escriba en la nueva fuente.
+*/
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -57,6 +69,8 @@ type Step2Data = z.infer<typeof step2Schema>
 type Step3Data = z.infer<typeof step3Schema>
 
 export function PublishPage() {
+  // Componente: PublishPage
+  // - Wrapper que aplica `RoleGate` y renderiza `PublishForm`.
   return (
     <RoleGate allowedRoles={["empresa", "admin"]}>
       <PublishForm />

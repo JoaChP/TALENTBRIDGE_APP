@@ -1,7 +1,21 @@
 "use client"
 
-// Página: Applications
-// Lista las solicitudes del usuario y permite ver detalles / enviar mensajes.
+/*
+  Archivo: src/pages-backup/applications.tsx
+  Propósito:
+    - Mostrar las aplicaciones del usuario actual (estudiante) y permitir acciones relacionadas
+      (ver oferta, iniciar conversación con la empresa).
+    - Enriquecer cada aplicación con datos de la práctica para presentar información legible.
+
+  Dependencias:
+    - `useAuthStore` para obtener el usuario actual.
+    - `mockApi` para listar aplicaciones y prácticas.
+    - `EmptyState`, `LoadingSkeleton` y componentes UI para la presentación.
+
+  Consideraciones:
+    - Escucha el evento `talentbridge-data-updated` para recargar automáticamente cuando los datos cambian.
+    - Al migrar almacenamiento a JSONBin, actualizar `mockApi` para sincronizar correctamente.
+*/
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
@@ -26,6 +40,9 @@ interface ApplicationWithPractice extends Application {
 }
 
 export function ApplicationsPage() {
+  // Componente: ApplicationsPage
+  // - Renderiza una lista de aplicaciones del usuario y un resumen estadístico.
+  // - No recibe props; se basa en `useAuthStore` y llamadas a `mockApi`.
   const user = useAuthStore((state) => state.user)
   const [applications, setApplications] = useState<ApplicationWithPractice[]>([])
   const [loading, setLoading] = useState(true)
