@@ -1,5 +1,12 @@
 "use client"
 
+/*
+  Archivo: src/pages-backup/dashboard/student.tsx
+  Propósito:
+    - Dashboard para estudiantes con resumen de aplicaciones y recomendaciones.
+    - Carga las aplicaciones del estudiante y muestra prácticas recomendadas.
+*/
+
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Badge } from "../../components/ui/badge"
@@ -10,6 +17,8 @@ import { mockApi } from "../../mocks/api"
 import { useAuthStore } from "../../stores/auth-store"
 
 export function StudentDashboard() {
+  // Componente: StudentDashboard
+  // - Carga datos específicos del estudiante y los muestra en tarjetas y tablas.
   const user = useAuthStore((state) => state.user)
   const [applications, setApplications] = useState<Application[]>([])
   const [practices, setPractices] = useState<Practice[]>([])

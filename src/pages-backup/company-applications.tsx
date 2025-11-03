@@ -1,5 +1,20 @@
 "use client"
 
+/*
+  Archivo: src/pages-backup/company-applications.tsx
+  Propósito:
+    - Página para que empresas (y admins) gestionen las aplicaciones recibidas a sus prácticas.
+    - Carga prácticas, applications y usuarios; enriquece las applications con datos de práctica y applicant.
+
+  Comportamiento clave:
+    - Admins ven todas las prácticas y aplicaciones; empresas solo las que pertenecen a sus prácticas.
+    - Permite cambiar el estado de una aplicación (Aceptar/Rechazar) y abrir un chat con el candidato.
+    - Escucha el evento `talentbridge-data-updated` para recargar datos en tiempo real.
+
+  Nota:
+    - Esta versión usa `mockApi` (mocks/api). Al migrar a JSONBin, actualizar `mockApi` y conservar la lógica de recarga.
+*/
+
 import { useEffect, useState } from "react"
 import { Card, CardContent } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
@@ -25,6 +40,9 @@ interface ApplicationWithDetails extends Application {
 }
 
 export function CompanyApplicationsPage() {
+  // Componente: CompanyApplicationsPage
+  // - Maneja la carga y renderizado de aplicaciones para la empresa o el admin actual.
+  // - No recibe props; depende de `useAuthStore` y `mockApi`.
   const user = useAuthStore((state) => state.user)
   const [applications, setApplications] = useState<ApplicationWithDetails[]>([])
   const [practices, setPractices] = useState<Practice[]>([])

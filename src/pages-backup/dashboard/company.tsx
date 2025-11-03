@@ -1,9 +1,18 @@
 "use client"
 
+/*
+  Archivo: src/pages-backup/dashboard/company.tsx
+  Propósito:
+    - Dashboard de empresa: acciones y accesos rápidos para publicar ofertas y revisar candidatos.
+    - Mantiene enlaces internos (pushState) para navegación SPA.
+*/
+
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Button } from "../../components/ui/button"
 
 export function CompanyDashboard() {
+  // Componente: CompanyDashboard
+  // - Interfaz mínima para empresas; conectar con `mockApi` para obtener datos reales cuando sea necesario.
   return (
     <div className="space-y-6">
       <div>

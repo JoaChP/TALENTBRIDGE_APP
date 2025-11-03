@@ -1,5 +1,20 @@
 "use client"
 
+/*
+  Archivo: src/pages-backup/home.tsx
+  Propósito:
+    - Página principal (home) que muestra métricas summary y últimas prácticas.
+    - Presenta acciones rápidas según el rol del usuario (publicar, ver postulaciones, buscar).
+
+  Dependencias:
+    - `useAuthStore` para obtener el usuario actual.
+    - `mockApi` para obtener las prácticas.
+    - `useCounts` para mostrar métricas resumidas.
+
+  Notas:
+    - Mantener la navegación con `history.pushState` para la experiencia SPA interna.
+*/
+
 import { useEffect, useState } from "react"
 import { PracticeCard } from "../components/practice-card"
 import { LoadingSkeleton } from "../components/loading-skeleton"
@@ -9,6 +24,9 @@ import { useAuthStore } from "../stores/auth-store"
 import { useCounts } from "../hooks/use-counts"
 
 export function HomePage() {
+  // Componente: HomePage
+  // - Renderiza el dashboard inicial con métricas y lista de prácticas.
+  // - No recibe props; depende de hooks y `mockApi`.
   const [practices, setPractices] = useState<Practice[]>([])
   const [loading, setLoading] = useState(true)
   const user = useAuthStore((s) => s.user)

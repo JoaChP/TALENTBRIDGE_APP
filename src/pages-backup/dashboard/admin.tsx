@@ -1,6 +1,15 @@
+/*
+  Archivo: src/pages-backup/dashboard/admin.tsx
+  Propósito:
+    - Dashboard sencillo para administradores donde se muestran métricas rápidas y opciones de moderación.
+    - Es estático en esta copia de respaldo; reemplazar por datos reales cuando el API esté disponible.
+*/
+
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 
 export function AdminDashboard() {
+  // Componente: AdminDashboard
+  // - Presenta métricas resumidas (usuarios, prácticas, aplicaciones) y panel de moderación.
   return (
     <div className="space-y-6">
       <div>
