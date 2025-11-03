@@ -1,3 +1,4 @@
+// Componente que muestra un estado vacío con título, descripción y acción opcional
 "use client"
 
 import { Search } from "lucide-react"
@@ -12,6 +13,7 @@ interface EmptyStateProps {
   }
 }
 
+// Componente exportado: EmptyState
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">

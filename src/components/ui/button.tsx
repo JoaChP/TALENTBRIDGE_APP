@@ -1,3 +1,14 @@
+/*
+  Archivo: src/components/ui/button.tsx
+  Propósito:
+    - Proveer un componente Button reutilizable con variantes de estilo y tamaños.
+    - Centraliza las clases CSS y variantes (default, outline, ghost, link, destructive) para mantener consistencia UI.
+
+  Uso:
+    - Importar `{ Button }` y usar props estándar de HTMLButtonElement.
+    - Opcionalmente suministrar `variant` y `size` para ajustar apariencia.
+*/
+
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
@@ -6,6 +17,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: "default" | "sm" | "lg" | "icon"
 }
 
+// Componente principal exportado: Button
+// - Renderiza un botón estilizado. Acepta props nativos y se forwardea la ref.
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     return (

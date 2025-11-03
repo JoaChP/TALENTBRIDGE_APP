@@ -1,6 +1,8 @@
+// Componente Label: etiqueta asociada a inputs
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
+// Componente principal exportado: Label
 const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
   ({ className, ...props }, ref) => (
     <label

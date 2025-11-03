@@ -1,3 +1,10 @@
+/*
+  Archivo: src/components/ui/badge.tsx
+  Propósito:
+    - Componente Badge (etiqueta) pequeño para mostrar estados, categorías o counts.
+    - Soporta variantes (`default`, `secondary`, `outline`) para distintas apariencias.
+*/
+
 import type * as React from "react"
 import { cn } from "../../lib/utils"
 
@@ -5,6 +12,8 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "secondary" | "outline"
 }
 
+// Componente principal exportado: Badge
+// - Renderiza un contenedor inline-flex con estilos según `variant`.
 function Badge({ className, variant = "default", ...props }: BadgeProps) {
   return (
     <div

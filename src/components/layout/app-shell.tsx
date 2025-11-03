@@ -1,3 +1,5 @@
+// AppShell compone la estructura de la aplicación: TopBar, Sidebar,
+// área principal (children) y TabBar (móvil).
 import { memo } from "react"
 import { TopBar } from "./top-bar"
 import { TabBar } from "./tab-bar"
@@ -7,7 +9,9 @@ interface AppShellProps {
   children: React.ReactNode
 }
 
-// Memoize AppShell to prevent unnecessary re-renders
+// Componente exportado: AppShell
+// Inputs: children (contenido de la página)
+// Render: TopBar, Sidebar, main + TabBar
 export const AppShell = memo(function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">

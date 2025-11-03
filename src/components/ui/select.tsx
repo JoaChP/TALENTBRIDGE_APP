@@ -1,9 +1,18 @@
+/*
+  Archivo: src/components/ui/select.tsx
+  Propósito:
+    - Componente Select estilizado que incluye un icono indicando el desplegable.
+    - Encapsula estilos y comportamiento accesible para selects en el proyecto.
+*/
+
 import * as React from "react"
 import { ChevronDown } from "lucide-react"
 import { cn } from "../../lib/utils"
 
 type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement>
 
+// Componente principal exportado: Select
+// - Forward-ref de un elemento select envuelto con un icono posicionado.
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({ className, children, ...props }, ref) => {
   return (
     <div className="relative">

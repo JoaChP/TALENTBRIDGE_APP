@@ -1,3 +1,5 @@
+// Punto de entrada para la versión cliente (SPA) de la app.
+// Import dinámico para evitar SSR y ejecutar solo en el navegador.
 "use client"
 
 import dynamic from "next/dynamic"

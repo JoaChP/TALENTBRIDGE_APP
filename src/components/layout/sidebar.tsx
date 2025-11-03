@@ -1,3 +1,5 @@
+// Sidebar: navegación lateral fija para pantallas grandes (desktop).
+// Contiene rutas filtradas por rol y un botón de cerrar sesión.
 "use client"
 
 import { useEffect, useState } from "react"
@@ -17,6 +19,8 @@ const navItems = [
   { to: "/profile", icon: User, label: "Perfil" },
 ]
 
+// Componente exportado: Sidebar
+// Renderiza enlaces filtrados por rol y gestiona la navegación SPA.
 export function Sidebar() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)

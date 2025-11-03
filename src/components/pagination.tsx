@@ -1,3 +1,4 @@
+// Componente de paginación simple: botones anterior/siguiente y números opcionales
 "use client"
 
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -11,6 +12,8 @@ interface PaginationProps {
   showNumbers?: boolean
 }
 
+// Componente exportado: Pagination
+// Props: currentPage, totalPages, onPageChange, showNumbers
 export function Pagination({ currentPage, totalPages, onPageChange, showNumbers = true }: PaginationProps) {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
 

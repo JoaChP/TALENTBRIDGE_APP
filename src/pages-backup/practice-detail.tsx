@@ -1,5 +1,15 @@
 "use client"
 
+/*
+  Archivo: src/pages-backup/practice-detail.tsx
+  Propósito:
+    - Mostrar detalles completos de una práctica identificada por la ruta `/oferta/:id`.
+    - Permitir que un estudiante aplique a la práctica y mostrar estado de postulación.
+
+  Comportamiento:
+    - Intenta primero consultar `/api/practices?id=...` (fuente principal); si falla, usa `mockApi` como fallback.
+    - Verifica si el usuario ya aplicó para evitar postulaciones duplicadas.
+*/
 import { useEffect, useState } from "react"
 import { MapPin, Clock, Briefcase, Users, ChevronLeft } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
@@ -13,6 +23,8 @@ import { toast } from "sonner"
 import Image from "next/image"
 
 export function PracticeDetailPage() {
+  // Componente: PracticeDetailPage
+  // - Carga la práctica por ID (fallback a mockApi) y permite aplicar cuando el usuario es estudiante.
   const user = useAuthStore((state) => state.user)
   const [practice, setPractice] = useState<Practice | null>(null)
   const [loading, setLoading] = useState(true)

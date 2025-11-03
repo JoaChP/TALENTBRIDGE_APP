@@ -1,5 +1,15 @@
 "use client"
 
+/*
+  Archivo: src/pages-backup/login.tsx
+  Propósito:
+    - Proveer la interfaz de inicio de sesión para usuarios (demo y reales).
+    - Manejar validación de formulario con zod y react-hook-form, e invocar `login` del store.
+
+  Notas:
+    - Muestra credenciales demo para facilitar pruebas locales.
+    - Redirige a `/` tras login exitoso.
+*/
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -19,6 +29,9 @@ const loginSchema = z.object({
 type LoginData = z.infer<typeof loginSchema>
 
 export function LoginPage() {
+  // Componente: LoginPage
+  // - Formulario controlado con react-hook-form + validación zod.
+  // - Usa `useAuthStore` para llamar a `login`.
   const login = useAuthStore((state) => state.login)
   const [loading, setLoading] = useState(false)
 

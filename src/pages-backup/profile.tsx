@@ -1,5 +1,15 @@
 "use client"
 
+/*
+  Archivo: src/pages-backup/profile.tsx
+  Propósito:
+    - Interfaz para ver y editar el perfil del usuario actual.
+    - Permite actualizar avatar (previsualización), nombre, teléfono y 'about'.
+
+  Consideraciones:
+    - Usa `useAuthStore` para leer/actualizar estado de usuario.
+    - Validaciones simples en cliente (tipo/tamaño de imagen) antes de aplicar cambios.
+*/
 import { useState } from "react"
 import { Mail, Phone, Edit, LogOut, Camera } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
@@ -13,6 +23,8 @@ import Image from "next/image"
 import { toast } from "sonner"
 
 export function ProfilePage() {
+  // Componente: ProfilePage
+  // - Presenta información del usuario y un diálogo modal para editar campos.
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const updateProfile = useAuthStore((state) => state.updateProfile)

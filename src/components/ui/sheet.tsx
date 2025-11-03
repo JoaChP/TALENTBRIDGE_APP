@@ -1,3 +1,4 @@
+// Componente lateral (sheet) para mostrar paneles deslizados (cliente)
 "use client"
 
 import * as React from "react"
@@ -11,6 +12,7 @@ interface SheetProps {
   side?: "left" | "right" | "top" | "bottom"
 }
 
+// Componente principal exportado: Sheet
 const Sheet = ({ open, onOpenChange, children, side = "right" }: SheetProps) => {
   if (!open) return null
 

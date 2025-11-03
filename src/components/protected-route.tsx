@@ -1,3 +1,4 @@
+// ProtectedRoute: redirige a /login si no hay usuario autenticado
 "use client"
 
 import { useEffect } from "react"
@@ -7,6 +8,8 @@ interface ProtectedRouteProps {
   children: React.ReactNode
 }
 
+// Componente exportado: ProtectedRoute
+// Comportamiento: no renderiza children y redirige si no hay user
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const user = useAuthStore((state) => state.user)
 
@@ -16,7 +19,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
   }, [user])
 
-  // Don't render anything if not authenticated
+  // No renderizar si no autenticado
   if (!user) {
     return null
   }
