@@ -1,10 +1,20 @@
-// Componente input estilizado (input de texto estándar)
+/*
+  Archivo: src/components/ui/input.tsx
+  Propósito:
+    - Input estilizado reutilizable para entradas de texto.
+    - Centraliza clases accesibles (focus, disabled, dark mode) y permite pasar props nativos.
+
+  Uso:
+    - Importar `{ Input }` y usar como un `input` normal.
+*/
+
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement>
 
 // Componente principal exportado: Input
+// - Forward-ref de un elemento input con las clases del diseño de la UI.
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, ...props }, ref) => {
   return (
     <input

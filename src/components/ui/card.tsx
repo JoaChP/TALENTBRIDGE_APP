@@ -1,8 +1,15 @@
-// Contenedores de tarjeta reutilizables (Card, Header, Title, Content)
+/*
+  Archivo: src/components/ui/card.tsx
+  Propósito:
+    - Proveer componentes de contenedor (Card) y subcomponentes estructurales (Header, Title, Content).
+    - Establecer una estructura consistente de tarjetas con estilos reutilizables.
+*/
+
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
 // Componentes exportados: Card y subcomponentes para estructura
+// - `Card` es el contenedor principal; `CardHeader`, `CardTitle`, `CardContent` facilitan la composición.
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
   <div
     ref={ref}
