@@ -1,3 +1,6 @@
+// TopBar: header superior con búsqueda rápida y toggle de tema.
+// - Presiona '/' para enfocar la búsqueda.
+// - Muestra el logo y controla navegación SPA al inicio.
 "use client"
 
 import { Search, Sun, Moon } from "lucide-react"
@@ -7,6 +10,8 @@ import { useEffect, useRef } from "react"
 import { useTheme } from "next-themes"
 import * as React from "react"
 
+// Componente exportado: TopBar
+// Comportamiento: enfocar búsqueda con '/', cambiar tema y navegación al inicio.
 export function TopBar() {
   const searchRef = useRef<HTMLInputElement>(null)
   const { theme, setTheme } = useTheme()
