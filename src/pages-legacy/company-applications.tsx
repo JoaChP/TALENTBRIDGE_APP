@@ -166,9 +166,13 @@ export default function CompanyApplicationsPage() {
 																						{app.status !== "Aceptada" && (
 																								<IconButton color="rose" variant="default" label="Eliminar" onClick={() => handleDelete(app.id)} disabled={operationInProgress} icon={<Trash2 className="h-4 w-4" />} />
 																						)}
-																							<IconButton color="slate" variant="outline" label="Revisando" onClick={() => handleChangeStatus(app.id, 'review')} disabled={operationInProgress} icon={<ChevronRight className="h-4 w-4" />} />
-																						<IconButton color="teal" variant="default" label="Aceptar" onClick={() => handleChangeStatus(app.id, 'accept')} disabled={operationInProgress} icon={<Check className="h-4 w-4" />} />
-																						<IconButton color="rose" variant="default" label="Rechazar" onClick={() => handleChangeStatus(app.id, 'reject')} disabled={operationInProgress} icon={<X className="h-4 w-4" />} />
+																							{(app.status === "Enviada" || app.status === "Revisando") ? (
+																								<div className="flex gap-2">
+																									<IconButton color="slate" variant="outline" label="Revisando" onClick={() => handleChangeStatus(app.id, 'review')} disabled={operationInProgress} icon={<ChevronRight className="h-4 w-4" />} />
+																									<IconButton color="teal" variant="default" label="Aceptar" onClick={() => handleChangeStatus(app.id, 'accept')} disabled={operationInProgress} icon={<Check className="h-4 w-4" />} />
+																									<IconButton color="rose" variant="default" label="Rechazar" onClick={() => handleChangeStatus(app.id, 'reject')} disabled={operationInProgress} icon={<X className="h-4 w-4" />} />
+																								</div>
+																							) : null}
 										</div>
 									</div>
 								)
