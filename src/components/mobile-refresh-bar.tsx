@@ -1,6 +1,6 @@
 // Envoltorio para mostrar RefreshBar solo en móviles
 import React from "react"
-import { useIsMobile } from "../../components/ui/use-mobile"
+import { useIsMobile } from "../../hooks/use-mobile"
 import { RefreshBar } from "./refresh-bar"
 
 interface MobileRefreshBarProps {

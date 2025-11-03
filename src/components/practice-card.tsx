@@ -21,7 +21,7 @@ export function PracticeCard({ practice }: PracticeCardProps) {
   }
 
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-md">
+    <Card className="overflow-hidden transition-transform hover:shadow-lg hover:-translate-y-0.5">
       <CardContent className="p-6">
         <div className="flex gap-4">
           <Image
