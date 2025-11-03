@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
+import IconButton from "../components/ui/icon-button"
 import { Badge } from "../components/ui/badge"
 import { LoadingSkeleton } from "../components/loading-skeleton"
 import { mockApi } from "../mocks/api"
@@ -160,14 +161,14 @@ export default function CompanyApplicationsPage() {
 											<div className="text-xs text-zinc-600">{new Date(app.createdAt).toLocaleString()}</div>
 										</div>
 										<div className="flex items-center gap-2">
-											<Badge variant="secondary">{app.status}</Badge>
-											<Button variant="ghost" size="sm" onClick={() => handleCreateThread(app.practiceId, app.userId)} disabled={operationInProgress}><MessageSquare className="h-4 w-4" /></Button>
-											{app.status !== "Aceptada" && (
-												<Button variant="outline" size="sm" onClick={() => handleDelete(app.id)} disabled={operationInProgress}><Trash2 className="h-4 w-4" /></Button>
-											)}
-											  <Button variant="outline" size="sm" onClick={() => handleChangeStatus(app.id, 'review')} disabled={operationInProgress}>Revisando</Button>
-											<Button variant="outline" size="sm" onClick={() => handleChangeStatus(app.id, 'accept')} disabled={operationInProgress}><Check className="h-4 w-4" /></Button>
-											<Button variant="ghost" size="sm" onClick={() => handleChangeStatus(app.id, 'reject')} disabled={operationInProgress}><X className="h-4 w-4" /></Button>
+																						<Badge variant="secondary">{app.status}</Badge>
+																						<IconButton color="blue" variant="default" label="Mensaje" onClick={() => handleCreateThread(app.practiceId, app.userId)} disabled={operationInProgress} icon={<MessageSquare className="h-4 w-4" />} />
+																						{app.status !== "Aceptada" && (
+																								<IconButton color="rose" variant="default" label="Eliminar" onClick={() => handleDelete(app.id)} disabled={operationInProgress} icon={<Trash2 className="h-4 w-4" />} />
+																						)}
+																							<IconButton color="slate" variant="outline" label="Revisando" onClick={() => handleChangeStatus(app.id, 'review')} disabled={operationInProgress} icon={<ChevronRight className="h-4 w-4" />} />
+																						<IconButton color="teal" variant="default" label="Aceptar" onClick={() => handleChangeStatus(app.id, 'accept')} disabled={operationInProgress} icon={<Check className="h-4 w-4" />} />
+																						<IconButton color="rose" variant="default" label="Rechazar" onClick={() => handleChangeStatus(app.id, 'reject')} disabled={operationInProgress} icon={<X className="h-4 w-4" />} />
 										</div>
 									</div>
 								)

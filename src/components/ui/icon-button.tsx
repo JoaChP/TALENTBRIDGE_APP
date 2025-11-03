@@ -5,7 +5,7 @@ import { cn } from "../../lib/utils"
 export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: React.ReactNode
   label?: string
-  color?: "indigo" | "green" | "red" | "slate" | "yellow"
+  color?: "blue" | "teal" | "rose" | "slate" | "yellow"
   variant?: "default" | "outline" | "ghost" | "link" | "destructive"
 }
 
@@ -16,7 +16,7 @@ export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
  * - Keeps accessibility attributes and forwards the ref.
  */
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ icon, label, color = "indigo", className, variant = "default", ...props }, ref) => {
+  ({ icon, label, color = "blue", className, variant = "default", ...props }, ref) => {
     // Brand-friendly palette for IconButton
     const colorClasses: Record<string, string> = {
       blue: "bg-blue-600 text-white hover:bg-blue-700",

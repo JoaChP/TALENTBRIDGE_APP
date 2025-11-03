@@ -233,13 +233,13 @@ export function CompanyApplicationsPage() {
                       </div>
 
                       <div className="flex gap-2">
-                        <IconButton color="indigo" variant="default" label="Mensaje" onClick={() => handleStartChat(application)} aria-label="Enviar mensaje" icon={<MessageSquare className="h-4 w-4" />} />
+                        <IconButton color="blue" variant="default" label="Mensaje" onClick={() => handleStartChat(application)} aria-label="Enviar mensaje" icon={<MessageSquare className="h-4 w-4" />} />
                         <IconButton color="slate" variant="outline" label="Perfil" onClick={() => { window.history.pushState({}, "", `/user/${application.userId}`); window.dispatchEvent(new Event("popstate")) }} aria-label="Ver perfil" icon={<UserIcon className="h-4 w-4" />} />
 
                         {(application.status === "Enviada" || application.status === "Revisando") ? (
                           <div className="flex gap-2">
-                            <IconButton color="green" variant="default" label="Aceptar" onClick={() => handleUpdateStatus(application.id, "Aceptada")} aria-label="Aceptar" icon={<Check className="h-4 w-4" />} />
-                            <IconButton color="red" variant="default" label="Rechazar" onClick={() => handleUpdateStatus(application.id, "Rechazada")} aria-label="Rechazar" icon={<X className="h-4 w-4" />} />
+                            <IconButton color="teal" variant="default" label="Aceptar" onClick={() => handleUpdateStatus(application.id, "Aceptada")} aria-label="Aceptar" icon={<Check className="h-4 w-4" />} />
+                            <IconButton color="rose" variant="default" label="Rechazar" onClick={() => handleUpdateStatus(application.id, "Rechazada")} aria-label="Rechazar" icon={<X className="h-4 w-4" />} />
                           </div>
                         ) : null}
                       </div>
