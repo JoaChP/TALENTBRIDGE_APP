@@ -17,10 +17,11 @@ export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
  */
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ icon, label, color = "indigo", className, variant = "default", ...props }, ref) => {
+    // Brand-friendly palette for IconButton
     const colorClasses: Record<string, string> = {
-      indigo: "bg-indigo-600 text-white hover:bg-indigo-700",
-      green: "bg-green-600 text-white hover:bg-green-700",
-      red: "bg-red-600 text-white hover:bg-red-700",
+      blue: "bg-blue-600 text-white hover:bg-blue-700",
+      teal: "bg-teal-600 text-white hover:bg-teal-700",
+      rose: "bg-rose-600 text-white hover:bg-rose-700",
       slate: "bg-zinc-100 text-zinc-800 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700",
       yellow: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300",
     }
@@ -34,9 +35,9 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
 
     // Inline style fallback: use hex colors so buttons remain visible if Tailwind classes are purged
     const inlineColorMap: Record<string, { background?: string; color?: string; border?: string }> = {
-      indigo: { background: "#4f46e5", color: "#ffffff" }, // indigo-600
-      green: { background: "#16a34a", color: "#ffffff" }, // green-600
-      red: { background: "#dc2626", color: "#ffffff" }, // red-600
+      blue: { background: "#2563eb", color: "#ffffff" }, // blue-600
+      teal: { background: "#059669", color: "#ffffff" }, // teal-600
+      rose: { background: "#e11d48", color: "#ffffff" }, // rose-600
       slate: { background: "#f1f5f9", color: "#0f172a", border: "#e2e8f0" }, // zinc-100
       yellow: { background: "#fef3c7", color: "#92400e" }, // yellow-100
     }
@@ -49,7 +50,10 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
 
     return (
       <Button ref={ref} size="sm" variant={variant} className={mergedClass} style={inlineStyle as any} {...props}>
-        <span className="flex items-center">{icon}</span>
+        <span className="flex items-center">
+          {/* Slightly larger icon for better visibility */}
+          <span className="h-5 w-5 flex items-center justify-center">{icon}</span>
+        </span>
         {label ? <span className="hidden sm:inline">{label}</span> : null}
       </Button>
     )
