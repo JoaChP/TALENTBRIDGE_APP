@@ -156,13 +156,20 @@ export default function CompanyApplicationsPage() {
 								const applicant = findUser(app.userId)
 								return (
 									<div key={app.id} className="flex items-center justify-between p-3 border rounded">
-										<div>
-											<div className="font-medium">{applicant?.name || app.userId} <span className="text-xs text-zinc-500">· {practice?.title}</span></div>
-											<div className="text-xs text-zinc-600">{new Date(app.createdAt).toLocaleString()}</div>
-										</div>
+                                            <div>
+                                            	<div className="font-medium">{applicant?.name || app.userId} <span className="text-xs text-zinc-500">· {practice?.title}</span></div>
+                                            	<div className="text-xs text-zinc-600">{new Date(app.createdAt).toLocaleString()}</div>
+                                            	{practice?.company?.name && (
+                                            		<div className="text-xs text-zinc-500 mt-1">{practice.company.name}</div>
+                                            	)}
+                                            </div>
 										<div className="flex items-center gap-2">
 																						<Badge variant="secondary">{app.status}</Badge>
 																						<IconButton color="blue" variant="default" label="Mensaje" onClick={() => handleCreateThread(app.practiceId, app.userId)} disabled={operationInProgress} icon={<MessageSquare className="h-4 w-4" />} />
+																						{/* View practice detail */}
+																						{practice && (
+																							<IconButton color="slate" variant="outline" label="Ver vacante" onClick={() => { window.location.href = `/oferta/${practice.id}` }} aria-label="Ver vacante" icon={<ChevronRight className="h-4 w-4" />} />
+																						)}
 																						{app.status !== "Aceptada" && (
 																								<IconButton color="rose" variant="default" label="Eliminar" onClick={() => handleDelete(app.id)} disabled={operationInProgress} icon={<Trash2 className="h-4 w-4" />} />
 																						)}

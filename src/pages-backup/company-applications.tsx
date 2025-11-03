@@ -25,7 +25,7 @@ import { EmptyState } from "../components/empty-state"
 import type { Application, Practice, User, ApplicationStatus } from "../types"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
-import { User as UserIcon, MessageSquare, ChevronLeft, Check, X } from "lucide-react"
+import { User as UserIcon, MessageSquare, ChevronLeft, ChevronRight, Check, X } from "lucide-react"
 import { RefreshBar } from "../components/refresh-bar"
 import { toast } from "sonner"
 
@@ -234,6 +234,8 @@ export function CompanyApplicationsPage() {
 
                       <div className="flex gap-2">
                         <IconButton color="blue" variant="default" label="Mensaje" onClick={() => handleStartChat(application)} aria-label="Enviar mensaje" icon={<MessageSquare className="h-4 w-4" />} />
+                        {/* Ver vacante */}
+                        <IconButton color="slate" variant="outline" label="Ver vacante" onClick={() => { window.location.href = `/oferta/${application.practice?.id}` }} aria-label="Ver vacante" icon={<ChevronRight className="h-4 w-4" />} />
                         <IconButton color="slate" variant="outline" label="Perfil" onClick={() => { window.history.pushState({}, "", `/user/${application.userId}`); window.dispatchEvent(new Event("popstate")) }} aria-label="Ver perfil" icon={<UserIcon className="h-4 w-4" />} />
 
                         {(application.status === "Enviada" || application.status === "Revisando") ? (
