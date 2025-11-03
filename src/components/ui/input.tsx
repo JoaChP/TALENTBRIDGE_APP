@@ -1,8 +1,10 @@
+// Componente input estilizado (input de texto estándar)
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement>
 
+// Componente principal exportado: Input
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, ...props }, ref) => {
   return (
     <input

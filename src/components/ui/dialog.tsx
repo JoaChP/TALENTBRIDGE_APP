@@ -1,3 +1,4 @@
+// Componente de diálogo modal simple (cliente)
 "use client"
 
 import * as React from "react"
@@ -10,6 +11,7 @@ interface DialogProps {
   children: React.ReactNode
 }
 
+// Componente principal exportado: Dialog
 const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
   if (!open) return null
 

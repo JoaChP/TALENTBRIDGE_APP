@@ -1,3 +1,4 @@
+// Pequeña etiqueta (badge) para mostrar estados o counts
 import type * as React from "react"
 import { cn } from "../../lib/utils"
 
@@ -5,6 +6,7 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "secondary" | "outline"
 }
 
+// Componente principal exportado: Badge
 function Badge({ className, variant = "default", ...props }: BadgeProps) {
   return (
     <div

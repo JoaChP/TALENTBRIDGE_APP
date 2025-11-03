@@ -1,3 +1,4 @@
+// Componente de botón reutilizable: estilos y variantes comunes
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
@@ -6,6 +7,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: "default" | "sm" | "lg" | "icon"
 }
 
+// Componente principal exportado: Button
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     return (

@@ -1,9 +1,11 @@
+// Componente Select estilizado con icono desplegable
 import * as React from "react"
 import { ChevronDown } from "lucide-react"
 import { cn } from "../../lib/utils"
 
 type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement>
 
+// Componente principal exportado: Select
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({ className, children, ...props }, ref) => {
   return (
     <div className="relative">

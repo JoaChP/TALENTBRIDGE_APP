@@ -1,6 +1,8 @@
+// Contenedores de tarjeta reutilizables (Card, Header, Title, Content)
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
+// Componentes exportados: Card y subcomponentes para estructura
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
   <div
     ref={ref}

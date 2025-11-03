@@ -1,8 +1,10 @@
+// Componente Textarea estilizado (campo de texto multilínea)
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
 type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>
 
+// Componente principal exportado: Textarea
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, ...props }, ref) => {
   return (
     <textarea
