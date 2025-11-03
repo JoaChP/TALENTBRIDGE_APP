@@ -1,3 +1,4 @@
+// Panel de estudiante cliente: lista las postulaciones y muestra prácticas
 "use client"
 
 import { useState, useEffect } from "react"
@@ -13,6 +14,8 @@ import { mockApi } from "../mocks/api"
 import type { Application, Practice } from "../types"
 import { MapPin, Clock, Briefcase } from "lucide-react"
 
+// Componente exportado: StudentDashboardClient
+// Carga las aplicaciones del usuario, consulta detalles de prácticas y las renderiza
 export default function StudentDashboardClient() {
   const user = useAuthStore((state) => state.user)
   const router = useRouter()

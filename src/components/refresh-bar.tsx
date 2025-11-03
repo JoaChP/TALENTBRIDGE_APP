@@ -1,3 +1,4 @@
+// Barra de refresco reutilizable con botón y timestamp de última actualización
 import React from "react"
 import { Button } from "./ui/button"
 
@@ -8,6 +9,8 @@ interface RefreshBarProps {
   label?: string
 }
 
+// Componente exportado: RefreshBar
+// Props: onRefresh (acción), lastUpdate (fecha opcional), loading y label
 export function RefreshBar({ onRefresh, lastUpdate, loading, label = "Actualizar" }: RefreshBarProps) {
   return (
     <div className="flex items-center gap-4 mb-2">

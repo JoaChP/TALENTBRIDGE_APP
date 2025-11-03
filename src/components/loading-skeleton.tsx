@@ -1,5 +1,7 @@
+// Componente que muestra esqueletos de carga para listas de tarjetas
 import { Card, CardContent } from "./ui/card"
 
+// Componente exportado: LoadingSkeleton
 export function LoadingSkeleton() {
   return (
     <div className="space-y-4">

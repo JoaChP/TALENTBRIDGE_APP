@@ -1,3 +1,4 @@
+// RoleGate: controla acceso según roles permitidos y redirige si es necesario
 "use client"
 
 import { useEffect } from "react"
@@ -9,6 +10,8 @@ interface RoleGateProps {
   children: React.ReactNode
 }
 
+// Componente exportado: RoleGate
+// Si el usuario no tiene rol permitido redirige a /no-autorizado
 export function RoleGate({ allowedRoles, children }: RoleGateProps) {
   const user = useAuthStore((state) => state.user)
 

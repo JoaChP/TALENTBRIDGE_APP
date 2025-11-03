@@ -1,3 +1,4 @@
+// Tarjeta que muestra información resumida de una práctica
 "use client"
 
 import Image from "next/image"
@@ -11,6 +12,8 @@ interface PracticeCardProps {
   practice: Practice
 }
 
+// Componente exportado: PracticeCard
+// Muestra logo, título, tags y botón para ver detalles
 export function PracticeCard({ practice }: PracticeCardProps) {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
