@@ -27,13 +27,28 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
 
     const mergedClass = cn(
       "inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium shadow-sm transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-      // If variant is outline/ghost/link, don't force solid color
+      // If variant is default, prefer the Tailwind palette class; fallback handled by inline style below
       variant === "default" ? colorClasses[color] : undefined,
       className,
     )
 
+    // Inline style fallback: use hex colors so buttons remain visible if Tailwind classes are purged
+    const inlineColorMap: Record<string, { background?: string; color?: string; border?: string }> = {
+      indigo: { background: "#4f46e5", color: "#ffffff" }, // indigo-600
+      green: { background: "#16a34a", color: "#ffffff" }, // green-600
+      red: { background: "#dc2626", color: "#ffffff" }, // red-600
+      slate: { background: "#f1f5f9", color: "#0f172a", border: "#e2e8f0" }, // zinc-100
+      yellow: { background: "#fef3c7", color: "#92400e" }, // yellow-100
+    }
+
+    const inlineStyle = variant === "default" ? {
+      backgroundColor: inlineColorMap[color]?.background,
+      color: inlineColorMap[color]?.color,
+      borderColor: inlineColorMap[color]?.border,
+    } : undefined
+
     return (
-      <Button ref={ref} size="sm" variant={variant} className={mergedClass} {...props}>
+      <Button ref={ref} size="sm" variant={variant} className={mergedClass} style={inlineStyle as any} {...props}>
         <span className="flex items-center">{icon}</span>
         {label ? <span className="hidden sm:inline">{label}</span> : null}
       </Button>
