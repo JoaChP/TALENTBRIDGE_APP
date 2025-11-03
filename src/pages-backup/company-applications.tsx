@@ -24,7 +24,8 @@ import { EmptyState } from "../components/empty-state"
 import type { Application, Practice, User, ApplicationStatus } from "../types"
 import { mockApi } from "../mocks/api"
 import { useAuthStore } from "../stores/auth-store"
-import { Calendar, User as UserIcon, MessageSquare, ChevronLeft, Check, X } from "lucide-react"
+import { User as UserIcon, MessageSquare, ChevronLeft, Check, X } from "lucide-react"
+import { RefreshBar } from "../components/refresh-bar"
 import { toast } from "sonner"
 
 const STATUS_COLORS = {
@@ -47,6 +48,7 @@ export function CompanyApplicationsPage() {
   const [applications, setApplications] = useState<ApplicationWithDetails[]>([])
   const [practices, setPractices] = useState<Practice[]>([])
   const [loading, setLoading] = useState(true)
+  const [lastUpdate, setLastUpdate] = useState<Date | undefined>(undefined)
 
   const loadData = async () => {
     if (!user) return
@@ -95,6 +97,7 @@ export function CompanyApplicationsPage() {
       }))
 
       setApplications(enriched)
+      setLastUpdate(new Date())
     } catch (error) {
       console.error("Error loading applications:", error)
       toast.error("Error al cargar las aplicaciones")
@@ -154,25 +157,30 @@ export function CompanyApplicationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="flex items-center gap-4 mb-2">
-          <Button
-            variant="ghost"
-            onClick={() => window.history.back()}
-            aria-label="Volver"
-          >
-            <ChevronLeft className="h-5 w-5" />
-            <span className="hidden sm:inline">Atrás</span>
-          </Button>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-4 mb-2">
+            <Button
+              variant="ghost"
+              onClick={() => window.history.back()}
+              aria-label="Volver"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              <span className="hidden sm:inline">Atrás</span>
+            </Button>
+          </div>
+          <h1 className="text-3xl font-bold text-balance">
+            {user?.role === "admin" ? "Todas las Aplicaciones" : "Aplicaciones Recibidas"}
+          </h1>
+          <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
+            {user?.role === "admin" 
+              ? "Gestiona todas las solicitudes de estudiantes del sistema"
+              : "Gestiona las solicitudes de estudiantes para tus prácticas"}
+          </p>
         </div>
-        <h1 className="text-3xl font-bold text-balance">
-          {user?.role === "admin" ? "Todas las Aplicaciones" : "Aplicaciones Recibidas"}
-        </h1>
-        <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-pretty">
-          {user?.role === "admin" 
-            ? "Gestiona todas las solicitudes de estudiantes del sistema"
-            : "Gestiona las solicitudes de estudiantes para tus prácticas"}
-        </p>
+        <div className="flex-shrink-0">
+          <RefreshBar onRefresh={loadData} lastUpdate={lastUpdate} loading={loading} />
+        </div>
       </div>
 
       {practices.length === 0 ? (
@@ -200,108 +208,44 @@ export function CompanyApplicationsPage() {
             if (!application.practice || !application.applicant) return null
 
             return (
-              <Card
-                key={application.id}
-                className="overflow-hidden hover:shadow-md transition-shadow"
-              >
-                <CardContent className="p-6">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                    <div className="flex-1 space-y-3">
+              <Card key={application.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-start gap-4">
+                      <div className="h-12 w-12 rounded-lg overflow-hidden bg-zinc-50">
+                        <img src={application.applicant.avatarUrl || "/placeholder.svg"} alt={application.applicant.name} className="h-full w-full object-cover" />
+                      </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-balance">
-                          {application.practice.title}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                          <UserIcon className="h-4 w-4" />
-                          <span>{application.applicant.name}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap gap-3 text-sm text-zinc-600 dark:text-zinc-400">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          <span>
-                            Aplicó:{" "}
-                            {new Date(application.createdAt).toLocaleDateString(
-                              "es-ES"
-                            )}
-                          </span>
-                        </div>
-                      </div>
-
-                      {application.applicant.about && (
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
-                          {application.applicant.about}
-                        </p>
-                      )}
-
-                      <div className="flex flex-wrap gap-2">
-                        <Badge className={STATUS_COLORS[application.status]}>
-                          {application.status}
-                        </Badge>
+                        <h3 className="text-lg font-semibold text-balance">{application.applicant.name}</h3>
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400">{application.practice.title} · {application.practice.company.name}</p>
+                        <p className="mt-1 text-xs text-zinc-500">Aplicó: {new Date(application.createdAt).toLocaleDateString("es-ES")}</p>
+                        {application.applicant.about && <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">{application.applicant.about}</p>}
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2 md:w-auto w-full">
-                      <Button
-                        variant="default"
-                        className="w-full"
-                        onClick={() => handleStartChat(application)}
-                      >
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        Enviar mensaje
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => {
-                          console.log("Ver perfil clicked, userId:", application.userId)
-                          console.log("Full application:", application)
-                          window.history.pushState({}, "", `/user/${application.userId}`)
-                          window.dispatchEvent(new Event("popstate"))
-                        }}
-                      >
-                        Ver perfil
-                      </Button>
-                      
-                      {/* Botones de aceptar/rechazar solo para aplicaciones pendientes */}
-                      {(application.status === "Enviada" || application.status === "Revisando") && (
-                        <div className="flex gap-2 w-full">
-                          <Button
-                            variant="default"
-                            size="sm"
-                            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                            onClick={() => handleUpdateStatus(application.id, "Aceptada")}
-                          >
-                            <Check className="mr-2 h-4 w-4" />
-                            Aceptar
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            className="flex-1"
-                            onClick={() => handleUpdateStatus(application.id, "Rechazada")}
-                          >
-                            <X className="mr-2 h-4 w-4" />
-                            Rechazar
-                          </Button>
-                        </div>
-                      )}
-                      
-                      {/* Mostrar estado final para aplicaciones ya procesadas */}
-                      {(application.status === "Aceptada" || application.status === "Rechazada") && (
-                        <div className="w-full p-2 rounded-md text-center text-sm font-medium">
-                          {application.status === "Aceptada" ? (
-                            <span className="text-green-700 bg-green-50 px-3 py-1 rounded-full">
-                              ✅ Aplicación Aceptada
-                            </span>
-                          ) : (
-                            <span className="text-red-700 bg-red-50 px-3 py-1 rounded-full">
-                              ❌ Aplicación Rechazada
-                            </span>
-                          )}
-                        </div>
-                      )}
+                    <div className="mt-3 md:mt-0 flex items-center gap-3">
+                      <div className="flex flex-col items-end gap-2 mr-2">
+                        <Badge className={STATUS_COLORS[application.status]}>{application.status}</Badge>
+                        {(application.status === "Aceptada" || application.status === "Rechazada") && (
+                          <span className={`text-sm font-medium ${application.status === "Aceptada" ? "text-green-700" : "text-red-700"}`}>{application.status === "Aceptada" ? "✅ Aceptada" : "❌ Rechazada"}</span>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => handleStartChat(application)} aria-label="Enviar mensaje">
+                          <MessageSquare className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => { window.history.pushState({}, "", `/user/${application.userId}`); window.dispatchEvent(new Event("popstate")) }} aria-label="Ver perfil">
+                          <UserIcon className="h-4 w-4" />
+                        </Button>
+
+                        {(application.status === "Enviada" || application.status === "Revisando") ? (
+                          <div className="flex gap-2">
+                            <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleUpdateStatus(application.id, "Aceptada")} aria-label="Aceptar"><Check className="h-4 w-4" /></Button>
+                            <Button variant="destructive" size="sm" onClick={() => handleUpdateStatus(application.id, "Rechazada")} aria-label="Rechazar"><X className="h-4 w-4" /></Button>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
