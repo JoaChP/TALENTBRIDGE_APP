@@ -1,5 +1,7 @@
 "use client"
 
+// Página: User Profile (backup)
+// Carga y muestra el perfil público de un usuario por ID en la URL.
 import { useEffect, useState } from "react"
 import { Card, CardContent } from "../components/ui/card"
 import { Button } from "../components/ui/button"

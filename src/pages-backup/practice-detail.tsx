@@ -1,5 +1,7 @@
 "use client"
 
+// Página: Practice Detail (backup)
+// Muestra información completa de una práctica por ID y permite aplicar.
 import { useEffect, useState } from "react"
 import { MapPin, Clock, Briefcase, Users, ChevronLeft } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"

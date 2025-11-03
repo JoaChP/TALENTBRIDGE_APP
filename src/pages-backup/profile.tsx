@@ -1,5 +1,7 @@
 "use client"
 
+// Página: Profile (backup)
+// Página para que el usuario vea y edite su perfil (cliente).
 import { useState } from "react"
 import { Mail, Phone, Edit, LogOut, Camera } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"

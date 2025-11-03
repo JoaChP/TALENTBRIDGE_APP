@@ -1,5 +1,6 @@
 "use client"
 
+// Página que muestra mensaje de acceso no autorizado
 import { useRouter } from "next/navigation"
 import { ShieldAlert } from "lucide-react"
 import { Button } from "../components/ui/button"

@@ -1,5 +1,7 @@
 "use client"
 
+// Página: Applications
+// Lista las solicitudes del usuario y permite ver detalles / enviar mensajes.
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"

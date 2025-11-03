@@ -1,3 +1,4 @@
+// App custom para el backup: recarga datos desde localStorage tras hidratar
 import type { AppProps } from 'next/app'
 import { useEffect, useState } from 'react'
 import '../../app/globals.css'

@@ -1,5 +1,7 @@
 "use client"
 
+// Página: Search (backup)
+// Búsqueda y filtrado de prácticas con paginación y filtros opcionales.
 import { useState, useEffect } from "react"
 import { Filter, X } from "lucide-react"
 import { PracticeCard } from "../components/practice-card"

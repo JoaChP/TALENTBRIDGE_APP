@@ -1,5 +1,7 @@
 "use client"
 
+// Página: Publish (backup)
+// Formulario para que empresas publiquen una nueva práctica.
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"

@@ -1,5 +1,7 @@
 "use client"
 
+// Página: Messages (backup)
+// Lista hilos y muestra mensajes; permite enviar mensajes dentro de un hilo.
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { Send, ChevronLeft } from "lucide-react"

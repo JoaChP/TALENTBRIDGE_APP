@@ -1,5 +1,7 @@
 "use client"
 
+// Página: Login (backup)
+// Formulario de inicio de sesión para usuarios demo y reales.
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
