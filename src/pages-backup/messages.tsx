@@ -1,7 +1,30 @@
 "use client"
 
-// Página: Messages (backup)
-// Lista hilos y muestra mensajes; permite enviar mensajes dentro de un hilo.
+/*
+  Archivo: src/pages-backup/messages.tsx
+  Propósito:
+    - Implementa la UI de mensajería (backup) usada para listar hilos y ver conversaciones.
+    - Mantiene dos responsabilidades principales: (1) listar threads y navegar a una conversación;
+      y (2) mostrar la conversación seleccionada, permitir envío de mensajes y restauración de datos.
+
+  Componentes exportados:
+    - MessagesPage: lista hilos disponibles para el usuario actual y permite navegar a /messages/:id.
+    - ConversationView: vista de un hilo (mensajes, envío, permisos y reparación automática de datos).
+
+  Entradas/Dependencias:
+    - Usa `useAuthStore` para obtener `user` (shape esperado: { id, role }).
+    - Usa `mockApi` para operar sobre threads y messages (listThreads, getThread, listMessages, sendMessage).
+    - Muestra notificaciones via `sonner` (toast) y usa navegación con `window.location`/`history`.
+
+  Efectos secundarios y consideraciones:
+    - Verifica permisos según `user.role` (admin, empresa, estudiante) antes de exponer datos.
+    - Si no hay datos locales en el cliente, intenta restaurar desde `/api/data` y guarda en localStorage.
+    - Este archivo es una copia de respaldo; si se migra el backend a JSONBin, actualizar las llamadas a `mockApi` y la lógica de "tryRepair".
+
+  Notas de mantenimiento:
+    - Mantener la separación entre la lista de hilos y la vista de conversación facilita migraciones.
+    - Para cambios grandes, prefiera extraer la lógica de permisos a helpers reutilizables.
+*/
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { Send, ChevronLeft } from "lucide-react"
@@ -16,6 +39,9 @@ import { useAuthStore } from "../stores/auth-store"
 import { toast } from "sonner"
 
 export function MessagesPage() {
+  // Componente: MessagesPage
+  // - Renderiza la lista de hilos (threads) a los que el usuario tiene acceso.
+  // - No recibe props; depende del estado global de `useAuthStore`.
   const user = useAuthStore((state) => state.user)
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
@@ -132,6 +158,10 @@ export async function getServerSideProps() {
 }
 
 function ConversationView({ threadId }: { threadId: string }) {
+  // Componente: ConversationView
+  // - Carga thread y mensajes para `threadId`.
+  // - Verifica permisos (admin/empresa/estudiante) antes de exponer contenido.
+  // - Permite enviar mensajes usando `mockApi.sendMessage` y reintenta restaurar datos desde /api/data si falta información.
   const user = useAuthStore((state) => state.user)
   const [thread, setThread] = useState<Thread | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
