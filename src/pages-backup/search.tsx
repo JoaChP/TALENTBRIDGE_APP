@@ -1,7 +1,15 @@
 "use client"
 
-// Página: Search (backup)
-// Búsqueda y filtrado de prácticas con paginación y filtros opcionales.
+/*
+  Archivo: src/pages-backup/search.tsx
+  Propósito:
+    - Interfaz de búsqueda y filtrado de prácticas con paginación y filtros avanzados.
+    - Soporta filtros por texto, ubicación, modalidad, duración y habilidades.
+
+  Comportamiento:
+    - Intenta primero obtener datos desde `/api/practices`; si falla, recurre a `mockApi`.
+    - Mantiene un panel de filtros (Sheet) para filtrado avanzado y soporta paginación.
+*/
 import { useState, useEffect } from "react"
 import { Filter, X } from "lucide-react"
 import { PracticeCard } from "../components/practice-card"
@@ -34,6 +42,8 @@ const SKILLS: Skill[] = [
 ]
 
 export function SearchPage() {
+  // Componente: SearchPage
+  // - Maneja estado de filtros, carga de prácticas y muestra resultados paginados.
   const [practices, setPractices] = useState<Practice[]>([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)

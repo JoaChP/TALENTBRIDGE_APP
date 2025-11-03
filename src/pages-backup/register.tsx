@@ -1,7 +1,15 @@
 "use client"
 
-// Página: Register (backup)
-// Formulario para crear una cuenta nueva (estudiante/empresa/admin).
+/*
+  Archivo: src/pages-backup/register.tsx
+  Propósito:
+    - Formulario para registro de nuevos usuarios en el sistema (estudiante/empresa/admin).
+    - Valida campos con zod y crea la cuenta vía `useAuthStore.register`.
+
+  Notas:
+    - Muestra credenciales por rol y redirige a `/` tras un registro exitoso.
+    - Usar este backup solo para pruebas locales; al migrar a JSONBin, asegurar que el store persista correctamente.
+*/
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -25,6 +33,8 @@ const registerSchema = z.object({
 type RegisterData = z.infer<typeof registerSchema>
 
 export function RegisterPage() {
+  // Componente: RegisterPage
+  // - Formulario controlado con react-hook-form y validación zod.
   const register = useAuthStore((state) => state.register)
   const [loading, setLoading] = useState(false)
 

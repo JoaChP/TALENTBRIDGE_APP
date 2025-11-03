@@ -1,7 +1,15 @@
 "use client"
 
-// Página: User Profile (backup)
-// Carga y muestra el perfil público de un usuario por ID en la URL.
+/*
+  Archivo: src/pages-backup/user-profile.tsx
+  Propósito:
+    - Mostrar el perfil público de un usuario identificado por la ruta `/user/:id`.
+    - Permite iniciar conversaciones con candidatos cuando existe una aplicación relacionada.
+
+  Notas:
+    - Usa `mockApi` para listar usuarios y aplicaciones (backup local).
+    - Maneja casos donde no se encuentra el usuario y muestra mensajes apropiados.
+*/
 import { useEffect, useState } from "react"
 import { Card, CardContent } from "../components/ui/card"
 import { Button } from "../components/ui/button"
@@ -14,6 +22,8 @@ import { toast } from "sonner"
 import { useAuthStore } from "../stores/auth-store"
 
 export function UserProfilePage() {
+  // Componente: UserProfilePage
+  // - Carga y renderiza el perfil público; ofrece acción para iniciar chat si procede.
   const currentUser = useAuthStore((state) => state.user)
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)

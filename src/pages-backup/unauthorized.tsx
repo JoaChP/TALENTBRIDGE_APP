@@ -1,6 +1,12 @@
 "use client"
 
-// Página que muestra mensaje de acceso no autorizado
+/*
+  Archivo: src/pages-backup/unauthorized.tsx
+  Propósito:
+    - Mostrar una página informativa cuando el usuario intenta acceder a una ruta que requiere permisos.
+    - Proveer un CTA para volver al inicio o contacto con el administrador.
+*/
+
 import { useRouter } from "next/navigation"
 import { ShieldAlert } from "lucide-react"
 import { Button } from "../components/ui/button"
